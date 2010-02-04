@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="lib" path="lib/ardor-animation-0.7-beta.jar" sourcepath="/ardor3d-animation/src"/>
+	<classpathentry kind="lib" path="lib/ardor-core-0.7-beta.jar" sourcepath="/ardor3d-core/src/main/java"/>
+	<classpathentry kind="lib" path="lib/google-collect-1.0-rc1.jar"/>
+	<classpathentry kind="lib" path="lib/jdom.jar"/>
+	<classpathentry kind="lib" path="lib/jaxen.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/ardor3d-collada"/>
+	<classpathentry kind="lib" path="/jme/lib/jme-model.jar"/>
+	<classpathentry kind="lib" path="/jme/lib/jme.jar" sourcepath="/jme/src"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/jme"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="lib/jpct._1.21_beta3.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
