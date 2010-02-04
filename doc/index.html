@@ -1,0 +1,54 @@
+<html>
+    <head>
+        <title>Bones - skeletal animation for jPCT</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+        <link href="style.css" rel="stylesheet">
+    </head>
+
+    <body>
+    	<img alt="quake3_bones.jpg" src="images/quake3_bones.jpg">
+    
+    	<h2>Bones - skeletal animation for jPCT</h2>
+    
+    	<p>Bones is a skeletal animation system for <a href="http://www.jpct.net">jPCT</a>. It's aimed to be small library with no additional dependencies 
+    	 where possible. Minimum Java version is 1.5. Bones is a partial/modified port of <a href="http://www.ardor3d.com">Ardor3D's</a> animation system to jPCT.</p>
+    	 
+    	 <p>Bones can be downloaded from <a href="http://www.aptalkarga.com/bones/bones.zip">here</a>. 
+    	 Javadocs can be found <a href="api/index.html" target="_blank">here</a>. It contains
+    	 the source code, necessary libraries, Eclipse project files, a demo application and Eclipse launch files to run demos.
+    	 It's definitely free software with a <i>"Do whatever with it"</i> license.</p>
+    	
+    	<p>Bones initially loads skinning information via <a href="http://www.ardor3d.com">Ardor3D's</a> <a href="http://www.collada.org">Collada</a> loader.
+    	Out of this information, a series of SkinnedObject3D's are constructed. They have mesh data, textures coordinates and skinning information. 
+    	It's enough to set their textures and call build() to prepare them to be added into a jPCT world.      
+    	</p>
+    	
+    	<p>After this initial loading, they can be saved in a compact form. Saved objects can be later reloaded
+    	with loader, with no dependencies to Ardor3D</p>
+    	
+    	<p>At the moment, the project is at <i>"Proof of Concept"</i> phase. Skinning and mesh deformation works but skeleton poses
+    	can only be created programmatically. Hence it's not really useful for games at the moment. This is so since, Ardor3D's loader 
+    	only support this much at the moment. As they progress, Bones will progress..</p>
+    	
+    	<p>As Bones is at a very early phase, expect dramatic changes in the API. Even for later phases, the author claims
+    	<b>no warranty</b> to maintain backward compatibility.</p>
+    	
+    	<p>For discussion and questions, visit the <a href="http://www.jpct.net/forum2/index.php/topic,1503.0.html" target="_blank">Bones thread at jPCT forums</a></p>
+    	
+    	<p>A screen capture of demo:</p>
+		<object width="640" height="505">
+		<param name="movie"
+			value="http://www.youtube.com/v/G3MLLsaKKxI&hl=en_US&fs=1&"></param>
+		<param name="allowFullScreen" value="true"></param>
+		<param name="allowscriptaccess" value="always"></param>
+		<embed src="http://www.youtube.com/v/G3MLLsaKKxI&hl=en_US&fs=1&"
+			type="application/x-shockwave-flash" allowscriptaccess="always"
+			allowfullscreen="true" width="640" height="505"></embed> </object>
+
+		<p align="center"><br><br><br><br>
+    	<font size="-1" face="Arial, Helvetica, sans-serif">
+    	<strong>copy <font color="orange">r</font> a f t</strong> no rights reserved </font></p>
+    
+    </body>
+    
+</html>
