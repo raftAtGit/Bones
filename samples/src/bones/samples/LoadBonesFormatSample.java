@@ -13,7 +13,8 @@ import com.threed.jpct.Texture;
 import com.threed.jpct.TextureManager;
 
 /**
- * <p>Demonstrates loading skin in Bones format.</p>
+ * <p>Demonstrates loading skin in Bones format. 
+ * This sample can be run only with bones.jar and jpct.jar in classpath.</p>
  *  
  * @see SkinIO#loadGroup(java.io.InputStream)
  * @author hakan eryargi (r a f t)
@@ -31,7 +32,7 @@ public class LoadBonesFormatSample extends AbstractSkinSample {
 
 	@Override
 	protected Debugger createSkeletonDebugger() throws Exception {
-		// in this file, root joint always remain in origin which doesn't look so good.
+		// in ninja file, root joint always remain in origin which doesn't look so good.
 		// so we tell debugger to ignore root joint (0)
 		return new Skeleton.Debugger(skinnedGroup.get(0).getCurrentPose(), 10f, (short)0);
 	}
