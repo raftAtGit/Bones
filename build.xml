@@ -80,6 +80,17 @@
                 href="http://www.jpct.net/doc/" />
         </javadoc>
     </target>
-    
+
+	<target name="zip">
+		<zip destfile="../bones.zip" basedir="../" includes="Bones/**/*" excludes="**/*.svn" />
+	</target>
+	
+	<target name="release" depends="init" >
+		<antcall target="clean"/>
+		<antcall target="make-jar"/>
+		<antcall target="javadoc"/>
+		<antcall target="zip"/>
+	</target>
+	
 </project>
 
