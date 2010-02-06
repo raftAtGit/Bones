@@ -217,4 +217,11 @@ class SkinHelper {
 		return value;
 	}
 	
+    static short parseJointIndex(com.ardor3d.extension.animation.skeletal.JointChannel jointChannel) {
+    	String prefix = com.ardor3d.extension.animation.skeletal.JointChannel.JOINT_CHANNEL_NAME;
+    	return Short.parseShort(jointChannel.getChannelName().substring(prefix.length()));
+    }
+	
+	
+	
 }

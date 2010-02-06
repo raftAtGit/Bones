@@ -65,7 +65,7 @@ public class Channel implements java.io.Serializable {
      * <p>Creates a new Channel out of Ardor3D's JointChannel.<p> 
      * */
 	Channel(com.ardor3d.extension.animation.skeletal.JointChannel jointChannel) {
-		this(parseJointIndex(jointChannel), jointChannel.getLength());
+		this(SkinHelper.parseJointIndex(jointChannel), jointChannel.getLength());
 		
 		int length = times.length;
 		
@@ -229,9 +229,4 @@ public class Channel implements java.io.Serializable {
 		}
 	}
     
-    private static short parseJointIndex(com.ardor3d.extension.animation.skeletal.JointChannel jointChannel) {
-    	String prefix = com.ardor3d.extension.animation.skeletal.JointChannel.JOINT_CHANNEL_NAME;
-    	return Short.parseShort(jointChannel.getChannelName().substring(prefix.length()));
-    }
-	
 }

@@ -44,6 +44,9 @@ public class SkinIO {
 		if (colladaStorage.getSkins().isEmpty())
 			throw new IllegalArgumentException("ColladaStorage contains no skins.");
 		
+		if (scale != 1f)
+			Logger.log("Scale is not supported at the moment, ignoring", Logger.WARNING);
+		
 		Skeleton skeleton = new Skeleton(findUniqueArdorSkeleton(colladaStorage));
 		
 		Skeleton.Pose currentPose = new Skeleton.Pose(skeleton);
@@ -66,6 +69,7 @@ public class SkinIO {
 		if ((jointChannels != null && !jointChannels.isEmpty())) {
 			Clip clip = new Clip(skeleton, jointChannels);
 			group.setClipSequence(new ClipSequence(clip));
+			Logger.log("Created one animation clip", Logger.MESSAGE);
 		}
 		return group;
 	}
@@ -128,6 +132,9 @@ public class SkinIO {
 		if (node.getControllerCount() == 0)
 			throw new IllegalArgumentException("No controller found in OgreEntityNode. Means there is no skeleton!");
 		
+		if (scale != 1f)
+			Logger.log("Scale is not supported at the moment, ignoring", Logger.WARNING);
+		
 		MeshAnimationController controller = (MeshAnimationController) node.getController(0);
 
 		Skeleton skeleton = new Skeleton(controller.getSkeleton());
@@ -156,6 +163,7 @@ public class SkinIO {
 			}
 			com.jmex.model.ogrexml.anim.BoneAnimation boneAnim = anim.getBoneAnimation();
 			clips.add(new Clip(skeleton, boneAnim));
+			Logger.log("Created animation clip: " + boneAnim.getName(), Logger.MESSAGE);
 		}
 		
 		if (clips.isEmpty()) {

@@ -12,6 +12,10 @@
 	<classpathentry kind="lib" path="lib/jme-2.1.jar"/>
 	<classpathentry kind="lib" path="lib/jme-ogrexml-2.1-exposed.jar"/>
 	<classpathentry kind="lib" path="lib/jme-model-2.1.jar"/>
-	<classpathentry kind="lib" path="lib/jpct-1.21_beta3.jar"/>
+	<classpathentry kind="lib" path="lib/jpct-1.21_beta3.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="file:/home/raft/work/jpct/doc/javadoc/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
