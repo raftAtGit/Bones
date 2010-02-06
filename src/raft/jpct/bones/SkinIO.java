@@ -28,6 +28,9 @@ public class SkinIO {
 	private static final String HEADER_OBJECT = "Bones-Object";
 	private static final short VERSION = 1;
 	
+	/** can not be instantiated */
+	private SkinIO() {}
+	
 	
 	/** 
 	 * <p>Constructs a {@link SkinnedGroup} out of Ardor's skinData.</p>
