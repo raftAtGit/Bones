@@ -85,7 +85,7 @@ public class ArdorColladaImporter {
 	}
 
 	private static void printUsage(PrintStream ps) {
-        ps.println("usage: JMEOgreImporter [options] -in <ogre.mesh.xml> [ogre.mesh.xml...]");
+        ps.println("usage: ArdorColladaImporter [options] -in <collada file> [collada file...]");
         ps.println("options:");
         ps.println("    -out <destination file>                     : destination file to write");
         ps.println("    -scale <scale>                              : loading scale, default 1");

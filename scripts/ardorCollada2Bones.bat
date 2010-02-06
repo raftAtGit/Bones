@@ -1,5 +1,5 @@
 echo off
-set DIR="\.."
+set DIR=%~dp0\..
 
 set CP=%DIR%\build\bones.jar
 set CP=%CP%:%DIR%\lib\jpct-1.21_beta3.jar
@@ -11,4 +11,4 @@ set CP=%CP%:%DIR%\lib\jaxen.jar
 set CP=%CP%:%DIR%\lib\jdom.jar
 set CP=%CP%:%DIR%\lib\google-collect-1.0-rc1.jar
 
-java -cp %CP% raft.jpct.bones.util.ArdorColladaImporter "$@"
+java -cp %CP% raft.jpct.bones.util.ArdorColladaImporter %1 %2 %3 %4 %5 %6 %7 %8 %9
