@@ -89,7 +89,7 @@ public class JMEOgreImporter {
 	public static void main(String[] args) throws Exception {
 		ComLineArgs comLine = new ComLineArgs(args);
 		
-        if (comLine.containsArg("-h") || comLine.containsArg("-help")) {
+        if (comLine.isEmpty() || comLine.containsArg("-h") || comLine.containsArg("-help")) {
             printUsage(System.out);
             System.exit(0);
         }
