@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project default="javadoc">
-    <target name="javadoc">
-        <javadoc access="protected" author="true" classpath="lib/ardor3d-core-0.6.jar:lib/jpct_1.20_beta.jar:lib/ardor3d-collada-0.6.jar:lib/ardor3d-animation-0.6.jar" destdir="doc/api" doctitle="Bones - Skeletal Animation for jPCT" nodeprecated="false" nodeprecatedlist="false" noindex="false" nonavbar="false" notree="false" packagenames="raft.*" source="1.6" sourcepath="src" splitindex="true" use="true" version="true"/>
-    </target>
-</project>

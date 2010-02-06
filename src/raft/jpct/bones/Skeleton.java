@@ -120,7 +120,7 @@ public class Skeleton implements java.io.Serializable, Iterable<Skeleton.Joint> 
 	private void printJoints() {
 		System.out.println("-- total " + joints.length + " joint(s) --");
 		for (Joint joint : joints) {
-			System.out.println(MessageFormat.format("{0} name: {1} parent: {2}", 
+			System.out.println(MessageFormat.format("{0} name: {1}, parent: {2}", 
 					joint.index, joint.name, ((joint.hasParent() ? String.valueOf(joint.parentIndex) : ""))));
 		}
 		System.out.println("-- --");

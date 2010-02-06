@@ -27,7 +27,7 @@ import com.threed.jpct.TextureManager;
  * 
  * <p>This class is adapted from <a href="http://www.ardor3d.com">Ardor3D.</a></p>
  * 
- * @see SkinIO#loadSkinnedObjects(java.io.InputStream)
+ * @see SkinIO#loadObject(java.io.InputStream)
  * */
 public class Skinned3D extends Object3D implements Cloneable {
 	private static final long serialVersionUID = 1L;

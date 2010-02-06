@@ -47,7 +47,7 @@ public class ClipSequence implements java.io.Serializable, Iterable<Clip> {
 	}
 	
 	/** Returns number of clips */
-	public int getLength() {
+	public int getSize() {
 		return clips.length;
 	}
 	

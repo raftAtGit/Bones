@@ -19,6 +19,8 @@ import com.threed.jpct.Logger;
 
 /** 
  * <p>Contains skin loading and saving methods.</p> 
+ * 
+ * @author hakan eryargi (r a f t)
  * */
 public class SkinIO {
 
@@ -30,6 +32,7 @@ public class SkinIO {
 	/** 
 	 * <p>Constructs a {@link SkinnedGroup} out of Ardor's skinData.</p>
 	 * 
+	 * @param colladaStorage Ardor collada storage
 	 * @param scale the scale. not used at the moment.
 	 * 
 	 * @see SkinnedGroup
@@ -88,7 +91,7 @@ public class SkinIO {
 	
 	/** 
 	 * <p>Loads an array of {@link Skinned3D}'s from given stream. Objects should be saved to stream
-	 * via {@link #saveObject(Skinned3D[], OutputStream)}</p>
+	 * via {@link #saveObject(Skinned3D, OutputStream)}</p>
 	 *  
 	 * @see Skinned3D
 	 * @see #saveObject(Skinned3D, OutputStream) 
@@ -115,7 +118,7 @@ public class SkinIO {
 	/** 
 	 * <p>Constructs a {@link SkinnedGroup} out of jME OGRE data.</p>
 	 * 
-	 * @param meshUrl location of mesh.xml file. skeleton.xml file should be in same directory too.
+	 * @param node jME OgreEntityNode
 	 * @param scale the scale. not used at the moment.
 	 * */
 	public static SkinnedGroup loadOgreSkin(OgreEntityNode node, float scale) throws IOException {
