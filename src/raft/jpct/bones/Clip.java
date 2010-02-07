@@ -94,6 +94,7 @@ public class Clip implements java.io.Serializable, Iterable<Channel> {
     	return false;
     }
     
+    /** Returns the {@link Skeleton} this clip is related to. */
 	public Skeleton getSkeleton() {
 		return skeleton;
 	}
@@ -112,10 +113,12 @@ public class Clip implements java.io.Serializable, Iterable<Channel> {
     	}
     }
     
+    /** Returns name of this clip. May be null */
     public String getName() {
 		return name;
 	}
 
+    /** Sets name of this clip. */
 	public void setName(String name) {
 		this.name = name;
 	}
@@ -133,7 +136,7 @@ public class Clip implements java.io.Serializable, Iterable<Channel> {
         }
     }
     
-    /** <p>returns an iterator of channels. note some channels may be null.</p> */
+    /** <p>Returns an iterator of channels. Note some channels may be null.</p> */
 	public Iterator<Channel> iterator() {
 		return Arrays.asList(channels).iterator();
 	}

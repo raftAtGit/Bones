@@ -17,7 +17,7 @@ import com.threed.jpct.Logger;
 
 /** 
  * <p>Utility class to import Ogre3D skins via jME's ogrexml loader. 
- * Can also be used as a command line tool.</p>
+ * Can also be used as a command line tool. Use the script in scripts folder to use from command line.</p>
  *  
  * @author hakan eryargi (r a f t)
  */
@@ -27,6 +27,17 @@ public class JMEOgreImporter {
 	private final List<File> inputFiles;
 	private final float scale;
 	
+	/** 
+	 * Creates a new importer with given parameters.
+	 * 
+	 * @param outFile destination file to write bones group. May be null.
+	 * @param inputFiles list of Ogre3D mesh xml files. There must be at least one. If there are many,
+	 * 		their skeletons must match. 
+	 * @param scale the scaling of group
+	 * 
+	 * @see SkinIO#loadOgreSkin(OgreEntityNode, float)
+	 * @see SkinnedGroup#mergeSkin(SkinnedGroup...)
+	 * */
 	public JMEOgreImporter(File outFile, List<File> inputFiles, float scale) {
 		if (inputFiles.isEmpty())
 			throw new IllegalArgumentException("No input files");
@@ -36,6 +47,7 @@ public class JMEOgreImporter {
 		this.scale  = scale;
 	}
 
+	/** Executes the importer. */
 	public void run() throws Exception {
 		final SkinnedGroup group = loadGroup();
 		
@@ -86,6 +98,7 @@ public class JMEOgreImporter {
     }
 
 	
+	/** Command line entry method. */
 	public static void main(String[] args) throws Exception {
 		ComLineArgs comLine = new ComLineArgs(args);
 		

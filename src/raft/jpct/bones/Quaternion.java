@@ -672,6 +672,10 @@ public class Quaternion implements java.io.Serializable, Cloneable {
     
 	}
 	
+	/** 
+	 * Rotates the quaternion around X axis. 
+	 * uses {@link Matrix#rotateX(float)} behind the scenes. 
+	 * */
 	public Quaternion rotateX(float angle) {
 		Matrix m = getRotationMatrix();
 		m.rotateX(angle);
@@ -679,6 +683,10 @@ public class Quaternion implements java.io.Serializable, Cloneable {
 		return this;
 	}
 
+	/** 
+	 * Rotates the quaternion around Y axis. 
+	 * uses {@link Matrix#rotateY(float)} behind the scenes. 
+	 * */
 	public Quaternion rotateY(float angle) {
 		Matrix m = getRotationMatrix();
 		m.rotateY(angle);
@@ -686,6 +694,10 @@ public class Quaternion implements java.io.Serializable, Cloneable {
 		return this;
 	}
 	
+	/** 
+	 * Rotates the quaternion around Z axis. 
+	 * uses {@link Matrix#rotateZ(float)} behind the scenes. 
+	 * */
 	public Quaternion rotateZ(float angle) {
 		Matrix m = getRotationMatrix();
 		m.rotateZ(angle);
@@ -693,6 +705,10 @@ public class Quaternion implements java.io.Serializable, Cloneable {
 		return this;
 	}
 
+	/** 
+	 * Applies rotation of given matrix to this quaternion. 
+	 * uses {@link Matrix#matMul(Matrix)} behind the scenes. 
+	 * */
 	public Quaternion rotate(Matrix matrix) {
 		Matrix m = getRotationMatrix();
 		m.matMul(matrix);

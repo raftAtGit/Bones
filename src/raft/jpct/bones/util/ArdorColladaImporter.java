@@ -19,7 +19,7 @@ import com.threed.jpct.Logger;
 
 /** 
  * <p>Utility class to import Collada skins via Ardor3D's collada loader. 
- * Can also be used as a command line tool.</p>
+ * Can also be used as a command line tool. Use the script in scripts folder to use from command line.</p>
  *  
  * @author hakan eryargi (r a f t)
  */
@@ -29,6 +29,17 @@ public class ArdorColladaImporter {
 	private final List<File> inputFiles;
 	private final float scale;
 	
+	/** 
+	 * Creates a new importer with given parameters.
+	 * 
+	 * @param outFile destination file to write bones group. May be null.
+	 * @param inputFiles list of collada files. There must be at least one. If there are many,
+	 * 		their skeletons must match. 
+	 * @param scale the scaling of group
+	 * 
+	 * @see SkinIO#loadColladaSkin(ColladaStorage, float)
+	 * @see SkinnedGroup#mergeSkin(SkinnedGroup...)
+	 * */
 	public ArdorColladaImporter(File outFile, List<File> inputFiles, float scale) {
 		if (inputFiles.isEmpty())
 			throw new IllegalArgumentException("No input files");
@@ -38,6 +49,7 @@ public class ArdorColladaImporter {
 		this.scale  = scale;
 	}
 
+	/** Executes the importer. */
 	public void run() throws Exception {
 		final SkinnedGroup group = loadGroup();
 		
@@ -93,7 +105,7 @@ public class ArdorColladaImporter {
         ps.println("    -log <logLevel: VERBOSE*|WARNING|ERROR>     : set log level");
     }
 
-	
+	/** Command line entry method. */
 	public static void main(String[] args) throws Exception {
 		ComLineArgs comLine = new ComLineArgs(args);
 		

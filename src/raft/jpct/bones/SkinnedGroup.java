@@ -16,6 +16,12 @@ public class SkinnedGroup implements java.io.Serializable, Iterable<Skinned3D> {
 	
 	private ClipSequence clipSequence;
 
+	/**
+	 * Creates a new SkinnedGroup out of given objects. All objects must have the same {@link Skeleton}.
+	 * 
+	 *  @throws IllegalArgumentException if object array is empty or they have different skeletons.
+	 *  @see Skinned3D#mergeSkin(Skinned3D...)
+	 * */
 	public SkinnedGroup(Skinned3D[] objects) {
 		if (objects.length == 0)
 			throw new IllegalArgumentException("No objects");
@@ -56,16 +62,28 @@ public class SkinnedGroup implements java.io.Serializable, Iterable<Skinned3D> {
 		return objects[index];
 	}
 	
+	/** Adds all skinned objects to world. 
+	 * @see World#addObject(Object3D) */
 	public void addToWorld(World world) {
 		for (Skinned3D so : objects) {
 			world.addObject(so);
 		}
 	}
 	
+	/** <p>Returns the assigned ClipSequence if any.</p> */
 	public ClipSequence getClipSequence() {
 		return clipSequence;
 	}
 
+	/** 
+	 * <p>Sets the {@link ClipSequence} of this group. The skeleton of ClipSequence must be the same of
+	 * this group.</p>
+	 * 
+	 * <p>This method is analogue of {@link Object3D#setAnimationSequence(com.threed.jpct.Animation)}.</p>
+	 * 
+	 * @see #mergeSkin(SkinnedGroup...)
+	 * @throws IllegalArgumentException if given ClipSequence has a different {@link Skeleton} 
+	 * */
 	public void setClipSequence(ClipSequence clipSequence) {
 		if ((clipSequence != null) && (clipSequence.getSkeleton() != objects[0].skeleton)) 
 			throw new IllegalArgumentException("ClipSequence's skeleton is different from this group's skeleton");
@@ -124,6 +142,7 @@ public class SkinnedGroup implements java.io.Serializable, Iterable<Skinned3D> {
 		}
 	}
 	
+	/** Returns an iterator of skinned objects. */
 	public Iterator<Skinned3D> iterator() {
 		return Arrays.asList(objects).iterator();
 	}
@@ -146,12 +165,12 @@ public class SkinnedGroup implements java.io.Serializable, Iterable<Skinned3D> {
 	private void checkSameSkeleton() {
 		Skeleton lastSkeleton = null;
 		
-		for (Skinned3D clip : objects) {
+		for (Skinned3D o : objects) {
 			if (lastSkeleton == null)
-				lastSkeleton = clip.getSkeleton();
+				lastSkeleton = o.getSkeleton();
 			
-			if (clip.getSkeleton() != lastSkeleton)
-				throw new IllegalArgumentException("all clips should have same Skeleton");
+			if (o.getSkeleton() != lastSkeleton)
+				throw new IllegalArgumentException("all objects should have same Skeleton");
 		}
 	}
 	

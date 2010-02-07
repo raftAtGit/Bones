@@ -80,14 +80,18 @@ public class Skeleton implements java.io.Serializable, Iterable<Skeleton.Joint> 
 		return joints.length;
 	}
 	
+	/** Returns the {@link Joint} by index. */
 	public Joint getJoint(int index) {
 		return joints[index];
 	}	
 	
+	/** Returns the transform which is finally applied to joints. 
+	 * Can be used to rotate or scale the skeleton (and poses of it) */
 	public Matrix getTransform() {
 		return transform;
 	}
 	
+    /** <p>Returns an iterator of joints</p> */
 	public Iterator<Joint> iterator() {
 		return Arrays.asList(joints).iterator();
 	}
@@ -135,7 +139,7 @@ public class Skeleton implements java.io.Serializable, Iterable<Skeleton.Joint> 
 	public static class Joint implements java.io.Serializable {
 		private static final long serialVersionUID = 1L;
 		
-	    /** Root node ID */
+	    /** Parent index of a joint which has no parent */
 	    public static final short NO_PARENT = Short.MIN_VALUE;
 		
 		private Matrix inverseBindPose;
@@ -189,18 +193,22 @@ public class Skeleton implements java.io.Serializable, Iterable<Skeleton.Joint> 
 			return inverseBindPose.invert();
 		}
 		
+		/** Returns the index of this joint. */
 		public short getIndex() {
 			return index;
 		}
 		
+		/** Returns the index of parent of this joint. Or {@link #NO_PARENT} if this joint has no parent. */
 		public short getParentIndex() {
 			return parentIndex;
 		}
 
+		/** Returns name of this joint. */
 		public String getName() {
 			return name;
 		}
 		
+		/** Returns true if this joint has a parent. */
 		public boolean hasParent() {
 			return (parentIndex != NO_PARENT);
 		}
@@ -364,14 +372,19 @@ public class Skeleton implements java.io.Serializable, Iterable<Skeleton.Joint> 
 	}
 	
 	/** 
-	 * <p>Helper class to visually represent a {@link Skeleton}.</p> 
+	 * <p>Helper class to visually represent a {@link Skeleton.Pose}.</p> 
 	 * 
 	 * <p>This class is adapted from <a href="http://www.ardor3d.com">Ardor3D.</a></p>
 	 */
 	public static class Debugger {
 		private static final long serialVersionUID = 1L;
 		
+		/** Minimum length of a bone. Sometimes joints may overlap,
+		 * resulting bones will not have a length of zero but this value. */
 		public static float minBoneLength = 0.01f;
+		
+		/** Default value of bone scale. */
+		public static final float DEFAULT_SCALE = 3f;
 		
 		private final Skeleton skeleton;
 	    private final Object3D[] jointObjects; 
@@ -380,10 +393,25 @@ public class Skeleton implements java.io.Serializable, Iterable<Skeleton.Joint> 
 		
 	    private Matrix tempMatrix = new Matrix();
 
+	    /** 
+	     * Creates a new Debugger with {@link #DEFAULT_SCALE}
+	     *  
+	     * @param pose the pose this debugger represents
+	     * @param ignoreJoints these joints and the bones associated with them will not be displayed. 
+	     * */
 		public Debugger(Skeleton.Pose pose, short... ignoreJoints) {
-			this(pose, 3f);
+			this(pose, DEFAULT_SCALE);
 		}
 		
+	    /** 
+	     * Creates a new Debugger with given scale.
+	     * 
+	     * @param pose the pose this debugger represents
+	     * @param boneScale scale of bone  
+	     * @param ignoreJoints these joints and the bones associated with them will not be displayed.
+	     * 
+	     *  @see Primitives#getPyramide(float, float)
+	     * */
 		public Debugger(Skeleton.Pose pose, float boneScale, short... ignoreJoints) {
 			this.skeleton = pose.skeleton;
 			this.boneScale = boneScale;
@@ -410,14 +438,19 @@ public class Skeleton implements java.io.Serializable, Iterable<Skeleton.Joint> 
 	        }
 		}
 
+		/** Returns the {@link Object3D}s which represent bones. Some of them may be null. */
 		public List<Object3D> getBoneObjects() {
 			return Arrays.asList(boneObjects);
 		}
 		
+		/** Returns the {@link Object3D}s which represent joints. Bones are virtual links
+		 * between a joint and its parent (if any) 
+		 * Some of them may be null. */
 		public List<Object3D> getJointObjects() {
 			return Arrays.asList(jointObjects);
 		}
 		
+		/** Updates bone and joint objects according to given pose. */
 		public void update(Skeleton.Pose pose) {
 			if (pose.skeleton != this.skeleton)
 				throw new IllegalArgumentException("pose does not belong to this debugger's skeleton");
@@ -488,6 +521,7 @@ public class Skeleton implements java.io.Serializable, Iterable<Skeleton.Joint> 
 			bone.setScale(Math.max(minBoneLength, direction.length()));
 	    }
 
+	    /** Adds all joint and bone objects to given world. */
 		public void addToWorld(World world) {
 			for (Object3D joint : jointObjects) {
 				if (joint != null) world.addObject(joint);
@@ -498,6 +532,7 @@ public class Skeleton implements java.io.Serializable, Iterable<Skeleton.Joint> 
 			}
 		}
 		
+	    /** Sets visibility of joint and bone objects. */
 		public void setVisibility(boolean visible) {
 			for (Object3D joint : jointObjects) {
 				if (joint != null) joint.setVisibility(visible);
