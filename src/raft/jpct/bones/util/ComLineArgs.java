@@ -15,10 +15,11 @@ import java.util.NoSuchElementException;
  * <ul>
  * <li><code>containsTag("-verbose")</code> returns true and consumes <i>-verbose</i></li>
  * <li><code>getArg("-verbose")</code> returns "-verbose" and consumes <i>-verbose</i></li>
- * <li><code>getArg("-verbose", 1)</code> throws NoSuchElementException</li>
+ * <li><code>getArg("-verbose", 1)</code> returns -out and consumes <i>-verbose</i> and <i>-out</i></li>
  * <li><code>getArg("-out", 1)</code> returns fileOut and consumes <i>-out</i> and <i>fileOut</i></li>
  * <li><code>getArg("-in", 1)</code> returns fileIn1 and consumes <i>-in</i> and <i>fileIn1</i></li>
  * <li><code>getArg("-in", 2)</code> returns fileIn2 and consumes <i>-in</i> and <i>fileIn2</i></li>
+ * <li><code>getArg("-in", 3)</code> throws NoSuchElementException</li>
  * </ul>
  *  
  * @author hakan eryargi (r a f t)
