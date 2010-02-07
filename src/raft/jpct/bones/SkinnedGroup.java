@@ -8,9 +8,14 @@ import com.threed.jpct.Object3D;
 import com.threed.jpct.World;
 
 /** Helper class to group {@link Skinned3D}'s and manipulate them easily. */
-public class SkinnedGroup implements java.io.Serializable, Iterable<Skinned3D> {
+public class SkinnedGroup implements java.io.Serializable, Iterable<Skinned3D>, Cloneable {
 	private static final long serialVersionUID = 1L;
 
+	/** Re-use (share) the mesh. */
+	public static final boolean MESH_REUSE = true;
+	/** Use a separate mesh. */
+	public static final boolean MESH_DONT_REUSE = false;
+	
 	private final Object3D root = Object3D.createDummyObj();
 	private Skinned3D[] objects;
 	
@@ -212,5 +217,28 @@ public class SkinnedGroup implements java.io.Serializable, Iterable<Skinned3D> {
 		return new SkinnedGroup(merged, merged[0].getClipSequence());
 	}
 	
-	
+	/** 
+	 * Same as clone(MESH_REUSE) 
+	 * @see SkinnedGroup#clone(boolean) 
+	 * */
+	@Override
+	public SkinnedGroup clone() {
+		return clone(MESH_REUSE);
+	}
+
+	/** 
+	 * <p>Clones this object group. {@link Skeleton}, {@link Skeleton.Pose} and {@link ClipSequence} will be shared. 
+	 * If they mesh is reused, the clone and master will inherit animations from each other.</p>
+	 * 
+	 * @see Skinned3D#Skinned3D(Skinned3D, boolean)
+	 * @see #MESH_REUSE 
+	 * @see #MESH_DONT_REUSE 
+	 * */
+	public SkinnedGroup clone(boolean reuseMesh) {
+		Skinned3D[] clones = new Skinned3D[objects.length];
+		for (int i = 0; i < clones.length; i++) {
+			clones[i] = new Skinned3D(objects[i], reuseMesh);
+		}
+		return new SkinnedGroup(clones, clipSequence);
+	}
 }

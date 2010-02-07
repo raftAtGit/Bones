@@ -32,7 +32,9 @@ import com.threed.jpct.TextureManager;
 public class Skinned3D extends Object3D implements Cloneable {
 	private static final long serialVersionUID = 1L;
 
+	/** Re-use (share) the mesh. */
 	public static final boolean MESH_REUSE = true;
+	/** Use a separate mesh. */
 	public static final boolean MESH_DONT_REUSE = false;
 	
 	final Skeleton skeleton;
@@ -55,7 +57,10 @@ public class Skinned3D extends Object3D implements Cloneable {
 	
 	/**
 	 * <p>Behaves same as {@link Object3D#Object3D(Object3D, boolean) Object3D(Object3D, reuseMesh)}. 
-	 * In addition copies skin information.</p> 
+	 * In addition copies skin information.</p>
+	 *  
+	 * @see #MESH_REUSE 
+	 * @see #MESH_DONT_REUSE 
 	 */
 	public Skinned3D(Skinned3D object, boolean reuseMesh) {
 		super(object, reuseMesh);
