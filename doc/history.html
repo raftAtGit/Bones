@@ -1,0 +1,39 @@
+<html>
+    <head>
+        <title>Bones - History</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+        <link href="style.css" rel="stylesheet">
+    </head>
+
+    <body>
+    	<h2>Bones - Version History</h2>
+
+        <p><font size="-1"><strong>07 February 10: </strong>
+        Updated documentation. Added support to clone SkinnedGroup.
+        </font></p>
+        
+        <p><font size="-1"><strong>06 February 10: </strong>
+        Added support to load Ogre3D animation files (mesh.xml + skeleton.xml)
+        via jME's OgreXMl loader. Main motivation behind this was figuring out
+        Collada exporters for 3dsMax (both Max's builtin and OpenCollada)
+        don't support Pyhsique modifier which is kind of annoying 
+        especially considering many of ready to buy models are skinned
+        with Pyhsique modifier.
+        </font></p>
+        
+        <p><font size="-1"><strong>01 February 10: </strong>
+        Ardor3D now supports loading animations and animation blending (SVN pre 0.7 version).
+        Updated Bones accordingly without blending. This time
+        I've significantly diverged from Ardor's implementation
+        for sake of easy usage and to match jPCT semantics.  
+        </font></p>
+        
+		<p><font size="-1"><strong>07 January 10: </strong> 
+		First release of Bones. This release is a port of Ardor3D's (0.6) animation system.
+		Collada files are loaded via Ardor3D's Collada loader and then
+		converted into Bones data structures. Ardor3D doesn't support loading
+		animations and so does Bones. Only procedural animation is supported.
+        </font></p>
+
+</body>
+</html>
