@@ -4,11 +4,10 @@ import java.awt.Dimension;
 import java.io.File;
 import java.net.URI;
 
-import raft.jpct.bones.Skeleton;
-import raft.jpct.bones.SkinIO;
-import raft.jpct.bones.Skinned3D;
-import raft.jpct.bones.SkinnedGroup;
-import raft.jpct.bones.Skeleton.Debugger;
+import raft.jpct.bones.BonesIO;
+import raft.jpct.bones.Animated3D;
+import raft.jpct.bones.AnimatedGroup;
+import raft.jpct.bones.SkeletonDebugger;
 
 import com.ardor3d.extension.model.collada.jdom.ColladaImporter;
 import com.ardor3d.extension.model.collada.jdom.data.ColladaStorage;
@@ -34,24 +33,24 @@ public class ColladaSample extends AbstractSkinSample {
 	}
 
 	@Override
-	protected Debugger createSkeletonDebugger() throws Exception {
-		return new Skeleton.Debugger(skinnedGroup.get(0).getCurrentPose(), 10f);
+	protected SkeletonDebugger createSkeletonDebugger() throws Exception {
+		return new SkeletonDebugger(animatedGroup.get(0).getSkeletonPose(), 10f);
 	}
 
 	@Override
-	protected SkinnedGroup createSkinnedGroup() throws Exception {
+	protected AnimatedGroup createAnimatedGroup() throws Exception {
 		File colladaFile = new File("./samples/data/seymour/Seymour.dae");
 		URI uri = colladaFile.toURI();
 		
         final SimpleResourceLocator resLocater = new SimpleResourceLocator(uri.resolve("./"));
         ResourceLocatorTool.addResourceLocator(ResourceLocatorTool.TYPE_MODEL, resLocater);
         
-        SkinnedGroup skinnedGroup;
+        AnimatedGroup skinnedGroup;
 		try {
 			ColladaImporter colladaImporter = new ColladaImporter().loadTextures(false);
 			ColladaStorage colladaStorage = colladaImporter.load(uri.toString());
 			
-			skinnedGroup = SkinIO.loadColladaSkin(colladaStorage, 1f);
+			skinnedGroup = BonesIO.loadCollada(colladaStorage, 1f);
 		} finally {
 			ResourceLocatorTool.removeResourceLocator(ResourceLocatorTool.TYPE_MODEL, resLocater);
 		}
@@ -59,10 +58,10 @@ public class ColladaSample extends AbstractSkinSample {
 		Texture texture = new Texture("./samples/data/seymour/seymour_flipped.png");
 		TextureManager.getInstance().addTexture("seymour", texture);
 		
-		for (Skinned3D o : skinnedGroup) {
+		for (Animated3D o : skinnedGroup) {
 			o.setTexture("seymour");
 			o.build();
-			o.discardSkeletonMesh();
+			o.discardMeshData();
 		}
 		return skinnedGroup;
 	}

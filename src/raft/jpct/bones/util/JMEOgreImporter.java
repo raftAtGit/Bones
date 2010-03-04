@@ -8,8 +8,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import raft.jpct.bones.SkinIO;
-import raft.jpct.bones.SkinnedGroup;
+import raft.jpct.bones.BonesIO;
+import raft.jpct.bones.AnimatedGroup;
 
 import com.jmex.model.ogrexml.OgreEntityNode;
 import com.jmex.model.ogrexml.OgreLoader;
@@ -35,8 +35,8 @@ public class JMEOgreImporter {
 	 * 		their skeletons must match. 
 	 * @param scale the scaling of group
 	 * 
-	 * @see SkinIO#loadOgreSkin(OgreEntityNode, float)
-	 * @see SkinnedGroup#mergeSkin(SkinnedGroup...)
+	 * @see BonesIO#loadOgre(OgreEntityNode, float)
+	 * @see AnimatedGroup#mergeSkin(AnimatedGroup...)
 	 * */
 	public JMEOgreImporter(File outFile, List<File> inputFiles, float scale) {
 		if (inputFiles.isEmpty())
@@ -49,7 +49,7 @@ public class JMEOgreImporter {
 
 	/** Executes the importer. */
 	public void run() throws Exception {
-		final SkinnedGroup group = loadGroup();
+		final AnimatedGroup group = loadGroup();
 		
 		if (outFile != null) {
 			if (outFile.isDirectory())
@@ -58,7 +58,7 @@ public class JMEOgreImporter {
 			
 			FileOutputStream fos = new FileOutputStream(outFile);
 			try {
-				SkinIO.saveGroup(group, fos);
+				BonesIO.saveGroup(group, fos);
 				Logger.log("Saved bones-group to " + outFile, Logger.MESSAGE);
 			} finally {
 				fos.close();
@@ -66,25 +66,25 @@ public class JMEOgreImporter {
 		}
 	}
 	
-	private SkinnedGroup loadGroup() throws Exception { 
+	private AnimatedGroup loadGroup() throws Exception { 
 		if (inputFiles.size() == 1) {
 			return loadGroup(inputFiles.get(0));
 		} else {
-			List<SkinnedGroup> groups = new LinkedList<SkinnedGroup>();
+			List<AnimatedGroup> groups = new LinkedList<AnimatedGroup>();
 			for (File input : inputFiles) {
 				groups.add(loadGroup(input));
 			}
-			return SkinnedGroup.mergeSkin(groups.toArray(new SkinnedGroup[groups.size()]));
+			return AnimatedGroup.mergeSkin(groups.toArray(new AnimatedGroup[groups.size()]));
 		}
 	}
 	
-	private SkinnedGroup loadGroup(File meshFile) throws Exception {
+	private AnimatedGroup loadGroup(File meshFile) throws Exception {
 		URL url = meshFile.toURI().toURL();
 		
 		OgreLoader loader = new OgreLoader();
 		OgreEntityNode node = loader.loadModel(url);
 
-		SkinnedGroup skinnedGroup = SkinIO.loadOgreSkin(node, scale);
+		AnimatedGroup skinnedGroup = BonesIO.loadOgre(node, scale);
 		return skinnedGroup;
 	}
 

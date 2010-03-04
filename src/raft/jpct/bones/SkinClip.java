@@ -15,58 +15,58 @@ import com.threed.jpct.Animation;
 
 /** 
  * <p>A single animation for a {@link Skeleton}. 
- * A Clip consists of {@link Channel}s. There is at most one Channel for each joint in Skeleton.
+ * A Clip consists of {@link JointChannel}s. There is at most one Channel for each joint in Skeleton.
  * A Clip is analogue of sub sequence in jPCT's {@link Animation}.</p>
  * 
  * <p>This class is adapted from <a href="http://www.ardor3d.com">Ardor3D.</a></p>
  * */
-public class Clip implements java.io.Serializable, Iterable<Channel> {
+public class SkinClip implements java.io.Serializable, Iterable<JointChannel> {
 	private static final long serialVersionUID = 1L;
 	
 	private Skeleton skeleton;
-	private final Channel[] channels;
+	private final JointChannel[] channels;
 	private float maxTime = 0;
 	private int size = 0;
 	private String name = null;
 	
-	public Clip(Skeleton skeleton, Channel... channels) {
+	public SkinClip(Skeleton skeleton, JointChannel... channels) {
 		this(skeleton);
 		
-		for (Channel channel : channels) {
+		for (JointChannel channel : channels) {
 			addChannel(channel);
 		}
 	}
 	
-	Clip(Skeleton skeleton, List<com.ardor3d.extension.animation.skeletal.JointChannel> jointChannels) {
+	SkinClip(Skeleton skeleton, List<com.ardor3d.extension.animation.skeletal.JointChannel> jointChannels) {
 		this(skeleton);
 		
 		for (com.ardor3d.extension.animation.skeletal.JointChannel jointChannel : jointChannels) {
-			addChannel(new Channel(jointChannel));
+			addChannel(new JointChannel(jointChannel));
 		}
 	}
 	
-	Clip(Skeleton skeleton, com.jmex.model.ogrexml.anim.BoneAnimation boneAnimation) {
+	SkinClip(Skeleton skeleton, com.jmex.model.ogrexml.anim.BoneAnimation boneAnimation) {
 		this(skeleton);
 		setName(boneAnimation.getName());
 		
 		for (com.jmex.model.ogrexml.anim.BoneTrack track : boneAnimation.getTracks()) {
-			addChannel(new Channel(track, skeleton));
+			addChannel(new JointChannel(track, skeleton));
 		}
 	}
 	
-	Clip(Skeleton skeleton, Clip other) {
+	SkinClip(Skeleton skeleton, SkinClip other) {
 		this(skeleton);
 		
-		for (Channel channel : other.channels) {
+		for (JointChannel channel : other.channels) {
 			if (channel != null)
 				addChannel(channel);
 		}
 	}
 	
 	
-	private Clip(Skeleton skeleton) {
+	private SkinClip(Skeleton skeleton) {
 		this.skeleton = skeleton;
-		this.channels = new Channel[skeleton.getNumberOfJoints()];
+		this.channels = new JointChannel[skeleton.getNumberOfJoints()];
 	}
 	
 	/** returns time of this clip in seconds. time of clip is the time of the longest channel */
@@ -74,7 +74,7 @@ public class Clip implements java.io.Serializable, Iterable<Channel> {
         return maxTime;
     }
 
-    public void addChannel(Channel channel) {
+    public void addChannel(JointChannel channel) {
     	if (channels[channel.jointIndex] != null)
     		throw new IllegalStateException("there is already a channel for joint " + channel.jointIndex);
     	
@@ -84,7 +84,7 @@ public class Clip implements java.io.Serializable, Iterable<Channel> {
     		maxTime = channel.getTime();
     }
 
-    public boolean removeChannel(Channel channel) {
+    public boolean removeChannel(JointChannel channel) {
     	if (channels[channel.jointIndex] == channel) {
     		channels[channel.jointIndex] = null;
     		size--;
@@ -99,14 +99,14 @@ public class Clip implements java.io.Serializable, Iterable<Channel> {
 		return skeleton;
 	}
     
-    /** applies channels in this clip to given {@link Skeleton.Pose}  */
-    public void applyTo(float time, Skeleton.Pose pose) {
+    /** applies channels in this clip to given {@link SkeletonPose}  */
+    void applyTo(float time, SkeletonPose pose) {
     	if (skeleton != pose.skeleton)
     		throw new IllegalArgumentException("pose belongs to another skeleton");
     	
     	time = SkinHelper.clamp(0f, maxTime, time);
     	
-    	for (Channel channel : channels) {
+    	for (JointChannel channel : channels) {
         	if (channel == null)
         		continue;
         	channel.applyTo(time, pose.getLocal(channel.jointIndex));
@@ -126,7 +126,7 @@ public class Clip implements java.io.Serializable, Iterable<Channel> {
 	private void updateTime() {
     	maxTime = 0;
     	
-        for (Channel channel : channels) {
+        for (JointChannel channel : channels) {
         	if (channel == null)
         		continue;
         	float max = channel.getTime();
@@ -137,7 +137,7 @@ public class Clip implements java.io.Serializable, Iterable<Channel> {
     }
     
     /** <p>Returns an iterator of channels. Note some channels may be null.</p> */
-	public Iterator<Channel> iterator() {
+	public Iterator<JointChannel> iterator() {
 		return Arrays.asList(channels).iterator();
 	}
     

@@ -17,6 +17,8 @@ import com.threed.jpct.SimpleVector;
  * <p>Note: This class is a stripped and modified version of Ardor3D's Quaternion to match jPCT. 
  * It may have bugs because of conversion. But especially {@link #fromVectorToVector(SimpleVector, SimpleVector)},
  * and Matrix in/out methods work ok.</p>
+ *
+ * <p>This class will possibly disappear once jPCT has its own Quaternion.</p>
  * 
  * <p>This class is adapted from <a href="http://www.ardor3d.com">Ardor3D.</a></p>
  */

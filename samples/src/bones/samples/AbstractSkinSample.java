@@ -18,6 +18,7 @@ import java.util.Hashtable;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -27,11 +28,14 @@ import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import raft.jpct.bones.Clip;
-import raft.jpct.bones.ClipSequence;
-import raft.jpct.bones.Skeleton;
-import raft.jpct.bones.Skinned3D;
-import raft.jpct.bones.SkinnedGroup;
+import raft.jpct.bones.Animated3D;
+import raft.jpct.bones.AnimatedGroup;
+import raft.jpct.bones.PoseClip;
+import raft.jpct.bones.PoseClipSequence;
+import raft.jpct.bones.SkeletonDebugger;
+import raft.jpct.bones.SkeletonPose;
+import raft.jpct.bones.SkinClip;
+import raft.jpct.bones.SkinClipSequence;
 
 import com.threed.jpct.Camera;
 import com.threed.jpct.Config;
@@ -47,16 +51,19 @@ import com.threed.jpct.SimpleVector;
  * */
 public abstract class AbstractSkinSample extends AbstractSample {
 
-	protected SkinnedGroup skinnedGroup;
-	protected Skeleton.Pose currentPose;
-	protected Skeleton.Debugger skeletonDebugger;
+	protected AnimatedGroup animatedGroup;
+	protected SkeletonPose currentPose;
+	protected SkeletonDebugger skeletonDebugger;
 	
-	protected ClipSequence clipSequence;
+	protected SkinClipSequence skinClipSequence;
+	protected PoseClipSequence poseClipSequence;
 	
+	protected boolean skinAnim = true;
 	protected int animationSequence = -1; // bind pose
 	protected float animationSpeed = 1f;
 	protected float animationIndex = 0f;
     
+	
 	protected boolean showMesh = true;
 	protected boolean showSkeleton = false;
 	
@@ -68,31 +75,47 @@ public abstract class AbstractSkinSample extends AbstractSample {
 		super(size);
 	}
 	
-	protected abstract SkinnedGroup createSkinnedGroup() throws Exception;
+	protected abstract AnimatedGroup createAnimatedGroup() throws Exception;
 
-	protected abstract Skeleton.Debugger createSkeletonDebugger() throws Exception;
+	protected abstract SkeletonDebugger createSkeletonDebugger() throws Exception;
 	
 	protected float dragTurnAnglePerPixel = (float) (Math.PI / 256);
 	protected float dragMovePerPixel = 1f;
 	protected float cameraMovePerWheelClick = 1.1f;
 	
-	private Point dragStartPoint = null;
+	protected boolean hasSkinAnimation = false;
+	protected boolean hasPoseAnimation = false;
+	
+ 	private Point dragStartPoint = null;
 	private float cameraAngleAtDragStart = 0f;
 	private float cameraHeightAtDragStart = 0f;
 	
+	protected boolean blendEnabled = false;
+	
 	@Override
 	protected void initialize() throws Exception {
-		this.skinnedGroup = createSkinnedGroup();
+		this.animatedGroup = createAnimatedGroup();
+		animatedGroup.setAutoApplyAnimation(!blendEnabled);
 		
-		skinnedGroup.addToWorld(world);
+		this.skinClipSequence = animatedGroup.getSkinClipSequence();
+		this.poseClipSequence = animatedGroup.getPoseClipSequence();
+		
+		this.hasSkinAnimation = (skinClipSequence != null) && (skinClipSequence.getSize() != 0);
+		this.hasPoseAnimation = (poseClipSequence != null) && (poseClipSequence.getSize() != 0);
+		
+		this.skinAnim = hasSkinAnimation;
+		this.animationSequence = hasSkinAnimation ? -1 : 0;
+		
+		animatedGroup.addToWorld(world);
 		
 		// all SkinnedObject3D share the same pose 
-		this.currentPose = skinnedGroup.get(0).getCurrentPose();
+		this.currentPose = animatedGroup.get(0).getSkeletonPose();
 		
 		this.skeletonDebugger = createSkeletonDebugger();
-		skeletonDebugger.addToWorld(world);
-		
-		this.clipSequence = skinnedGroup.getClipSequence();
+		if (skeletonDebugger != null) {
+			skeletonDebugger.addToWorld(world);
+			skeletonDebugger.setVisibility(showSkeleton);
+		}
 		
         cameraController = new CameraOrbitController(world.getCamera());
         float[] bb = calcBoundingBox();
@@ -100,10 +123,9 @@ public abstract class AbstractSkinSample extends AbstractSample {
         dragMovePerPixel = height / frameBuffer.getOutputHeight();
         Config.farPlane = Math.max(height * 100, Config.farPlane);
 		
-		for (Skinned3D o : skinnedGroup) {
+		for (Animated3D o : animatedGroup) {
 			o.setVisibility(showMesh);
 		}
-		skeletonDebugger.setVisibility(showSkeleton);
 
 		renderPanel.addKeyListener(cameraController);
 		
@@ -111,12 +133,14 @@ public abstract class AbstractSkinSample extends AbstractSample {
 			public void keyPressed(KeyEvent e) {
 				switch (e.getKeyCode()) {
 					case KeyEvent.VK_S:
+						if (!hasSkinAnimation)
+							return;
 						showSkeleton = !showSkeleton;
 						skeletonDebugger.setVisibility(showSkeleton);
 						break;
 					case KeyEvent.VK_M:
 						showMesh = !showMesh;
-						for (Skinned3D o : skinnedGroup) {
+						for (Animated3D o : animatedGroup) {
 							o.setVisibility(showMesh);
 						}
 						break;
@@ -192,8 +216,9 @@ public abstract class AbstractSkinSample extends AbstractSample {
 	protected float[] calcBoundingBox() {
 		float[] box = null;
 		
-		for (Skinned3D skin : skinnedGroup) {
+		for (Animated3D skin : animatedGroup) {
 			float[] skinBB = skin.getMesh().getBoundingBox();
+			
 			if (box == null) {
 				box = skinBB;
 			} else {
@@ -259,31 +284,56 @@ public abstract class AbstractSkinSample extends AbstractSample {
 	protected void update(long deltaTime) {
 		cameraController.placeCamera();
 		
+		if (!hasPoseAnimation && !hasSkinAnimation)
+			return;
+		
 		if (animationSequence < 0) {
 			currentPose.setToBindPose();
 			currentPose.updateTransforms();
-			skinnedGroup.applyPose();
-			
+			animatedGroup.applySkeletonPose();
 		} else {
 			
-			float clipTime = (animationSequence == 0) 
-				? clipSequence.getTime() // whole animation 
-				: clipSequence.getClip(animationSequence - 1).getTime(); // single clip 
-
-			animationIndex += deltaTime * animationSpeed / clipTime / 1000;
-			while (animationIndex > 1)
-				animationIndex -= 1;
+			if (blendEnabled) {
 				
-			skinnedGroup.animateSkin(animationIndex, animationSequence);
+			} else {
+				
+				float clipTime = getClipTime(animationSequence, skinAnim); 
+
+				animationIndex += deltaTime * animationSpeed / clipTime / 1000;
+				while (animationIndex > 1)
+					animationIndex -= 1;
+				
+				animate(animationIndex, animationSequence, skinAnim);
+			}
+			
+		} 		
+		if (skinAnim)
+			skeletonDebugger.update(currentPose);
+	}
+	
+	protected float getClipTime(int sequence, boolean skinAnim) {
+		if (skinAnim) {
+			return (animationSequence == 0) 
+				? skinClipSequence.getTime() // whole animation 
+				: skinClipSequence.getClip(animationSequence - 1).getTime(); // single clip 
+		} else {
+			return (animationSequence == 0) 
+				? poseClipSequence.getTime() // whole animation 
+				: poseClipSequence.getClip(animationSequence - 1).getTime(); // single clip 
 		}
-		
-		
-        skeletonDebugger.update(currentPose);
+	}
+	
+	protected void animate(float index, int sequence, boolean skinAnim) {
+		if (skinAnim) {
+			animatedGroup.animateSkin(index, sequence);
+		} else {
+			animatedGroup.animatePose(index, sequence);
+		}
 	}
 	
 	protected void toggleVisible(int index) {
-		if ((skinnedGroup.getSize() > 1) && (index < skinnedGroup.getSize()))
-			skinnedGroup.get(index).setVisibility(!skinnedGroup.get(index).getVisibility());
+		if ((animatedGroup.getSize() > 1) && (index < animatedGroup.getSize()))
+			animatedGroup.get(index).setVisibility(!animatedGroup.get(index).getVisibility());
 	}
 	
 	
@@ -295,7 +345,7 @@ public abstract class AbstractSkinSample extends AbstractSample {
 			setLayout(new BorderLayout());
 			setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 			
-			if ((clipSequence == null) || (clipSequence.getSize() == 0)) {
+			if (!hasSkinAnimation && !hasPoseAnimation) {
 				add(new JLabel("No animations"), BorderLayout.CENTER);
 				return;
 			}
@@ -317,38 +367,96 @@ public abstract class AbstractSkinSample extends AbstractSample {
 				}
 			});
 			
+			add(speedSlider, BorderLayout.NORTH);
+
 			ButtonGroup animationGroup = new ButtonGroup();
 			
+			if (hasSkinAnimation) {
+				addSkinAnimations(animationGroup);
+			}
+			
+			if (hasPoseAnimation) {
+				addPoseAnimations(animationGroup);
+			}
+			
+		}
+
+		protected void addSkinAnimations(ButtonGroup animationGroup) {
+			
 			JPanel animationPanel = new JPanel();
-			animationPanel.setBorder(BorderFactory.createTitledBorder("Animation"));
+			animationPanel.setBorder(BorderFactory.createTitledBorder("Skin Animation"));
 			animationPanel.setLayout(new BoxLayout(animationPanel, BoxLayout.Y_AXIS));
 			
-			addAnimationButton("None <BindPose>", animationGroup, animationPanel, -1, true);
-			addAnimationButton("All", animationGroup, animationPanel, 0, false);
+			addSkinAnimationButton("None <BindPose>", animationGroup, animationPanel, -1, true);
+			addSkinAnimationButton("All", animationGroup, animationPanel, 0, false);
 			
 			int clipNo = 1;
-			for (Clip clip : clipSequence) {
+			for (SkinClip clip : skinClipSequence) {
 				String text = clipNo + " " + ((clip.getName() == null) ? 
 						"<no name>" : clip.getName());
-				addAnimationButton(text, animationGroup, animationPanel, clipNo, false);
+				addSkinAnimationButton(text, animationGroup, animationPanel, clipNo, false);
 				clipNo++;
 			}
-			add(speedSlider, BorderLayout.NORTH);
 			add(animationPanel, BorderLayout.CENTER);
 		}
 		
-		protected void addAnimationButton(String text, ButtonGroup group, JComponent container, final int animation, boolean selected) {
+		protected void addPoseAnimations(ButtonGroup animationGroup) {
+			JPanel animationPanel = new JPanel();
+			animationPanel.setBorder(BorderFactory.createTitledBorder("Pose Animation"));
+			animationPanel.setLayout(new BoxLayout(animationPanel, BoxLayout.Y_AXIS));
+
+			addPoseAnimationButton("All", animationGroup, animationPanel, 0, !hasSkinAnimation);
+			
+			int clipNo = 1;
+			for (PoseClip clip : poseClipSequence) {
+				String text = clipNo + " " + ((clip.getName() == null) ? 
+						"<no name>" : clip.getName());
+				addPoseAnimationButton(text, animationGroup, animationPanel, clipNo, false);
+				clipNo++;
+			}
+			add(animationPanel, BorderLayout.SOUTH);
+		}
+		
+		protected void addSkinAnimationButton(String text, ButtonGroup group, JComponent container, final int animation, boolean selected) {
 			JRadioButton button = new JRadioButton(text);
 			group.add(button);
 			container.add(button);
 			group.setSelected(button.getModel(), selected);
 			button.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
+					skinAnim = true;
 					animationSequence = animation;
 					animationIndex = 0;
 				}
 			});
 		}
+		
+		protected void addPoseAnimationButton(String text, ButtonGroup group, JComponent container, final int animation, boolean selected) {
+			if (blendEnabled) {
+				final JCheckBox button = new JCheckBox(text);
+				container.add(button);
+				button.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						animationSequence = animation;
+						animationIndex = 0;
+					}
+				});
+				
+			} else {
+				JRadioButton button = new JRadioButton(text);
+				group.add(button);
+				container.add(button);
+				group.setSelected(button.getModel(), selected);
+				button.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						skinAnim = false;
+						animationSequence = animation;
+						animationIndex = 0;
+					}
+				});
+			}
+		}
+		
 	}
 	
 	@SuppressWarnings("serial")
@@ -361,20 +469,22 @@ public abstract class AbstractSkinSample extends AbstractSample {
 			
 			add(createLabel("Arrow keys, A,Z to move camera", Color.RED));
 			
-			final JCheckBox showSkeletonCheckBox = new JCheckBox("Show skeleton (s)", showSkeleton);
-			showSkeletonCheckBox.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					showSkeleton = showSkeletonCheckBox.isSelected();
-					skeletonDebugger.setVisibility(showSkeleton);
-				}
-			});
-			add(showSkeletonCheckBox);
+			if (hasSkinAnimation) {
+				final JCheckBox showSkeletonCheckBox = new JCheckBox("Show skeleton (s)", showSkeleton);
+				showSkeletonCheckBox.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						showSkeleton = showSkeletonCheckBox.isSelected();
+						skeletonDebugger.setVisibility(showSkeleton);
+					}
+				});
+				add(showSkeletonCheckBox);
+			}
 			
 			final JCheckBox showMeshCheckBox = new JCheckBox("Show mesh (m)", showMesh);
 			showMeshCheckBox.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					showMesh = showMeshCheckBox.isSelected();
-					for (Skinned3D o : skinnedGroup) {
+					for (Animated3D o : animatedGroup) {
 						o.setVisibility(showMesh);
 					}
 				}
@@ -389,12 +499,12 @@ public abstract class AbstractSkinSample extends AbstractSample {
 			});
 			add(wireframeCheckBox);
 			
-			if (skinnedGroup.getSize() > 1) {
+			if (animatedGroup.getSize() > 1) {
 				JPanel subMeshPanel = new JPanel();
 				subMeshPanel.setBorder(BorderFactory.createTitledBorder("SubMesh"));
 				subMeshPanel.setLayout(new BoxLayout(subMeshPanel, BoxLayout.Y_AXIS));
 
-				for (int skin = 0; skin < skinnedGroup.getSize(); skin++) {
+				for (int skin = 0; skin < animatedGroup.getSize(); skin++) {
 					final int skinNo = skin;
 					final JCheckBox subMeshCheckBox = new JCheckBox("Show submesh (" + skin + ")", true);
 					subMeshCheckBox.addActionListener(new ActionListener() {

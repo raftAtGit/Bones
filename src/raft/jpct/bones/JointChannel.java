@@ -14,18 +14,18 @@ import com.threed.jpct.Matrix;
 import com.threed.jpct.SimpleVector;
 
 /** 
- * <p>Animation data related to a single {@link Skeleton.Joint}.</p>
+ * <p>Skeletal animation data related to a single {@link Joint}.</p>
  * 
  * <p>Channel data is in Joint's local space and directly applied to local transform
- * of {@link Skeleton.Pose} related to Joint.
+ * of {@link SkeletonPose} related to Joint.
  * </p>
  * 
  * <p>This class is originally adapted from <a href="http://www.ardor3d.com">Ardor3D.</a></p>
  * 
- * @see Clip
- * @see Skeleton.Joint
+ * @see SkinClip
+ * @see Joint
  * */
-public class Channel implements java.io.Serializable {
+public class JointChannel implements java.io.Serializable {
 	private static final long serialVersionUID = 1L;
 
 	final short jointIndex;
@@ -43,13 +43,13 @@ public class Channel implements java.io.Serializable {
     /**
      * <p>Creates a new Channel out of given data.<p> 
      * */
-    public Channel(short jointIndex, float[] times, SimpleVector[] translations, 
+    public JointChannel(short jointIndex, float[] times, SimpleVector[] translations, 
     		Quaternion[] rotations, SimpleVector[] scales) {
 
     	this(jointIndex, times.length);
     	
         if (rotations.length != times.length || translations.length != times.length || scales.length != times.length) {
-            throw new IllegalArgumentException("All provided arrays must be the same length!");
+            throw new IllegalArgumentException("All provided arrays must be same length!");
         }
         
         for (int i = 0; i < times.length; i++) {
@@ -64,7 +64,7 @@ public class Channel implements java.io.Serializable {
     /**
      * <p>Creates a new Channel out of Ardor3D's JointChannel.<p> 
      * */
-	Channel(com.ardor3d.extension.animation.skeletal.JointChannel jointChannel) {
+	JointChannel(com.ardor3d.extension.animation.skeletal.JointChannel jointChannel) {
 		this(SkinHelper.parseJointIndex(jointChannel), jointChannel.getLength());
 		
 		int length = times.length;
@@ -85,14 +85,14 @@ public class Channel implements java.io.Serializable {
      * <p>Creates a new Channel out of jME OGRE BoneTrack. Skeleton is used
      * for transforming track data into joint local space.<p> 
      * */
-	Channel(com.jmex.model.ogrexml.anim.BoneTrack track, Skeleton skeleton) {
+	JointChannel(com.jmex.model.ogrexml.anim.BoneTrack track, Skeleton skeleton) {
 		this((short) track.getTargetBoneIndex(), track.getTimes().length);
 
 		int length = times.length;
 		
 		// jME OGRE tracks are relative to joints, we need to take them to joint local space
-		Skeleton.Joint joint = skeleton.getJoint(jointIndex);
-		Skeleton.Joint parentJoint = joint.hasParent() ? 
+		Joint joint = skeleton.getJoint(jointIndex);
+		Joint parentJoint = joint.hasParent() ? 
 				skeleton.getJoint(joint.getParentIndex()) : null;
 
 		for (int sampleIndex = 0; sampleIndex < length; sampleIndex++) {
@@ -116,7 +116,7 @@ public class Channel implements java.io.Serializable {
         validateTimes();
 	}
     
-	private Channel(short jointIndex, int length) {
+	private JointChannel(short jointIndex, int length) {
 		if (jointIndex < 0)
 			throw new IllegalArgumentException("jointIndex: " + jointIndex);
 		
@@ -145,13 +145,13 @@ public class Channel implements java.io.Serializable {
 	/** 
 	 * applies channel data to given matrix. given seconds should be in [0,time] range, otherwise clamped.  
 	 * */
-	public void applyTo(final float seconds, final Matrix applyTo) {
+	void applyTo(final float seconds, final Matrix target) {
 		// figure out what frames we are between and by how much
 		final int lastFrame = times.length - 1;
 		if (seconds < 0 || times.length == 1) {
-			applyTo(0, applyTo);
+			applyTo(0, target);
 		} else if (seconds >= times[lastFrame]) {
-			applyTo(lastFrame, applyTo);
+			applyTo(lastFrame, target);
 		} else {
 			int startFrame = times.length - 2;
 
@@ -164,16 +164,16 @@ public class Channel implements java.io.Serializable {
 			final float progressPercent = (seconds - times[startFrame])
 					/ (times[startFrame + 1] - times[startFrame]);
 
-			applyTo(startFrame, progressPercent, applyTo);
+			applyTo(startFrame, progressPercent, target);
 		}
 	}
 	
 	/** applies channel data to given matrix. index should be [0,length) range otherwise 
 	 * it will be clamped
 	 * */
-    public void applyTo(int sampleIndex, Matrix applyTo) {
+    void applyTo(int sampleIndex, Matrix target) {
     	sampleIndex = SkinHelper.clamp(0, times.length-1, sampleIndex);
-    	applyToMatrix(rotations[sampleIndex], translations[sampleIndex], scales[sampleIndex], applyTo);
+    	applyToMatrix(rotations[sampleIndex], translations[sampleIndex], scales[sampleIndex], target);
     }
     
     
@@ -183,13 +183,13 @@ public class Channel implements java.io.Serializable {
 	 * an ArrayIndexOutOfBoundsException will be thrown
 	 *  
 	 * @throws ArrayIndexOutOfBoundsException */
-    public void applyTo(final int sampleIndex, final float progressPercent, final Matrix applyTo) {
+    void applyTo(final int sampleIndex, final float progressPercent, final Matrix target) {
         // shortcut
         if (progressPercent == 0.0f) {
-            applyTo(sampleIndex, applyTo);
+            applyTo(sampleIndex, target);
             return;
         } else if (progressPercent == 1.0f) {
-            applyTo(sampleIndex + 1, applyTo);
+            applyTo(sampleIndex + 1, target);
             return;
         }
 
@@ -198,20 +198,20 @@ public class Channel implements java.io.Serializable {
         SkinHelper.interpolate(translations[sampleIndex], translations[sampleIndex + 1], tmpTranslation, progressPercent);
         SkinHelper.interpolate(scales[sampleIndex], scales[sampleIndex + 1], tmpScale, progressPercent);
 
-        applyToMatrix(tmpRotation, tmpTranslation, tmpScale, applyTo);
+        applyToMatrix(tmpRotation, tmpTranslation, tmpScale, target);
     }
     
-    private void applyToMatrix(Quaternion rotation, SimpleVector translation, SimpleVector scale, Matrix applyTo) {
-    	applyTo.setIdentity();
-    	rotation.setRotation(applyTo);
-    	SkinHelper.setTranslation(applyTo, translation);
+    private void applyToMatrix(Quaternion rotation, SimpleVector translation, SimpleVector scale, Matrix target) {
+    	target.setIdentity();
+    	rotation.setRotation(target);
+    	SkinHelper.setTranslation(target, translation);
 
     	if ((scale.x != 1) || (scale.y != 1) || (scale.z != 1)) {
 	    	tmpScaleMatrix.set(0, 0, scale.x);
 	    	tmpScaleMatrix.set(1, 1, scale.y);
 	    	tmpScaleMatrix.set(2, 2, scale.z);
 	    	// TODO correct ?
-	    	applyTo.matMul(tmpScaleMatrix);
+	    	target.matMul(tmpScaleMatrix);
 	    	//System.out.println(scale);
     	}
     }

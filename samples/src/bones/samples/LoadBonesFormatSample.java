@@ -3,11 +3,10 @@ package bones.samples;
 import java.awt.Dimension;
 import java.io.FileInputStream;
 
-import raft.jpct.bones.Skeleton;
-import raft.jpct.bones.SkinIO;
-import raft.jpct.bones.Skinned3D;
-import raft.jpct.bones.SkinnedGroup;
-import raft.jpct.bones.Skeleton.Debugger;
+import raft.jpct.bones.BonesIO;
+import raft.jpct.bones.Animated3D;
+import raft.jpct.bones.AnimatedGroup;
+import raft.jpct.bones.SkeletonDebugger;
 
 import com.threed.jpct.Texture;
 import com.threed.jpct.TextureManager;
@@ -16,7 +15,7 @@ import com.threed.jpct.TextureManager;
  * <p>Demonstrates loading skin in Bones format. 
  * This sample can be run only with bones.jar and jpct.jar in classpath.</p>
  *  
- * @see SkinIO#loadGroup(java.io.InputStream)
+ * @see BonesIO#loadGroup(java.io.InputStream)
  * @author hakan eryargi (r a f t)
  * */
 public class LoadBonesFormatSample extends AbstractSkinSample {
@@ -31,30 +30,30 @@ public class LoadBonesFormatSample extends AbstractSkinSample {
 	}
 
 	@Override
-	protected Debugger createSkeletonDebugger() throws Exception {
+	protected SkeletonDebugger createSkeletonDebugger() throws Exception {
 		// in ninja file, root joint always remain in origin which doesn't look so good.
 		// so we tell debugger to ignore root joint (0)
-		return new Skeleton.Debugger(skinnedGroup.get(0).getCurrentPose(), 10f, (short)0);
+		return new SkeletonDebugger(animatedGroup.get(0).getSkeletonPose(), 10f, (short)0);
 	}
 
 	@Override
-	protected SkinnedGroup createSkinnedGroup() throws Exception {
+	protected AnimatedGroup createAnimatedGroup() throws Exception {
 		//return loadSeymour();
 		return loadNinja();
 	}
 	
-	private SkinnedGroup loadNinja() throws Exception {
+	private AnimatedGroup loadNinja() throws Exception {
 		FileInputStream fis = new FileInputStream("./samples/data/ninja/ninja.group.bones");
 		try {
-			SkinnedGroup skinnedGroup = SkinIO.loadGroup(fis);
+			AnimatedGroup skinnedGroup = BonesIO.loadGroup(fis);
 	
 			Texture texture = new Texture("./samples/data/ninja/nskingr.jpg");
 			TextureManager.getInstance().addTexture("ninja", texture);
 			
-			for (Skinned3D o : skinnedGroup) {
+			for (Animated3D o : skinnedGroup) {
 				o.setTexture("ninja");
 				o.build();
-				o.discardSkeletonMesh();
+				o.discardMeshData();
 			}
 			return skinnedGroup;
 		} finally {
@@ -62,18 +61,18 @@ public class LoadBonesFormatSample extends AbstractSkinSample {
 		}
 	}
 
-	private SkinnedGroup loadSeymour() throws Exception {
+	private AnimatedGroup loadSeymour() throws Exception {
 		FileInputStream fis = new FileInputStream("./samples/data/seymour/seymour.group.bones");
 		try {
-			SkinnedGroup skinnedGroup = SkinIO.loadGroup(fis);
+			AnimatedGroup skinnedGroup = BonesIO.loadGroup(fis);
 	
 			Texture texture = new Texture("./samples/data/seymour/seymour_flipped.png");
 			TextureManager.getInstance().addTexture("ninja", texture);
 			
-			for (Skinned3D o : skinnedGroup) {
+			for (Animated3D o : skinnedGroup) {
 				o.setTexture("ninja");
 				o.build();
-				o.discardSkeletonMesh();
+				o.discardMeshData();
 			}
 			return skinnedGroup;
 		} finally {

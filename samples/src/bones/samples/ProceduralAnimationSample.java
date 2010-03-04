@@ -20,11 +20,13 @@ import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import raft.jpct.bones.Animated3D;
+import raft.jpct.bones.AnimatedGroup;
+import raft.jpct.bones.BonesIO;
+import raft.jpct.bones.Joint;
 import raft.jpct.bones.Quaternion;
-import raft.jpct.bones.Skeleton;
-import raft.jpct.bones.SkinIO;
-import raft.jpct.bones.Skinned3D;
-import raft.jpct.bones.SkinnedGroup;
+import raft.jpct.bones.SkeletonDebugger;
+import raft.jpct.bones.SkeletonPose;
 
 import com.ardor3d.extension.model.collada.jdom.ColladaImporter;
 import com.ardor3d.extension.model.collada.jdom.data.ColladaStorage;
@@ -38,15 +40,15 @@ import com.threed.jpct.Texture;
 import com.threed.jpct.TextureManager;
 
 /** 
- * <p>Demonstrates how to programatically pose {@link Skeleton.Joint joint}s to follow an external object.</p>
+ * <p>Demonstrates how to programatically pose {@link Joint joint}s to follow an external object.</p>
  * 
  * <p>This class is adapted from <a href="http://www.ardor3d.com">Ardor3D.</a></p>
  * */
 public class ProceduralAnimationSample extends AbstractSample {
 	
-	private SkinnedGroup skinnedGroup;
-    private Skeleton.Pose currentPose;
-    private Skeleton.Debugger skeletonDebugger;
+	private AnimatedGroup skinnedGroup;
+    private SkeletonPose currentPose;
+    private SkeletonDebugger skeletonDebugger;
     private Object3D ballSphere; 
 	
 	private CameraOrbitController cameraController;
@@ -79,7 +81,7 @@ public class ProceduralAnimationSample extends AbstractSample {
 			ColladaImporter colladaImporter = new ColladaImporter().loadTextures(false);
 			ColladaStorage colladaStorage = colladaImporter.load(uri.toString());
 			
-			this.skinnedGroup = SkinIO.loadColladaSkin(colladaStorage, 1f);
+			this.skinnedGroup = BonesIO.loadCollada(colladaStorage, 1f);
 		} finally {
 			ResourceLocatorTool.removeResourceLocator(ResourceLocatorTool.TYPE_MODEL, resLocater);
 		}
@@ -89,20 +91,20 @@ public class ProceduralAnimationSample extends AbstractSample {
 		
 		world.setAmbientLight(255, 255, 255);
 
-		for (Skinned3D o : skinnedGroup) {
+		for (Animated3D o : skinnedGroup) {
 			o.setTexture("seymour");
 			o.build();
-			o.discardSkeletonMesh();
+			o.discardMeshData();
 		}
 		skinnedGroup.addToWorld(world);
 		
 		// all SkinnedObject3D share the same pose 
-		this.currentPose = skinnedGroup.get(0).getCurrentPose();
+		this.currentPose = skinnedGroup.get(0).getSkeletonPose();
 		
 		// seymour is oriented for GL coordinates, rotate it for jPCT
 		currentPose.getSkeleton().getTransform().rotateX((float)Math.PI);
 		
-		this.skeletonDebugger = new Skeleton.Debugger(currentPose);
+		this.skeletonDebugger = new SkeletonDebugger(currentPose);
 		skeletonDebugger.addToWorld(world);
 		skeletonDebugger.setVisibility(showSkeleton);
 		
@@ -135,7 +137,7 @@ public class ProceduralAnimationSample extends AbstractSample {
 		
         currentPose.updateTransforms();
         skeletonDebugger.update(currentPose);
-        skinnedGroup.applyPose();
+        skinnedGroup.applySkeletonPose();
         
 		cameraController.placeCamera();
 	}
@@ -144,11 +146,11 @@ public class ProceduralAnimationSample extends AbstractSample {
 	private void stretchNeck() {
 		currentPose.setToBindPose();
 		
-		final short jointIndex = 13; 
-		final Skeleton.Joint neckJoint = currentPose.getSkeleton().getJoint(jointIndex);
+		final int jointIndex = 13; 
+		final Joint neckJoint = currentPose.getSkeleton().getJoint(jointIndex);
 		
         //final Matrix[] globals = currentPose.getGlobalJointTransforms();
-        final short parentIndex = neckJoint.getParentIndex();
+        final int parentIndex = neckJoint.getParentIndex();
 		
         SimpleVector boneDirection = currentPose.getGlobal(neckJoint.getIndex()).getTranslation().calcSub(
         		currentPose.getGlobal(parentIndex).getTranslation()).normalize();
@@ -184,12 +186,12 @@ public class ProceduralAnimationSample extends AbstractSample {
          ballSphere.translate(ballPos.calcSub(ballSphere.getTranslation()));
     }
     
-    private void targetJoint(Skeleton.Pose pose, int jointIndex, SimpleVector bindPoseDirection,
+    private void targetJoint(SkeletonPose pose, int jointIndex, SimpleVector bindPoseDirection,
     		SimpleVector targetPos, final float targetStrength) {
     	
         //final Matrix[] globalTransforms = pose.getGlobalJointTransforms();
 
-        final short parentIndex = pose.getSkeleton().getJoint(jointIndex).getParentIndex();
+        final int parentIndex = pose.getSkeleton().getJoint(jointIndex).getParentIndex();
 
         // neckBindGlobalTransform is the neck bone -> model space transform. essentially, it is the world transform of
         // the neck bone in bind pose.
@@ -248,7 +250,7 @@ public class ProceduralAnimationSample extends AbstractSample {
 			showMeshCheckBox.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					showMesh = showMeshCheckBox.isSelected();
-					for (Skinned3D o : skinnedGroup) {
+					for (Animated3D o : skinnedGroup) {
 						o.setVisibility(showMesh);
 					}
 				}

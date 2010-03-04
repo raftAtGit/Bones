@@ -35,7 +35,7 @@ public abstract class AbstractSample {
 	protected Color wireFrameColor = Color.GREEN;
 
 	protected AbstractSample() {
-		this(new Dimension(800, 600));
+		this(new Dimension(1024, 768));
 	}
 	
 	protected AbstractSample(Dimension size) {
@@ -58,7 +58,9 @@ public abstract class AbstractSample {
 		});
 	}
 	
-	protected abstract String getName();
+	protected String getName() {
+		return getClass().getName();
+	}
 	
 	protected abstract void initialize() throws Exception;
 	

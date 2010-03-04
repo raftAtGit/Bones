@@ -8,8 +8,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import raft.jpct.bones.SkinIO;
-import raft.jpct.bones.SkinnedGroup;
+import raft.jpct.bones.BonesIO;
+import raft.jpct.bones.AnimatedGroup;
 
 import com.ardor3d.extension.model.collada.jdom.ColladaImporter;
 import com.ardor3d.extension.model.collada.jdom.data.ColladaStorage;
@@ -37,8 +37,8 @@ public class ArdorColladaImporter {
 	 * 		their skeletons must match. 
 	 * @param scale the scaling of group
 	 * 
-	 * @see SkinIO#loadColladaSkin(ColladaStorage, float)
-	 * @see SkinnedGroup#mergeSkin(SkinnedGroup...)
+	 * @see BonesIO#loadCollada(ColladaStorage, float)
+	 * @see AnimatedGroup#mergeSkin(AnimatedGroup...)
 	 * */
 	public ArdorColladaImporter(File outFile, List<File> inputFiles, float scale) {
 		if (inputFiles.isEmpty())
@@ -51,7 +51,7 @@ public class ArdorColladaImporter {
 
 	/** Executes the importer. */
 	public void run() throws Exception {
-		final SkinnedGroup group = loadGroup();
+		final AnimatedGroup group = loadGroup();
 		
 		if (outFile != null) {
 			if (outFile.isDirectory())
@@ -60,7 +60,7 @@ public class ArdorColladaImporter {
 			
 			FileOutputStream fos = new FileOutputStream(outFile);
 			try {
-				SkinIO.saveGroup(group, fos);
+				BonesIO.saveGroup(group, fos);
 				Logger.log("Saved bones-group to " + outFile, Logger.MESSAGE);
 			} finally {
 				fos.close();
@@ -68,19 +68,19 @@ public class ArdorColladaImporter {
 		}
 	}
 	
-	private SkinnedGroup loadGroup() throws Exception { 
+	private AnimatedGroup loadGroup() throws Exception { 
 		if (inputFiles.size() == 1) {
 			return loadGroup(inputFiles.get(0));
 		} else {
-			List<SkinnedGroup> groups = new LinkedList<SkinnedGroup>();
+			List<AnimatedGroup> groups = new LinkedList<AnimatedGroup>();
 			for (File input : inputFiles) {
 				groups.add(loadGroup(input));
 			}
-			return SkinnedGroup.mergeSkin(groups.toArray(new SkinnedGroup[groups.size()]));
+			return AnimatedGroup.mergeSkin(groups.toArray(new AnimatedGroup[groups.size()]));
 		}
 	}
 	
-	private SkinnedGroup loadGroup(File colladaFile) throws Exception {
+	private AnimatedGroup loadGroup(File colladaFile) throws Exception {
 		URI uri = colladaFile.toURI();
 		
         final SimpleResourceLocator resLocater = new SimpleResourceLocator(uri.resolve("./"));
@@ -90,7 +90,7 @@ public class ArdorColladaImporter {
 			ColladaImporter colladaImporter = new ColladaImporter().loadTextures(false);
 			ColladaStorage colladaStorage = colladaImporter.load(uri.toString());
 			
-			return SkinIO.loadColladaSkin(colladaStorage, scale);
+			return BonesIO.loadCollada(colladaStorage, scale);
 		} finally {
 			ResourceLocatorTool.removeResourceLocator(ResourceLocatorTool.TYPE_MODEL, resLocater);
 		}

@@ -7,41 +7,43 @@ import java.util.List;
 
 import com.threed.jpct.Animation;
 
-/** <p>
- * A sequence of {@link Clip}s. A ClipSequence is analogue of jPCT's {@link Animation} sequence.
- * A ClipSequence can be assigned to a {@link Skinned3D} and the object can be 
+/** 
+ * <p>
+ * A sequence of {@link SkinClip}s. A ClipSequence is analogue of jPCT's {@link Animation} sequence.
+ * A ClipSequence can be assigned to a {@link Animated3D} and the object can be 
  * directly animated</p>.
  * 
- * @see Skinned3D#setClipSequence(ClipSequence)
- * @see Skinned3D#animateSkin(float)
- * @see Skinned3D#animateSkin(float, int)
+ * @see Animated3D#setSkinClipSequence(SkinClipSequence)
+ * @see Animated3D#animateSkin(float, int)
+ * 
+ * @author hakan eryargi (r a f t)
  * */
-public class ClipSequence implements java.io.Serializable, Iterable<Clip> {
+public class SkinClipSequence implements java.io.Serializable, Iterable<SkinClip> {
 	private static final long serialVersionUID = 1L;
 	
-	private Clip[] clips;
+	private SkinClip[] clips;
 	private float[] times;
 
 	/**
 	 * <p>Creates a ClipSequence out of given clips. All clips should be bound to same skeleton. 
-	 * If not, consider using {@link #merge(ClipSequence...)}</p>
+	 * If not, consider using {@link #merge(SkinClipSequence...)}</p>
 	 * 
-	 * @see #merge(ClipSequence...)
+	 * @see #merge(SkinClipSequence...)
 	 * */
-	public ClipSequence(Clip... clips) {
+	public SkinClipSequence(SkinClip... clips) {
 		this(Arrays.asList(clips));
 	}
 	
 	/**
-	 * <p>Same as {@link #ClipSequence(Clip...)} but uses a List instead of array.</p>
+	 * <p>Same as {@link #SkinClipSequence(SkinClip...)} but uses a List instead of array.</p>
 	 * 
-	 * @see #ClipSequence(Clip...)
+	 * @see #SkinClipSequence(SkinClip...)
 	 * */
-	public ClipSequence(List<Clip> clips) {
+	public SkinClipSequence(List<SkinClip> clips) {
 		if (clips.isEmpty())
 			throw new IllegalArgumentException("no clips");
 		
-		this.clips = clips.toArray(new Clip[clips.size()]);
+		this.clips = clips.toArray(new SkinClip[clips.size()]);
 		checkSameSkeleton();
 		updateTimes();
 	}
@@ -52,7 +54,7 @@ public class ClipSequence implements java.io.Serializable, Iterable<Clip> {
 	}
 	
 	/** Returns the specified clip */
-	public Clip getClip(int index) {
+	public SkinClip getClip(int index) {
 		return clips[index];
 	}
 	
@@ -66,11 +68,11 @@ public class ClipSequence implements java.io.Serializable, Iterable<Clip> {
 		return clips[0].getSkeleton();
 	}
 	
-	public void addClip(Clip clip) {
+	public void addClip(SkinClip clip) {
 		if (clip.getSkeleton() != getSkeleton()) 
 			throw new IllegalArgumentException("Clip has a different skeleton!");
 		
-		Clip[] newClips = new Clip[clips.length + 1];
+		SkinClip[] newClips = new SkinClip[clips.length + 1];
 		System.arraycopy(clips, 0, newClips, 0, clips.length);
 		newClips[clips.length] = clip;
 		this.clips = newClips;
@@ -81,13 +83,13 @@ public class ClipSequence implements java.io.Serializable, Iterable<Clip> {
 	 * <p>applies the clip which corresponds to given seconds. 
 	 * given seconds should be in [0,time] range, otherwise clamped.</p>
 	 * */
-	public void animate(final float seconds, Skeleton.Pose pose) {
+	void animate(final float seconds, SkeletonPose pose) {
 		// figure out what frames we are between and by how much
 		final int lastClip = clips.length - 1;
 		if (seconds < 0 || clips.length == 1) {
 			clips[0].applyTo(seconds, pose);
 		} else if (seconds >= times[lastClip+1]) {
-			clips[lastClip].applyTo(clips[lastClip].getTime(), pose);
+			clips[lastClip].applyTo(clips[lastClip].getTime(), pose); 
 		} else {
 			int clipIndex = 0;
 
@@ -106,7 +108,7 @@ public class ClipSequence implements java.io.Serializable, Iterable<Clip> {
 	private void checkSameSkeleton() {
 		Skeleton lastSkeleton = null;
 		
-		for (Clip clip : clips) {
+		for (SkinClip clip : clips) {
 			if (lastSkeleton == null)
 				lastSkeleton = clip.getSkeleton();
 			
@@ -139,10 +141,10 @@ public class ClipSequence implements java.io.Serializable, Iterable<Clip> {
 	 * 
 	 * <p>This method always uses the skeleton of first sequence.</p>
 	 * 
-	 *  @see SkinnedGroup#mergeSkin(raft.jpct.bones.SkinnedGroup...)
-	 *  @see Skinned3D#mergeSkin(Skinned3D...)
+	 *  @see AnimatedGroup#mergeSkin(raft.jpct.bones.AnimatedGroup...)
+	 *  @see Animated3D#mergeSkin(Animated3D...)
 	 * */
-	public static ClipSequence merge(ClipSequence... sequences) {
+	public static SkinClipSequence merge(SkinClipSequence... sequences) {
 		if (sequences.length == 0)
 			throw new IllegalArgumentException("no sequences");
 		
@@ -155,17 +157,17 @@ public class ClipSequence implements java.io.Serializable, Iterable<Clip> {
 		// this is the skeleton we will use
 		Skeleton skeleton = sequences[0].getSkeleton();
 		
-		List<Clip> clips = new LinkedList<Clip>();
+		List<SkinClip> clips = new LinkedList<SkinClip>();
 		
-		for (ClipSequence sequence : sequences) {
-			for (Clip clip : sequence.clips) {
-				clips.add(new Clip(skeleton, clip));
+		for (SkinClipSequence sequence : sequences) {
+			for (SkinClip clip : sequence.clips) {
+				clips.add(new SkinClip(skeleton, clip));
 			}
 		}
-		return new ClipSequence(clips);
+		return new SkinClipSequence(clips);
 	}
 
-	public Iterator<Clip> iterator() {
+	public Iterator<SkinClip> iterator() {
 		return Arrays.asList(clips).iterator();
 	}
 	

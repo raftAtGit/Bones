@@ -1,3 +1,3 @@
-/** Bones is a skeletal animation system for jPCT. */
+/** Bones is an animation API for jPCT. It supports skeletal and pose animations. */
 package raft.jpct.bones;
 
