@@ -30,7 +30,7 @@ public class AnimatedGroup implements java.io.Serializable, Iterable<Animated3D>
 	 *  @throws IllegalArgumentException if object array is empty or they have different skeletons.
 	 *  @see Animated3D#mergeSkin(Animated3D...)
 	 * */
-	public AnimatedGroup(Animated3D[] objects) {
+	public AnimatedGroup(Animated3D... objects) {
 		if (objects.length == 0)
 			throw new IllegalArgumentException("No objects");
 		
@@ -58,6 +58,7 @@ public class AnimatedGroup implements java.io.Serializable, Iterable<Animated3D>
 			root.addChild(objects[i]);
 		}
 		this.skinClipSequence = (SkinClipSequence) in.readObject();
+		this.poseClipSequence = (PoseClipSequence) in.readObject();
 	}
 	
 
@@ -224,6 +225,7 @@ public class AnimatedGroup implements java.io.Serializable, Iterable<Animated3D>
 			so.writeToStream(out);
 		}
 		out.writeObject(skinClipSequence);
+		out.writeObject(poseClipSequence);
 	}
 	
 	/** returns number of objects in this group */

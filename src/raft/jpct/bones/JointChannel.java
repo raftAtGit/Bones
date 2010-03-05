@@ -119,6 +119,8 @@ public class JointChannel implements java.io.Serializable {
 	private JointChannel(short jointIndex, int length) {
 		if (jointIndex < 0)
 			throw new IllegalArgumentException("jointIndex: " + jointIndex);
+    	if (length < 1)
+    		throw new IllegalArgumentException("length: " + length); 
 		
 		this.jointIndex = jointIndex; 
 		this.times = new float[length];

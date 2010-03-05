@@ -17,6 +17,16 @@ public class MeshChannel implements java.io.Serializable {
     private final PoseFrame[] frames;
     private final float[] times;
 	
+    public MeshChannel(int objectIndex, PoseFrame[] frames, float[] times) {
+    	this(objectIndex, times.length);
+    	
+        for (int i = 0; i < times.length; i++) {
+        	this.frames[i] = frames[i];
+        	this.times[i] = times[i];
+        }
+        validateTimes();
+    }
+    
     MeshChannel(com.jmex.model.ogrexml.anim.PoseTrack poseTrack) {
     	this(poseTrack.getTargetMeshIndex(), poseTrack.getTimes().length);
     	
@@ -47,6 +57,11 @@ public class MeshChannel implements java.io.Serializable {
     }
     
     private MeshChannel(int objectIndex, int length) {
+		if (objectIndex < 0)
+			throw new IllegalArgumentException("jointIndex: " + objectIndex);
+    	if (length < 1)
+    		throw new IllegalArgumentException("length: " + length); 
+    	
     	this.objectIndex = objectIndex;
     	this.frames = new PoseFrame[length];
     	this.times = new float[length];

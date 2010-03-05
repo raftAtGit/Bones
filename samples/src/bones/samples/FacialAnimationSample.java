@@ -2,6 +2,7 @@ package bones.samples;
 
 import java.awt.Color;
 import java.io.File;
+import java.io.FileInputStream;
 import java.net.URL;
 
 import raft.jpct.bones.Animated3D;
@@ -35,7 +36,8 @@ public class FacialAnimationSample extends AbstractSkinSample {
 		OgreLoader loader = new OgreLoader();
 		OgreEntityNode node = loader.loadModel(url);
 
-		AnimatedGroup group = BonesIO.loadOgre(node, 1f);
+		//AnimatedGroup group = BonesIO.loadOgre(node, 1f);
+		AnimatedGroup group = BonesIO.loadGroup(new FileInputStream("samples/data/facial/facial.group.bones"));
 		
 		TextureManager.getInstance().addTexture("eyes", new Texture(8, 8, Color.WHITE));
 		TextureManager.getInstance().addTexture("teeth", new Texture(8, 8, Color.WHITE));

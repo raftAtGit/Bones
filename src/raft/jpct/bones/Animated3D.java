@@ -49,8 +49,8 @@ public class Animated3D extends Object3D implements Cloneable {
 	
 	private int index;
 	private boolean destMeshDirty = false;
-	private SimpleVector[] sourceMesh;
-	private SimpleVector[] destMesh;
+	private transient SimpleVector[] sourceMesh;
+	private transient SimpleVector[] destMesh;
 	
     private SimpleVector vertexSum = new SimpleVector();
     private SimpleVector temp = new SimpleVector();
@@ -86,7 +86,7 @@ public class Animated3D extends Object3D implements Cloneable {
 	}
 
 	/** Creates a Skinned3D out of given information. */
-	Animated3D(MeshData meshData, SkinData skin, SkeletonPose currentPose) {
+	public Animated3D(MeshData meshData, SkinData skin, SkeletonPose currentPose) {
 		super(meshData.coordinates, meshData.uvs, meshData.indices, TextureManager.TEXTURE_NOTFOUND);
 		
 		this.skeleton = (currentPose == null) ? null : currentPose.skeleton;
@@ -97,12 +97,25 @@ public class Animated3D extends Object3D implements Cloneable {
 		attachVertexController();
 	}
 
+	/** Creates a Skinned3D out of given information. */
+	public Animated3D(Object3D object, SkinData skin, SkeletonPose currentPose) {
+		super(object, MESH_DONT_REUSE);
+		
+		this.skeleton = (currentPose == null) ? null : currentPose.skeleton;
+		this.currentPose  = currentPose;
+		this.skin = skin; 
+
+		attachVertexController();
+	}
+	
 	/** 
 	 * Creates a Skinned3D by re-loading information previously saved to stream. 
 	 * @see #writeToStream(java.io.ObjectOutputStream) */
 	Animated3D(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
 		this((MeshData) in.readObject(), (SkinData) in.readObject(), (SkeletonPose) in.readObject());
+		this.index = in.readInt();
 		this.skinClipSequence = (SkinClipSequence) in.readObject();
+		this.poseClipSequence = (PoseClipSequence) in.readObject();
 	}
 	
 	/** Returns the skeleton pose used for animation. */
@@ -146,6 +159,7 @@ public class Animated3D extends Object3D implements Cloneable {
 
 	public void applyAnimation() {
 		vertexController.updateMesh();
+		touch();
 		destMeshDirty = true;
 	}
 	
@@ -352,7 +366,9 @@ public class Animated3D extends Object3D implements Cloneable {
 		out.writeObject(meshData);
 		out.writeObject(skin);
 		out.writeObject(currentPose);
+		out.writeInt(index);
 		out.writeObject(skinClipSequence);
+		out.writeObject(poseClipSequence);
 	}
 	
 	SimpleVector[] getDestinationMesh() {
