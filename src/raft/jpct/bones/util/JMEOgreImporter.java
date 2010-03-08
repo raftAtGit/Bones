@@ -36,7 +36,7 @@ public class JMEOgreImporter {
 	 * 		their skeletons must match. 
 	 * @param scale the scaling of group
 	 * 
-	 * @see BonesIO#loadOgre(OgreEntityNode, float)
+	 * @see BonesImporter#importOgre(OgreEntityNode, float)
 	 * @see AnimatedGroup#mergeSkin(AnimatedGroup...)
 	 * */
 	public JMEOgreImporter(File outFile, List<File> inputFiles, float scale) {

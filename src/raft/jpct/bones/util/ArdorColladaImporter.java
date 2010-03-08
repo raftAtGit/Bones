@@ -38,7 +38,7 @@ public class ArdorColladaImporter {
 	 * 		their skeletons must match. 
 	 * @param scale the scaling of group
 	 * 
-	 * @see BonesIO#loadCollada(ColladaStorage, float)
+	 * @see BonesImporter#importCollada(ColladaStorage, float)
 	 * @see AnimatedGroup#mergeSkin(AnimatedGroup...)
 	 * */
 	public ArdorColladaImporter(File outFile, List<File> inputFiles, float scale) {
