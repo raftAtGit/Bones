@@ -94,7 +94,7 @@ public class JointChannel implements java.io.Serializable {
 	void applyTo(final float seconds, final Matrix target) {
 		// figure out what frames we are between and by how much
 		final int lastFrame = times.length - 1;
-		if (seconds < 0 || times.length == 1) {
+		if (seconds <= 0 || times.length == 1) {
 			applyTo(0, target);
 		} else if (seconds >= times[lastFrame]) {
 			applyTo(lastFrame, target);

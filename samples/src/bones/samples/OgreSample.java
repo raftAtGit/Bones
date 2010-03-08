@@ -70,6 +70,8 @@ public class OgreSample extends AbstractSkinSample {
 		autoAdjustCamera();
 	}
 	
+	
+	
 	public static void main(String[] args) throws Exception {
 		new OgreSample().loop();
 	}

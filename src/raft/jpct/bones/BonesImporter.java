@@ -11,6 +11,10 @@ import java.util.Map;
 import com.ardor3d.extension.animation.skeletal.SkinnedMesh;
 import com.ardor3d.extension.animation.skeletal.TransformData;
 import com.ardor3d.extension.model.collada.jdom.data.ColladaStorage;
+import com.ardor3d.math.Matrix3;
+import com.ardor3d.math.Matrix4;
+import com.ardor3d.math.Transform;
+import com.ardor3d.math.type.ReadOnlyTransform;
 import com.jmex.model.ogrexml.OgreEntityNode;
 import com.jmex.model.ogrexml.anim.MeshAnimationController;
 import com.jmex.model.ogrexml.anim.OgreMesh;
@@ -188,7 +192,7 @@ public class BonesImporter {
 	}
 
 	private static Joint convertArdorJoint(com.ardor3d.extension.animation.skeletal.Joint joint) {
-		Matrix inverseBindPose = SkinHelper.getMatrix(joint.getInverseBindPose());
+		Matrix inverseBindPose = getMatrix(joint.getInverseBindPose());
 		int parentIndex = (joint.getParentIndex() == com.ardor3d.extension.animation.skeletal.Joint.NO_PARENT) 
 				? Joint.NO_PARENT : joint.getParentIndex();
 		return new Joint(inverseBindPose, joint.getIndex(), parentIndex, joint.getName());
@@ -230,7 +234,7 @@ public class BonesImporter {
 		// due to jME's OGRE loading, root rotation is baked into all bind poses, remove it  
 		tx = root.getWorldBindInverseRot().mult(tx);
 
-		Matrix inverseBindPose = SkinHelper.convertQuaternion(rot).getRotationMatrix();
+		Matrix inverseBindPose = convertQuaternion(rot).getRotationMatrix();
 		inverseBindPose.translate(tx.x, tx.y, tx.z);
 		
 		int parentIndex = (bone.getParent() == null) ? Joint.NO_PARENT  
@@ -284,9 +288,9 @@ public class BonesImporter {
 			jointChannel.setCurrentSample(sampleIndex, tmpTransform);
 			
 			times[sampleIndex] = jointChannel.getTime(sampleIndex);
-			rotations[sampleIndex] = SkinHelper.convertQuaternion(tmpTransform.getRotation());
-			translations[sampleIndex] = SkinHelper.getVector(tmpTransform.getTranslation());
-			scales[sampleIndex] = SkinHelper.getVector(tmpTransform.getScale());
+			rotations[sampleIndex] = convertQuaternion(tmpTransform.getRotation());
+			translations[sampleIndex] = convertArdorVector(tmpTransform.getTranslation());
+			scales[sampleIndex] = convertArdorVector(tmpTransform.getScale());
 		}
 		JointChannel result = new JointChannel(jointIndex, times, translations, rotations, scales);
 //		Logger.log(MessageFormat.format("JointChannel created out of Ardor JointChannel, {0} keys", length), Logger.MESSAGE);
@@ -316,7 +320,7 @@ public class BonesImporter {
 			// there is no scale information in jME OGRE implementation
 			scales[sampleIndex] = new SimpleVector(1f, 1f, 1f); 
 			
-			Matrix m = SkinHelper.convertQuaternion(track.getRotations()[sampleIndex]).getRotationMatrix();
+			Matrix m = convertQuaternion(track.getRotations()[sampleIndex]).getRotationMatrix();
 			com.jme.math.Vector3f tx = track.getTranslations()[sampleIndex];
 			m.translate(tx.x, tx.y, tx.z);
 
@@ -416,11 +420,70 @@ public class BonesImporter {
 		
 		for (int i = 0; i < indices.length; i++) {
         	indices[i] = pose.getIndices()[i];
-        	offsets[i] = SkinHelper.getVector(pose.getOffsets()[i]);
+        	offsets[i] = convertJMEVector(pose.getOffsets()[i]);
 		}
 		return new MeshPose(pose.getName(), offsets, indices);
 	}
 
 	
+	/** converts a transform matrix to a jPCT Matrix. rotation and translation information is retrieved. */
+	public static Matrix convertArdorMatrix(Matrix4 m4) {
+		Matrix m = new Matrix();
+		
+		for (int i = 0; i < 3; i++) {
+			for (int j = 0; j < 3; j++) {
+				m.set(j, i, m4.getValuef(i, j));
+			}
+		}
+		m.translate(m4.getValuef(0, 3), m4.getValuef(1, 3), m4.getValuef(2, 3));
+		return m;
+	}
+	
+	
+	/** converts a transform to a jPCT Matrix. rotation and translation information is retrieved. */
+	public static Matrix getMatrix(ReadOnlyTransform transform) {
+		return convertArdorMatrix(transform.getHomogeneousMatrix(null));
+	}
+	
+	/** converts Ardor3D Vector3 to jPCT SimpleVector */
+	public static SimpleVector convertArdorVector(com.ardor3d.math.Vector3 vector3) {
+		return new SimpleVector(vector3.getXf(), vector3.getYf(), vector3.getZf());
+	}
+	
+	/** converts jME Vector3f to jPCT SimpleVector */
+	public static SimpleVector convertJMEVector(com.jme.math.Vector3f vector3) {
+		return new SimpleVector(vector3.x, vector3.y, vector3.z);
+	}
+	
+    /**
+     * Constructs a new quaternion from ardor quaternion
+     */
+	public static Quaternion convertQuaternion(com.ardor3d.math.Quaternion quat) {
+		return new Quaternion(quat.getXf(), quat.getYf(), quat.getZf(), quat.getWf());
+    }
+
+    /**
+     * Constructs a new quaternion from jME quaternion
+     */
+	public static Quaternion convertQuaternion(com.jme.math.Quaternion quat) {
+		return new Quaternion(quat.x, quat.y, quat.z, quat.w);
+    }
+	
+	/** creates an ardor Transform out of given jPCT matrix */
+	public static Transform getTransform(Matrix m) {
+		Transform t = new Transform();
+		
+		for (int i = 0; i < 3; i++) {
+			for (int j = 0; j < 3; j++) {
+				((Matrix3)t.getMatrix()).setValue(i, j, m.get(j, i));
+			}
+		}
+		
+		SimpleVector translation = m.getTranslation();
+		t.translate(translation.x, translation.y, translation.z);
+		
+		return t;
+	}
+
 }
 

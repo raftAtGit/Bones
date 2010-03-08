@@ -3,7 +3,7 @@
 DIR=`dirname $BASH_SOURCE`/..
 
 CP=$DIR/build/bones.jar
-CP=$CP:$DIR/lib/jpct-1.21_beta3.jar
+CP=$CP:$DIR/lib/jpct-1.21.alpha.jar
 
 CP=$CP:$DIR/lib/ardor-core-0.7-beta.jar
 CP=$CP:$DIR/lib/ardor-collada-0.7-beta.jar

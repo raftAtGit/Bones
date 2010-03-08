@@ -5,7 +5,6 @@ import java.net.URL;
 
 import raft.jpct.bones.Animated3D;
 import raft.jpct.bones.AnimatedGroup;
-import raft.jpct.bones.BonesIO;
 import raft.jpct.bones.BonesImporter;
 import raft.jpct.bones.SkeletonDebugger;
 

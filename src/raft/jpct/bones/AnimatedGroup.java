@@ -195,20 +195,11 @@ public class AnimatedGroup implements java.io.Serializable, Iterable<Animated3D>
 	}
 	
 	public void animatePose(float index, int sequence, float weight) {
-//		if (poseClipSequence == null)
-//			return;
-//		
-//		if (sequence == 0) {
-//			poseClipSequence.animate(index * poseClipSequence.getTime(), this);
-//		} else {
-//			PoseClip clip = poseClipSequence.getClip(sequence - 1); 
-//			clip.applyTo(index * clip.getTime(), this, weight);
-//		}
-//		if (autoApplyAnimation)
-//			applyAnimation();
+		if (poseClipSequence == null)
+			return;
 		
 		for (Animated3D o : objects) {
-			o.animatePose(index, sequence, weight);
+			o.animatePoseDontApply(index, sequence, weight);
 		}
 	}
 	

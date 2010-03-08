@@ -18,7 +18,6 @@ import java.util.Hashtable;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
-import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -300,8 +299,9 @@ public abstract class AbstractSkinSample extends AbstractSample {
 				float clipTime = getClipTime(animationSequence, skinAnim); 
 
 				animationIndex += deltaTime * animationSpeed / clipTime / 1000;
-				while (animationIndex > 1)
+				while (animationIndex > 1) {
 					animationIndex -= 1;
+				}
 				
 				animate(animationIndex, animationSequence, skinAnim);
 			}

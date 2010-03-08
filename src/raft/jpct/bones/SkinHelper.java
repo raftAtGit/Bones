@@ -5,10 +5,6 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 
-import com.ardor3d.math.Matrix3;
-import com.ardor3d.math.Matrix4;
-import com.ardor3d.math.Transform;
-import com.ardor3d.math.type.ReadOnlyTransform;
 import com.threed.jpct.Matrix;
 import com.threed.jpct.SimpleVector;
 
@@ -18,25 +14,6 @@ import com.threed.jpct.SimpleVector;
 class SkinHelper {
 	
 	private SkinHelper() {}
-	
-	/** converts a transform matrix to a jPCT Matrix. rotation and translation information is retrieved. */
-	public static Matrix getMatrix(Matrix4 m4) {
-		Matrix m = new Matrix();
-		
-		for (int i = 0; i < 3; i++) {
-			for (int j = 0; j < 3; j++) {
-				m.set(j, i, m4.getValuef(i, j));
-			}
-		}
-		m.translate(m4.getValuef(0, 3), m4.getValuef(1, 3), m4.getValuef(2, 3));
-		return m;
-	}
-	
-	
-	/** converts a transform to a jPCT Matrix. rotation and translation information is retrieved. */
-	public static Matrix getMatrix(ReadOnlyTransform transform) {
-		return getMatrix(transform.getHomogeneousMatrix(null));
-	}
 	
 	/** clears translation information in given matrix */
 	public static void clearTranslation(Matrix m) {
@@ -152,32 +129,6 @@ class SkinHelper {
 		return rotation;
 	}
 	
-	/** creates an ardor Transform out of given jPCT matrix */
-	public static Transform getTransform(Matrix m) {
-		Transform t = new Transform();
-		
-		for (int i = 0; i < 3; i++) {
-			for (int j = 0; j < 3; j++) {
-				((Matrix3)t.getMatrix()).setValue(i, j, m.get(j, i));
-			}
-		}
-		
-		SimpleVector translation = m.getTranslation();
-		t.translate(translation.x, translation.y, translation.z);
-		
-		return t;
-	}
-
-	/** converts Ardor3D Vector3 to jPCT SimpleVector */
-	public static SimpleVector getVector(com.ardor3d.math.Vector3 vector3) {
-		return new SimpleVector(vector3.getXf(), vector3.getYf(), vector3.getZf());
-	}
-	
-	/** converts jME Vector3f to jPCT SimpleVector */
-	public static SimpleVector getVector(com.jme.math.Vector3f vector3) {
-		return new SimpleVector(vector3.x, vector3.y, vector3.z);
-	}
-	
     /** interpolates one and two and sets result in given result vector.
      *@param weight how much vector two should contribute to result */
     public static final SimpleVector interpolate(SimpleVector one, SimpleVector two, SimpleVector result, float weight) {
@@ -216,19 +167,5 @@ class SkinHelper {
 			return max;
 		return value;
 	}
-	
-    /**
-     * Constructs a new quaternion from ardor quaternion
-     */
-	public static Quaternion convertQuaternion(com.ardor3d.math.Quaternion quat) {
-		return new Quaternion(quat.getXf(), quat.getYf(), quat.getZf(), quat.getWf());
-    }
-
-    /**
-     * Constructs a new quaternion from jME quaternion
-     */
-	public static Quaternion convertQuaternion(com.jme.math.Quaternion quat) {
-		return new Quaternion(quat.x, quat.y, quat.z, quat.w);
-    }
 	
 }

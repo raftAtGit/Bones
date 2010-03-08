@@ -212,6 +212,12 @@ public class Animated3D extends Object3D implements Cloneable {
 	 * @throws NullPointerException if clipSequence is null
 	 * */
 	public void animatePose(float index, int sequence, float weight) {
+		animatePoseDontApply(index, sequence, weight);
+		if (autoApplyAnimation)
+			applyAnimation();
+	}
+	
+	void animatePoseDontApply(float index, int sequence, float weight) {
 		if (poseClipSequence == null)
 			return;
 		
@@ -228,8 +234,6 @@ public class Animated3D extends Object3D implements Cloneable {
 			PoseClip clip = poseClipSequence.getClip(sequence - 1); 
 			clip.applyTo(index * clip.getTime(), this, weight);
 		}
-		if (autoApplyAnimation)
-			applyAnimation();
 	}
 	
 
