@@ -2,16 +2,16 @@
 <classpath>
 	<classpathentry excluding="tmp/MorphSample.java" kind="src" path="src"/>
 	<classpathentry kind="src" path="samples/src"/>
-	<classpathentry kind="lib" path="lib/ardor-animation-0.7-beta.jar" sourcepath="/ardor3d-animation/src"/>
-	<classpathentry kind="lib" path="lib/ardor-core-0.7-beta.jar" sourcepath="/ardor3d-core/src/main/java"/>
 	<classpathentry kind="lib" path="lib/google-collect-1.0-rc1.jar"/>
 	<classpathentry kind="lib" path="lib/jdom.jar"/>
 	<classpathentry kind="lib" path="lib/jaxen.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="lib/ardor-animation-0.7-beta.jar"/>
 	<classpathentry kind="lib" path="lib/ardor-collada-0.7-beta.jar"/>
+	<classpathentry kind="lib" path="lib/ardor-core-0.7-beta.jar"/>
 	<classpathentry kind="lib" path="lib/jme-2.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/jme-model-2.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/jme-ogrexml-2.0.1-exposed.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/jpct-1.21_a2.jar"/>
+	<classpathentry kind="lib" path="lib/jpct-1.21.alpha.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

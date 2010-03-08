@@ -10,6 +10,7 @@ import java.util.NoSuchElementException;
 
 import raft.jpct.bones.BonesIO;
 import raft.jpct.bones.AnimatedGroup;
+import raft.jpct.bones.BonesImporter;
 
 import com.ardor3d.extension.model.collada.jdom.ColladaImporter;
 import com.ardor3d.extension.model.collada.jdom.data.ColladaStorage;
@@ -90,7 +91,7 @@ public class ArdorColladaImporter {
 			ColladaImporter colladaImporter = new ColladaImporter().loadTextures(false);
 			ColladaStorage colladaStorage = colladaImporter.load(uri.toString());
 			
-			return BonesIO.loadCollada(colladaStorage, scale);
+			return BonesImporter.importCollada(colladaStorage, scale);
 		} finally {
 			ResourceLocatorTool.removeResourceLocator(ResourceLocatorTool.TYPE_MODEL, resLocater);
 		}

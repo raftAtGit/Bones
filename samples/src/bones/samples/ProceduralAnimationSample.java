@@ -22,7 +22,7 @@ import javax.swing.JPanel;
 
 import raft.jpct.bones.Animated3D;
 import raft.jpct.bones.AnimatedGroup;
-import raft.jpct.bones.BonesIO;
+import raft.jpct.bones.BonesImporter;
 import raft.jpct.bones.Joint;
 import raft.jpct.bones.Quaternion;
 import raft.jpct.bones.SkeletonDebugger;
@@ -81,7 +81,7 @@ public class ProceduralAnimationSample extends AbstractSample {
 			ColladaImporter colladaImporter = new ColladaImporter().loadTextures(false);
 			ColladaStorage colladaStorage = colladaImporter.load(uri.toString());
 			
-			this.skinnedGroup = BonesIO.loadCollada(colladaStorage, 1f);
+			this.skinnedGroup = BonesImporter.importCollada(colladaStorage, 1f);
 		} finally {
 			ResourceLocatorTool.removeResourceLocator(ResourceLocatorTool.TYPE_MODEL, resLocater);
 		}

@@ -1,7 +1,5 @@
 package raft.jpct.bones;
 
-import java.util.Map;
-
 import com.threed.jpct.Matrix;
 
 /** 
@@ -15,41 +13,20 @@ public class Joint implements java.io.Serializable {
     /** Parent index of a joint which has no parent */
     public static final int NO_PARENT = -1;
 	
-	Matrix inverseBindPose;
+	final Matrix inverseBindPose;
 	final int index;
 	final int parentIndex;
 	final String name;
 	
-	Joint(com.ardor3d.extension.animation.skeletal.Joint joint) {
-		this(SkinHelper.getMatrix(joint.getInverseBindPose()), joint.getIndex(), 
-				(joint.getParentIndex() == com.ardor3d.extension.animation.skeletal.Joint.NO_PARENT) ? NO_PARENT : joint.getParentIndex(), 
-						joint.getName());
-	}
-	
-	Joint(Map<com.jmex.model.ogrexml.anim.Bone, Short> map, 
-			com.jmex.model.ogrexml.anim.Bone bone, short index) {
+	public Joint(Matrix inverseBindPose, int index, int parentIndex, String name) {
+		if (parentIndex < 0 && parentIndex != NO_PARENT)
+			throw new IllegalArgumentException("parent index: " + parentIndex);
+		if (index == parentIndex)
+			throw new IllegalArgumentException("joint cannot be parent of itself");
+		if (index < parentIndex)
+			throw new IllegalArgumentException("parent index should be less than joint index. " +
+					"o/w a joint array cannot be ordered such that parent comes first");
 		
-		com.jmex.model.ogrexml.anim.Bone root = bone;
-		while (root.getParent() != null) {
-			root = root.getParent();
-		}
-		
-		this.index = index;
-		this.name = bone.getName();
-		
-		com.jme.math.Vector3f tx = bone.getWorldBindInversePos();
-		com.jme.math.Quaternion rot = bone.getWorldBindInverseRot();
-		// due to jME's OGRE loading, root rotation is baked into all bind poses, remove it  
-		tx = root.getWorldBindInverseRot().mult(tx);
-
-		this.inverseBindPose = new Quaternion(rot).getRotationMatrix();
-		inverseBindPose.translate(tx.x, tx.y, tx.z);
-		
-		this.parentIndex = (bone.getParent() == null) ? NO_PARENT 
-				: map.get(bone.getParent());
-	}
-
-	Joint(Matrix inverseBindPose, short index, short parentIndex, String name) {
 		this.inverseBindPose = inverseBindPose;
 		this.index = index;
 		this.parentIndex = parentIndex;

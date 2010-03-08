@@ -6,6 +6,7 @@ import java.net.URL;
 import raft.jpct.bones.Animated3D;
 import raft.jpct.bones.AnimatedGroup;
 import raft.jpct.bones.BonesIO;
+import raft.jpct.bones.BonesImporter;
 import raft.jpct.bones.SkeletonDebugger;
 
 import com.jmex.model.ogrexml.OgreEntityNode;
@@ -21,7 +22,7 @@ public class AnimationBlendSample extends AbstractSkinSample {
 		OgreLoader loader = new OgreLoader();
 		OgreEntityNode node = loader.loadModel(ninjaUrl);
 
-		AnimatedGroup skinnedGroup = BonesIO.loadOgre(node, 1f);
+		AnimatedGroup skinnedGroup = BonesImporter.importOgre(node, 1f);
 
 		for (Animated3D o : skinnedGroup) {
 			o.build();

@@ -32,15 +32,6 @@ public class MeshPose implements java.io.Serializable {
         }
 	}
 	
-	MeshPose(com.jmex.model.ogrexml.anim.Pose pose) {
-		this(pose.getName(), pose.getIndices().length);
-
-		for (int i = 0; i < indices.length; i++) {
-        	this.indices[i] = pose.getIndices()[i];
-        	this.offsets[i] = SkinHelper.getVector(pose.getOffsets()[i]);
-		}
-	}
-
 	private MeshPose(String name, int length) {
 		this.name = name;
 		this.offsets = new SimpleVector[length];

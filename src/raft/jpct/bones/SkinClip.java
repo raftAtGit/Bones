@@ -37,20 +37,11 @@ public class SkinClip implements java.io.Serializable, Iterable<JointChannel> {
 		}
 	}
 	
-	SkinClip(Skeleton skeleton, List<com.ardor3d.extension.animation.skeletal.JointChannel> jointChannels) {
+	public SkinClip(Skeleton skeleton, List<JointChannel> channels) {
 		this(skeleton);
 		
-		for (com.ardor3d.extension.animation.skeletal.JointChannel jointChannel : jointChannels) {
-			addChannel(new JointChannel(jointChannel));
-		}
-	}
-	
-	SkinClip(Skeleton skeleton, com.jmex.model.ogrexml.anim.BoneAnimation boneAnimation) {
-		this(skeleton);
-		setName(boneAnimation.getName());
-		
-		for (com.jmex.model.ogrexml.anim.BoneTrack track : boneAnimation.getTracks()) {
-			addChannel(new JointChannel(track, skeleton));
+		for (JointChannel channel : channels) {
+			addChannel(channel);
 		}
 	}
 	
@@ -62,7 +53,6 @@ public class SkinClip implements java.io.Serializable, Iterable<JointChannel> {
 				addChannel(channel);
 		}
 	}
-	
 	
 	private SkinClip(Skeleton skeleton) {
 		this.skeleton = skeleton;

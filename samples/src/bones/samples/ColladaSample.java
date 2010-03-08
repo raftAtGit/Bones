@@ -4,9 +4,9 @@ import java.awt.Dimension;
 import java.io.File;
 import java.net.URI;
 
-import raft.jpct.bones.BonesIO;
 import raft.jpct.bones.Animated3D;
 import raft.jpct.bones.AnimatedGroup;
+import raft.jpct.bones.BonesImporter;
 import raft.jpct.bones.SkeletonDebugger;
 
 import com.ardor3d.extension.model.collada.jdom.ColladaImporter;
@@ -50,7 +50,7 @@ public class ColladaSample extends AbstractSkinSample {
 			ColladaImporter colladaImporter = new ColladaImporter().loadTextures(false);
 			ColladaStorage colladaStorage = colladaImporter.load(uri.toString());
 			
-			skinnedGroup = BonesIO.loadCollada(colladaStorage, 1f);
+			skinnedGroup = BonesImporter.importCollada(colladaStorage, 1f);
 		} finally {
 			ResourceLocatorTool.removeResourceLocator(ResourceLocatorTool.TYPE_MODEL, resLocater);
 		}

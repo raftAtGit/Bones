@@ -79,25 +79,6 @@ public class Quaternion implements java.io.Serializable, Cloneable {
     }
     
     /**
-     * Constructs a new quaternion from ardor quaternion
-     */
-    public Quaternion(com.ardor3d.math.Quaternion quat) {
-        this.x = quat.getXf();
-        this.y = quat.getYf();
-        this.z = quat.getZf();
-        this.w = quat.getWf();
-    }
-
-    /**
-     * Constructs a new quaternion from jME quaternion
-     */
-    public Quaternion(com.jme.math.Quaternion quat) {
-        this.x = quat.x;
-        this.y = quat.y;
-        this.z = quat.z;
-        this.w = quat.w;
-    }
-    /**
      * Sets the value of this quaternion to (x, y, z, w)
      * 
      * @param x

@@ -9,7 +9,6 @@ package raft.jpct.bones;
 
 import java.util.Arrays;
 
-import com.ardor3d.extension.animation.skeletal.TransformData;
 import com.threed.jpct.Matrix;
 import com.threed.jpct.SimpleVector;
 
@@ -28,7 +27,7 @@ import com.threed.jpct.SimpleVector;
 public class JointChannel implements java.io.Serializable {
 	private static final long serialVersionUID = 1L;
 
-	final short jointIndex;
+	final int jointIndex;
 	
 	private final float[] times;
 	private final Quaternion[] rotations;
@@ -43,7 +42,7 @@ public class JointChannel implements java.io.Serializable {
     /**
      * <p>Creates a new Channel out of given data.<p> 
      * */
-    public JointChannel(short jointIndex, float[] times, SimpleVector[] translations, 
+    public JointChannel(int jointIndex, float[] times, SimpleVector[] translations, 
     		Quaternion[] rotations, SimpleVector[] scales) {
 
     	this(jointIndex, times.length);
@@ -61,62 +60,7 @@ public class JointChannel implements java.io.Serializable {
         validateTimes();
     }
     
-    /**
-     * <p>Creates a new Channel out of Ardor3D's JointChannel.<p> 
-     * */
-	JointChannel(com.ardor3d.extension.animation.skeletal.JointChannel jointChannel) {
-		this(SkinHelper.parseJointIndex(jointChannel), jointChannel.getLength());
-		
-		int length = times.length;
-		
-		TransformData tmpTransform = new TransformData(); 
-		for (int sampleIndex = 0; sampleIndex < length; sampleIndex++) {
-			jointChannel.setCurrentSample(sampleIndex, tmpTransform);
-			
-			times[sampleIndex] = jointChannel.getTime(sampleIndex);
-			rotations[sampleIndex] = new Quaternion(tmpTransform.getRotation());
-			translations[sampleIndex] = SkinHelper.getVector(tmpTransform.getTranslation());
-			scales[sampleIndex] = SkinHelper.getVector(tmpTransform.getScale());
-		}
-        validateTimes();
-	}
-	
-    /**
-     * <p>Creates a new Channel out of jME OGRE BoneTrack. Skeleton is used
-     * for transforming track data into joint local space.<p> 
-     * */
-	JointChannel(com.jmex.model.ogrexml.anim.BoneTrack track, Skeleton skeleton) {
-		this((short) track.getTargetBoneIndex(), track.getTimes().length);
-
-		int length = times.length;
-		
-		// jME OGRE tracks are relative to joints, we need to take them to joint local space
-		Joint joint = skeleton.getJoint(jointIndex);
-		Joint parentJoint = joint.hasParent() ? 
-				skeleton.getJoint(joint.getParentIndex()) : null;
-
-		for (int sampleIndex = 0; sampleIndex < length; sampleIndex++) {
-			times[sampleIndex] = track.getTimes()[sampleIndex];
-			// there is no scale information in jME OGRE implementation
-			scales[sampleIndex] = new SimpleVector(1f, 1f, 1f); 
-			
-			Matrix m = new Quaternion(track.getRotations()[sampleIndex]).getRotationMatrix();
-			com.jme.math.Vector3f tx = track.getTranslations()[sampleIndex];
-			m.translate(tx.x, tx.y, tx.z);
-
-			m.matMul(joint.getBindPose()); // -> take to joint object space
-			if (joint.hasParent()) {
-				// remove parent transform -> take to joint local space 
-				m.matMul(parentJoint.getInverseBindPose());
-			}
-			rotations[sampleIndex] = new Quaternion(m);
-			translations[sampleIndex] = m.getTranslation();
-		}
-
-        validateTimes();
-	}
-    
-	private JointChannel(short jointIndex, int length) {
+	private JointChannel(int jointIndex, int length) {
 		if (jointIndex < 0)
 			throw new IllegalArgumentException("jointIndex: " + jointIndex);
     	if (length < 1)
@@ -130,7 +74,7 @@ public class JointChannel implements java.io.Serializable {
 	}
 	
 	/** returns the index of joint this channel is related to. */
-	public short getJointIndex() {
+	public int getJointIndex() {
 		return jointIndex;
 	}
 	

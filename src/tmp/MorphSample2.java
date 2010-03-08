@@ -8,7 +8,7 @@ import java.net.URL;
 
 import raft.jpct.bones.Animated3D;
 import raft.jpct.bones.AnimatedGroup;
-import raft.jpct.bones.BonesIO;
+import raft.jpct.bones.BonesImporter;
 import bones.samples.AbstractSample;
 import bones.samples.CameraOrbitController;
 
@@ -52,7 +52,7 @@ public class MorphSample2 extends AbstractSample {
 		TextureManager.getInstance().addTexture("glasses", new Texture(8, 8, Color.YELLOW));
 		TextureManager.getInstance().addTexture("head", new Texture("/home/raft/projects/karga-workspace/Temp/data/ogre/Dr_Bunsen_Head.jpg"));
 		
-		this.group = BonesIO.loadOgre(node, 1f);
+		this.group = BonesImporter.importOgre(node, 1f);
 		group.addToWorld(world);
 		for (Animated3D m : group) {
 			//world.addObject(m);

@@ -1,7 +1,5 @@
 package raft.jpct.bones;
 
-import com.ardor3d.extension.animation.skeletal.SkinnedMesh;
-import com.jmex.model.ogrexml.anim.OgreMesh;
 
 /** 
  * <p>Skin contains information how a {@link Animated3D} is deformed with respect to {@link SkeletonPose}.</p>
@@ -16,22 +14,19 @@ class SkinData implements java.io.Serializable {
 	final float[][] weights;
 	final short[][] jointIndices;
 	
-	SkinData(SkinnedMesh skinnedMesh) {
-		this(SkinHelper.asArray(skinnedMesh.getWeights(), Skeleton.MAX_JOINTS_PER_VERTEX), 
-				SkinHelper.asArray(skinnedMesh.getJointIndices(), Skeleton.MAX_JOINTS_PER_VERTEX));
+	public SkinData(float[][] weights, short[][] jointIndices) {
+		this.weights = new float[weights.length][];
+		this.jointIndices = new short[jointIndices.length][];
+		
+		for (int i = 0; i < weights.length; i++) {
+			this.weights[i] = new float[weights[i].length];
+			System.arraycopy(weights[i], 0, this.weights[i], 0, weights[i].length);
+		}
+		for (int i = 0; i < jointIndices.length; i++) {
+			this.jointIndices[i] = new short[jointIndices[i].length];
+			System.arraycopy(jointIndices[i], 0, this.jointIndices[i], 0, jointIndices[i].length);
+		}
 	}
-
-	SkinData(OgreMesh ogreMesh) {
-		this(SkinHelper.asArray(ogreMesh.getWeightBuffer().getWeights(), Skeleton.MAX_JOINTS_PER_VERTEX),
-				SkinHelper.asShortArray(ogreMesh.getWeightBuffer().getIndexes(), Skeleton.MAX_JOINTS_PER_VERTEX));
-	}
-	
-	
-	SkinData(float[][] weights, short[][] jointIndices) {
-		this.weights = weights;
-		this.jointIndices = jointIndices;
-	}
-
 	
 	void checkAlmostEqual(SkinData other) {
 		if (weights.length != other.weights.length)

@@ -4,11 +4,10 @@ import java.awt.Dimension;
 import java.io.File;
 import java.net.URL;
 
-import raft.jpct.bones.BonesIO;
 import raft.jpct.bones.Animated3D;
 import raft.jpct.bones.AnimatedGroup;
+import raft.jpct.bones.BonesImporter;
 import raft.jpct.bones.SkeletonDebugger;
-
 
 import com.jmex.model.ogrexml.OgreEntityNode;
 import com.jmex.model.ogrexml.OgreLoader;
@@ -41,7 +40,7 @@ public class OgreSample extends AbstractSkinSample {
 		OgreLoader loader = new OgreLoader();
 		OgreEntityNode node = loader.loadModel(ninjaUrl);
 
-		AnimatedGroup skinnedGroup = BonesIO.loadOgre(node, 1f);
+		AnimatedGroup skinnedGroup = BonesImporter.importOgre(node, 1f);
 
 		Texture texture = new Texture("./samples/data/ninja/nskingr.jpg");
 		TextureManager.getInstance().addTexture("ninja", texture);

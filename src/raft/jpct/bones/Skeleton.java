@@ -9,11 +9,8 @@ package raft.jpct.bones;
 
 import java.text.MessageFormat;
 import java.util.Arrays;
-import java.util.IdentityHashMap;
 import java.util.Iterator;
-import java.util.Map;
 
-import com.ardor3d.extension.animation.skeletal.SkinnedMesh;
 import com.threed.jpct.Logger;
 import com.threed.jpct.Matrix;
 
@@ -28,45 +25,35 @@ public class Skeleton implements java.io.Serializable, Iterable<Joint> {
 	private static final long serialVersionUID = 1L;
 	
     /** Maximum number of joints per vertex. */
-    public static final int MAX_JOINTS_PER_VERTEX = SkinnedMesh.MAX_JOINTS_PER_VERTEX;
+    public static final int MAX_JOINTS_PER_VERTEX = 4;
 	
     final Joint[] joints;
     
     final Matrix transform = new Matrix();
 	
-	Skeleton(com.ardor3d.extension.animation.skeletal.Skeleton skeleton) {
-		this.joints = new Joint[skeleton.getJoints().length];
-		
-		for (int i = 0; i < joints.length; i++) {
-			this.joints[i] = new Joint(skeleton.getJoints()[i]);
-		}
-		Logger.log("Skeleton created out of Ardor3D skeleton", Logger.MESSAGE);
+    /** <p>Creates a new Skeleton out of given joints. Joint's indices must match their position in array
+     * and array should be ordered such that, parent comes first.</p> */
+    public Skeleton(Joint[] joints) {
+    	this.joints = new Joint[joints.length];
+    	
+    	for (int i = 0; i < joints.length; i++) {
+    		Joint joint = joints[i];
+    		this.joints[i] = joint;
+    		
+    		if (i != joint.index)
+    			throw new IllegalArgumentException("joint index does not match its position in array. position: " 
+    					+ i + ", index: " + joint.index);
+    		
+    		if (joint.hasParent()) {
+        		int parent = joint.parentIndex;
+        		if (parent < 0 || parent >= joints.length) 
+        			throw new IllegalArgumentException("parent of joint " + i + " is out of range: " + parent);
+    		}
+    	}
 		if (Logger.getLogLevel() == Logger.LL_VERBOSE) 
 			printJoints();
-	}
-
-	Skeleton(com.jmex.model.ogrexml.anim.Skeleton skeleton) {
-		this.joints = new Joint[skeleton.getBoneCount()];
-		
-		// it's not guaranteed bones are sorted for hierarchy 
-		// so we first create a map of joint indices
-		Map<com.jmex.model.ogrexml.anim.Bone, Short> map =
-			new IdentityHashMap<com.jmex.model.ogrexml.anim.Bone, Short>();
-
-		for (int i = 0; i < joints.length; i++) {
-			map.put(skeleton.getBone(i), (short)i);
-		}
-		
-		// we cannot change original ordering of joints since channels use target joint index
-		for (int i = 0; i < joints.length; i++) {
-			this.joints[i] = new Joint(map, skeleton.getBone(i), (short) i);
-		}
-		
-		Logger.log(MessageFormat.format("Skeleton created out of jME OGRE skeleton, {0} joints", joints.length), Logger.MESSAGE);
-		if (Logger.getLogLevel() == Logger.LL_VERBOSE) 
-			printJoints();
-	}
-	
+    }
+    
 	/** Returns number of joints */
 	public int getNumberOfJoints() {
 		return joints.length;

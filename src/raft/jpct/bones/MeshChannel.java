@@ -1,8 +1,6 @@
 package raft.jpct.bones;
 
 import java.util.Arrays;
-import java.util.IdentityHashMap;
-import java.util.Map;
 
 /** 
  * <p>Pose animation data related to a single mesh. A PoseChannel consists of a
@@ -25,35 +23,6 @@ public class MeshChannel implements java.io.Serializable {
         	this.times[i] = times[i];
         }
         validateTimes();
-    }
-    
-    MeshChannel(com.jmex.model.ogrexml.anim.PoseTrack poseTrack) {
-    	this(poseTrack.getTargetMeshIndex(), poseTrack.getTimes().length);
-    	
-    	Map<com.jmex.model.ogrexml.anim.Pose, MeshPose> poseCache = 
-    		new IdentityHashMap<com.jmex.model.ogrexml.anim.Pose, MeshPose>();
-    	
-    	for (int i = 0; i < times.length; i++) {
-    		
-    		com.jmex.model.ogrexml.anim.PoseTrack.PoseFrame jmeFrame = poseTrack.getFrames()[i];
-    		
-    		MeshPose[] framePoses = new MeshPose[jmeFrame.getPoses().length];
-    		
-    		for (int j = 0; j < framePoses.length; j++) {
-    			com.jmex.model.ogrexml.anim.Pose jmePose = jmeFrame.getPoses()[j];
-    			MeshPose pose = poseCache.get(jmePose);
-    			if (pose == null) {
-    				pose = new MeshPose(jmePose);
-    				poseCache.put(jmePose, pose);
-    			}
-    			framePoses[j] = pose;
-    		}
-    		
-    		this.times[i] = poseTrack.getTimes()[i];
-    		this.frames[i] = new PoseFrame(framePoses, jmeFrame.getWeights());
-    	}
-    	
-    	validateTimes();
     }
     
     private MeshChannel(int objectIndex, int length) {

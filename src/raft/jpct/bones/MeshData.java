@@ -1,10 +1,5 @@
 package raft.jpct.bones;
 
-import java.nio.IntBuffer;
-
-import com.ardor3d.extension.animation.skeletal.SkinnedMesh;
-import com.jmex.model.ogrexml.anim.OgreMesh;
-import com.threed.jpct.Logger;
 
 /** place holder for mesh coordinates */
 public class MeshData implements java.io.Serializable {
@@ -15,30 +10,15 @@ public class MeshData implements java.io.Serializable {
 	final int[] indices;
 	
 	public MeshData(float[] coordinates, float[] uvs, int[] indices) {
-		this.coordinates = coordinates;
-		this.uvs = uvs;
-		this.indices = indices;
-	}
-	
-	MeshData(SkinnedMesh mesh) {
-		this.coordinates = SkinHelper.asArray(mesh.getMeshData().getVertexBuffer()); 
-		this.uvs = SkinHelper.asArray(mesh.getMeshData().getTextureBuffer(0));
+		this.coordinates = new float[coordinates.length];
+		this.uvs = (uvs == null) ? null : new float[uvs.length];
+		this.indices = (indices == null) ? null : new int[indices.length];
 		
-		IntBuffer indexBuffer = mesh.getMeshData().getIndexBuffer();
-		this.indices = (indexBuffer == null) ? null : SkinHelper.asArray(indexBuffer);
-	}
-	
-	MeshData(OgreMesh mesh) {
-		this.coordinates = SkinHelper.asArray(mesh.getVertexBuffer());
-		if (mesh.getTextureCoords().isEmpty()) {
-			Logger.log("Mesh has no texture coodinates", Logger.WARNING);
-			this.uvs = null;
-		} else {
-			this.uvs = SkinHelper.asArray(mesh.getTextureCoords().get(0).coords);
-		}
-		
-		IntBuffer indexBuffer = mesh.getIndexBuffer();
-		this.indices = (indexBuffer == null) ? null : SkinHelper.asArray(indexBuffer);
+		System.arraycopy(coordinates, 0, this.coordinates, 0, coordinates.length);
+		if (uvs != null)
+			System.arraycopy(uvs, 0, this.uvs, 0, uvs.length);
+		if (indices != null)
+			System.arraycopy(indices, 0, this.indices, 0, indices.length);
 	}
 	
 	boolean isEmpty() {

@@ -217,11 +217,18 @@ class SkinHelper {
 		return value;
 	}
 	
-    static short parseJointIndex(com.ardor3d.extension.animation.skeletal.JointChannel jointChannel) {
-    	String prefix = com.ardor3d.extension.animation.skeletal.JointChannel.JOINT_CHANNEL_NAME;
-    	return Short.parseShort(jointChannel.getChannelName().substring(prefix.length()));
+    /**
+     * Constructs a new quaternion from ardor quaternion
+     */
+	public static Quaternion convertQuaternion(com.ardor3d.math.Quaternion quat) {
+		return new Quaternion(quat.getXf(), quat.getYf(), quat.getZf(), quat.getWf());
     }
-	
-	
+
+    /**
+     * Constructs a new quaternion from jME quaternion
+     */
+	public static Quaternion convertQuaternion(com.jme.math.Quaternion quat) {
+		return new Quaternion(quat.x, quat.y, quat.z, quat.w);
+    }
 	
 }

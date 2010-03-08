@@ -10,6 +10,7 @@ import java.util.NoSuchElementException;
 
 import raft.jpct.bones.BonesIO;
 import raft.jpct.bones.AnimatedGroup;
+import raft.jpct.bones.BonesImporter;
 
 import com.jmex.model.ogrexml.OgreEntityNode;
 import com.jmex.model.ogrexml.OgreLoader;
@@ -84,7 +85,7 @@ public class JMEOgreImporter {
 		OgreLoader loader = new OgreLoader();
 		OgreEntityNode node = loader.loadModel(url);
 
-		AnimatedGroup skinnedGroup = BonesIO.loadOgre(node, scale);
+		AnimatedGroup skinnedGroup = BonesImporter.importOgre(node, scale);
 		return skinnedGroup;
 	}
 

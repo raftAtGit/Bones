@@ -25,7 +25,7 @@ import com.threed.jpct.TextureManager;
  * deforms the {@link Mesh} to perform animation. So if you set another IVertexController
  * on its mesh, you will break skeletal animation.</p>
  * 
- * <p>This class is adapted from <a href="http://www.ardor3d.com">Ardor3D.</a></p>
+ * <p>Skeletal animation part of this class is adapted from <a href="http://www.ardor3d.com">Ardor3D.</a></p>
  * 
  * @see BonesIO#loadObject(java.io.InputStream)
  * */
