@@ -23,7 +23,7 @@ import com.threed.jpct.Matrix;
 import com.threed.jpct.SimpleVector;
 
 /** 
- * <p>Contains static importer methods to convert jME and Ardor format to Bones format.</p> 
+ * <p>Contains static importer methods to convert jME and Ardor format to Bones format.</p>
  * 
  * @author hakan eryargi (r a f t)
  * */
@@ -33,7 +33,7 @@ public class BonesImporter {
 	private BonesImporter() {}
 	
 	/** 
-	 * <p>Constructs a {@link AnimatedGroup} out of Ardor's skinData.</p>
+	 * <p>Constructs an {@link AnimatedGroup} out of Ardor's skinData.</p>
 	 * 
 	 * @param colladaStorage Ardor collada storage
 	 * @param scale the scale. not used at the moment.
@@ -76,7 +76,7 @@ public class BonesImporter {
 
 	
 	/** 
-	 * <p>Constructs a {@link AnimatedGroup} out of jME OGRE data.</p>
+	 * <p>Constructs an {@link AnimatedGroup} out of jME OGRE data.</p>
 	 * 
 	 * @param node jME OgreEntityNode
 	 * @param scale the scale. not used at the moment.
@@ -427,7 +427,7 @@ public class BonesImporter {
 
 	
 	/** converts a transform matrix to a jPCT Matrix. rotation and translation information is retrieved. */
-	public static Matrix convertArdorMatrix(Matrix4 m4) {
+	static Matrix convertArdorMatrix(Matrix4 m4) {
 		Matrix m = new Matrix();
 		
 		for (int i = 0; i < 3; i++) {
@@ -441,36 +441,36 @@ public class BonesImporter {
 	
 	
 	/** converts a transform to a jPCT Matrix. rotation and translation information is retrieved. */
-	public static Matrix getMatrix(ReadOnlyTransform transform) {
+	static Matrix getMatrix(ReadOnlyTransform transform) {
 		return convertArdorMatrix(transform.getHomogeneousMatrix(null));
 	}
 	
 	/** converts Ardor3D Vector3 to jPCT SimpleVector */
-	public static SimpleVector convertArdorVector(com.ardor3d.math.Vector3 vector3) {
+	static SimpleVector convertArdorVector(com.ardor3d.math.Vector3 vector3) {
 		return new SimpleVector(vector3.getXf(), vector3.getYf(), vector3.getZf());
 	}
 	
 	/** converts jME Vector3f to jPCT SimpleVector */
-	public static SimpleVector convertJMEVector(com.jme.math.Vector3f vector3) {
+	static SimpleVector convertJMEVector(com.jme.math.Vector3f vector3) {
 		return new SimpleVector(vector3.x, vector3.y, vector3.z);
 	}
 	
     /**
      * Constructs a new quaternion from ardor quaternion
      */
-	public static Quaternion convertQuaternion(com.ardor3d.math.Quaternion quat) {
+	static Quaternion convertQuaternion(com.ardor3d.math.Quaternion quat) {
 		return new Quaternion(quat.getXf(), quat.getYf(), quat.getZf(), quat.getWf());
     }
 
     /**
      * Constructs a new quaternion from jME quaternion
      */
-	public static Quaternion convertQuaternion(com.jme.math.Quaternion quat) {
+	static Quaternion convertQuaternion(com.jme.math.Quaternion quat) {
 		return new Quaternion(quat.x, quat.y, quat.z, quat.w);
     }
 	
 	/** creates an ardor Transform out of given jPCT matrix */
-	public static Transform getTransform(Matrix m) {
+	static Transform getTransform(Matrix m) {
 		Transform t = new Transform();
 		
 		for (int i = 0; i < 3; i++) {

@@ -3,10 +3,12 @@ package raft.jpct.bones;
 import com.threed.jpct.SimpleVector;
 
 /**
- * <p>A a pose of mesh vertices. Vertex positions in pose are defined as offsets to
+ * <p>A pose of mesh vertices. Vertex positions in pose are defined as offsets to
  * their original positions.</p>
  * 
  * <p>This class is originally adapted from <a href="http://www.jmonkeyengine.com" target="_blank">jME.</a></p>
+ * 
+ * @author hakan eryargi (r a f t)
  */
 public class MeshPose implements java.io.Serializable {
 	private static final long serialVersionUID = 1L;

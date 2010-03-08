@@ -23,11 +23,13 @@ import com.threed.jpct.TextureManager;
  * 
  * <p>Once constructed, Skinned3D sets a {@link IVertexController} on its mesh which
  * deforms the {@link Mesh} to perform animation. So if you set another IVertexController
- * on its mesh, you will break skeletal animation.</p>
+ * on its mesh, you will break animation.</p>
  * 
  * <p>Skeletal animation part of this class is adapted from <a href="http://www.ardor3d.com">Ardor3D.</a></p>
  * 
  * @see BonesIO#loadObject(java.io.InputStream)
+ * 
+ * @author hakan eryargi (r a f t)
  * */
 public class Animated3D extends Object3D implements Cloneable {
 	private static final long serialVersionUID = 1L;

@@ -6,6 +6,7 @@ import java.util.Arrays;
  * <p>Pose animation data related to a single mesh. A PoseChannel consists of a
  * series of {@link PoseFrame}s and their respective times.</p>
  *
+ * @author hakan eryargi (r a f t)
  */
 public class MeshChannel implements java.io.Serializable {
 	private static final long serialVersionUID = 1L;

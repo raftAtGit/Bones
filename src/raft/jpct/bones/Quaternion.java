@@ -11,7 +11,7 @@ import com.threed.jpct.Matrix;
 import com.threed.jpct.SimpleVector;
 
 /**
- * <p>Quaternion represents a 4 value math object used to describe rotations. It has the advantage of being able
+ * <p>Represents a rotation. Quaternion is a 4 value math object used to describe rotations. It has the advantage of being able
  * to avoid lock by adding a 4th dimension to rotation.</p>
  * 
  * <p>Note: This class is a stripped and modified version of Ardor3D's Quaternion to match jPCT. 

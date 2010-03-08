@@ -7,7 +7,11 @@ import java.util.Iterator;
 import com.threed.jpct.Object3D;
 import com.threed.jpct.World;
 
-/** Helper class to group {@link Animated3D}'s and manipulate them easily. */
+/** 
+ * Helper class to group {@link Animated3D}'s and manipulate them easily.
+ *  
+ * @author hakan eryargi (r a f t)
+ */
 public class AnimatedGroup implements java.io.Serializable, Iterable<Animated3D>, Cloneable {
 	private static final long serialVersionUID = 1L;
 

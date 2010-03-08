@@ -43,7 +43,7 @@ public class BonesIO {
 	}
 	
 	/** 
-	 * <p>Loads an array of {@link Animated3D}'s from given stream. Objects should be saved to stream
+	 * <p>Loads an {@link Animated3D} from given stream. Object should be saved to stream
 	 * via {@link #saveObject(Animated3D, OutputStream)}</p>
 	 *  
 	 * @see Animated3D
