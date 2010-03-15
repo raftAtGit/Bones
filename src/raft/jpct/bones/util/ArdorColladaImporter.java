@@ -4,13 +4,15 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.net.URI;
+import java.text.MessageFormat;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import raft.jpct.bones.BonesIO;
 import raft.jpct.bones.AnimatedGroup;
+import raft.jpct.bones.BonesIO;
 import raft.jpct.bones.BonesImporter;
+import raft.jpct.bones.Quaternion;
 
 import com.ardor3d.extension.model.collada.jdom.ColladaImporter;
 import com.ardor3d.extension.model.collada.jdom.data.ColladaStorage;
@@ -29,6 +31,7 @@ public class ArdorColladaImporter {
 	private final File outFile;
 	private final List<File> inputFiles;
 	private final float scale;
+	private final Quaternion rotation;
 	
 	/** 
 	 * Creates a new importer with given parameters.
@@ -37,17 +40,19 @@ public class ArdorColladaImporter {
 	 * @param inputFiles list of collada files. There must be at least one. If there are many,
 	 * 		their skeletons must match. 
 	 * @param scale the scaling of group
+	 * @param rotation the rotation applied while loading 
 	 * 
-	 * @see BonesImporter#importCollada(ColladaStorage, float)
+	 * @see BonesImporter#importCollada(ColladaStorage, float, Quaternion)
 	 * @see AnimatedGroup#mergeSkin(AnimatedGroup...)
 	 * */
-	public ArdorColladaImporter(File outFile, List<File> inputFiles, float scale) {
+	public ArdorColladaImporter(File outFile, List<File> inputFiles, float scale, Quaternion rotation) {
 		if (inputFiles.isEmpty())
 			throw new IllegalArgumentException("No input files");
 		
 		this.outFile = outFile;
 		this.inputFiles = inputFiles;
 		this.scale  = scale;
+		this.rotation = rotation;
 	}
 
 	/** Executes the importer. */
@@ -91,7 +96,16 @@ public class ArdorColladaImporter {
 			ColladaImporter colladaImporter = new ColladaImporter().loadTextures(false);
 			ColladaStorage colladaStorage = colladaImporter.load(uri.toString());
 			
-			return BonesImporter.importCollada(colladaStorage, scale);
+			AnimatedGroup group = BonesImporter.importCollada(colladaStorage, scale, rotation);
+			
+			int skinAnims = (group.getSkinClipSequence() == null) ? 0 : group.getSkinClipSequence().getSize();
+			//int poseAnims = (group.getPoseClipSequence() == null) ? 0 : group.getPoseClipSequence().getSize();
+			
+			Logger.log(MessageFormat.format("Loaded collada file: {0}, scale: {1}, rotation: {2}\n" +
+					"\t{3} sub objects, {4} skin animation(s)", 
+					colladaFile, scale, rotation, group.getSize(), skinAnims), Logger.MESSAGE);
+			
+			return group;
 		} finally {
 			ResourceLocatorTool.removeResourceLocator(ResourceLocatorTool.TYPE_MODEL, resLocater);
 		}
@@ -100,10 +114,11 @@ public class ArdorColladaImporter {
 	private static void printUsage(PrintStream ps) {
         ps.println("usage: ArdorColladaImporter [options] -in <collada file> [collada file...]");
         ps.println("options:");
-        ps.println("    -out <destination file>                     : destination file to write");
-        ps.println("    -scale <scale>                              : loading scale, default 1");
-        ps.println("    -h | -help                                  : print help");
-        ps.println("    -log <logLevel: VERBOSE*|WARNING|ERROR>     : set log level");
+        ps.println("    -out <destination file>                      	: destination file to write");
+        ps.println("    -scale <scale>                               	: loading scale, default 1");
+        ps.println("    -rotation <<x|y|z=degrees>[,x|y|z=degrees]...> 	: loading rotation, default none (sample: x=180,y=180)");
+        ps.println("    -h | -help                                   	: print help");
+        ps.println("    -log <logLevel: VERBOSE*|WARNING|ERROR>      	: set log level");
     }
 
 	/** Command line entry method. */
@@ -131,11 +146,13 @@ public class ArdorColladaImporter {
         
         File outFile = comLine.containsArg("-out") ? new File(comLine.getArg("-out")) : null;
         float scale = comLine.containsArg("-scale") ? Float.parseFloat(comLine.getArg("-scale")) : 1f;
+        Quaternion rotation = comLine.containsArg("-rotation") ? 
+        		Helper.parseRotation(comLine.getArg("-rotation")) : null; 
         
         if (comLine.isUnconsumed())
             throw new IllegalArgumentException("Unknown args: " + comLine.getUnconsumed());
         
-        new ArdorColladaImporter(outFile, inputFiles, scale).run();
+        new ArdorColladaImporter(outFile, inputFiles, scale, rotation).run();
         
 	}
 }

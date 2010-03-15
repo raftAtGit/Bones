@@ -21,18 +21,19 @@ public class AnimationBlendSample extends AbstractSkinSample {
 		OgreLoader loader = new OgreLoader();
 		OgreEntityNode node = loader.loadModel(ninjaUrl);
 
-		AnimatedGroup skinnedGroup = BonesImporter.importOgre(node, 1f);
+		AnimatedGroup group = BonesImporter.importOgre(node, 2f, null);
+		group.setAutoApplyAnimation(false);
 
-		for (Animated3D o : skinnedGroup) {
+		for (Animated3D o : group) {
 			o.build();
 			o.discardMeshData();
 		}
-		return skinnedGroup;
+		return group;
 	}
 
 	@Override
 	protected SkeletonDebugger createSkeletonDebugger() throws Exception {
-		return new SkeletonDebugger(animatedGroup.get(0).getSkeletonPose(), 10f);
+		return new SkeletonDebugger(animatedGroup.get(0).getSkeletonPose());
 	}
 
 	@Override
@@ -40,9 +41,6 @@ public class AnimationBlendSample extends AbstractSkinSample {
 		super.initialize();
 		
 		world.setAmbientLight(255, 255, 255);
-		
-		// skeleton is oriented upside down, rotate it
-		currentPose.getSkeleton().getTransform().rotateX((float)Math.PI);
 		
         update(0); // update once to reflect changes visible in first scene
 

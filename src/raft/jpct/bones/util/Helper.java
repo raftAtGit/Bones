@@ -2,6 +2,9 @@ package raft.jpct.bones.util;
 
 import java.io.File;
 import java.util.Locale;
+import java.util.regex.Pattern;
+
+import raft.jpct.bones.Quaternion;
 
 import com.threed.jpct.Logger;
 
@@ -16,6 +19,8 @@ class Helper {
 	static final String LL_WARNING = "WARNING"; 
 	static final String LL_ERROR = "ERROR"; 
 
+	private static final Pattern ROTATION_PATTERN = Pattern.compile("([xXyYzZ]=\\d+)(,[xXyYzZ]=\\d+)*");
+	
 	/** sets log level of jPCT {@link Logger} from a string. */
 	static void setLogLevel(String level) {
 		level = level.toUpperCase(Locale.ENGLISH);
@@ -35,5 +40,34 @@ class Helper {
         File dir = file.getParentFile();
         if (dir != null && !dir.exists() && !dir.mkdirs())
                 throw new IllegalStateException("Couldnt create " + dir);
+	}
+
+	static Quaternion parseRotation(String s) {
+		if (!ROTATION_PATTERN.matcher(s).matches())
+			throw new IllegalArgumentException("Invalid rotation string: " + s);
+		
+		Quaternion rotation = new Quaternion();
+		for (String part : s.split(",")) {
+			System.out.println(part);
+			float angle = (float) Math.toRadians(Double.parseDouble(part.substring(part.indexOf('=') + 1)));
+			
+			switch (part.charAt(0)) {
+				case 'x': 
+				case 'X':
+					rotation.rotateX(angle);
+					break;
+				case 'y': 
+				case 'Y':
+					rotation.rotateY(angle);
+					break;
+				case 'z': 
+				case 'Z':
+					rotation.rotateZ(angle);
+					break;
+				default:
+					throw new IllegalArgumentException("unknown rotation axis: " + part.charAt(0));
+			}
+		}
+		return rotation;
 	}
 }

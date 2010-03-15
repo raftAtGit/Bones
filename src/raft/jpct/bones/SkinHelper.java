@@ -167,5 +167,15 @@ class SkinHelper {
 			return max;
 		return value;
 	}
+	public static Matrix getScaleMatrix(float scale) {
+		return getScaleMatrix(scale, scale, scale);
+	}
+	public static Matrix getScaleMatrix(float scaleX, float scaleY, float scaleZ) {
+		Matrix m = new Matrix();
+		m.set(0, 0, scaleX);
+		m.set(1, 1, scaleY);
+		m.set(2, 2, scaleZ);
+		return m;
+	}
 	
 }

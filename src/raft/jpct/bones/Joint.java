@@ -13,11 +13,20 @@ public class Joint implements java.io.Serializable {
     /** Parent index of a joint which has no parent */
     public static final int NO_PARENT = -1;
 	
+	final Matrix bindPose;
 	final Matrix inverseBindPose;
 	final int index;
 	final int parentIndex;
 	final String name;
 	
+	/** <p>Creates a new Joint.<p>
+	 * 
+	 * @param inverseBindPose the inverse bind pose matrix
+	 * @param index the intended index in skeleton
+	 * @param parentIndex index of parent joint or {@link #NO_PARENT} if has no parent. 
+	 * 		if has a parent, parent index should be less than joint's index 
+	 * @param name name of this joint. maybe null  
+	 *  */
 	public Joint(Matrix inverseBindPose, int index, int parentIndex, String name) {
 		if (parentIndex < 0 && parentIndex != NO_PARENT)
 			throw new IllegalArgumentException("parent index: " + parentIndex);
@@ -28,6 +37,7 @@ public class Joint implements java.io.Serializable {
 					"o/w a joint array cannot be ordered such that parent comes first");
 		
 		this.inverseBindPose = inverseBindPose;
+		this.bindPose = inverseBindPose.invert();
 		this.index = index;
 		this.parentIndex = parentIndex;
 		this.name = name;
@@ -38,10 +48,9 @@ public class Joint implements java.io.Serializable {
 		return inverseBindPose.cloneMatrix();
 	}
 
-	/** Returns invert of invertBindPose matrix. 
-	 * This method does not use cache, always calculates invert of invertBindPose matrix. */
+	/** Returns a copy bindPose matrix. */
 	public Matrix getBindPose() {
-		return inverseBindPose.invert();
+		return bindPose.cloneMatrix();
 	}
 	
 	/** Returns the index of this joint. */

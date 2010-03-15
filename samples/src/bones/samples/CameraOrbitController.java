@@ -1,8 +1,13 @@
 package bones.samples;
 
-import java.awt.event.KeyAdapter;
+import java.awt.Point;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 
 import com.threed.jpct.Camera;
 import com.threed.jpct.SimpleVector;
@@ -14,7 +19,7 @@ import com.threed.jpct.SimpleVector;
  * 
  * @author hakan eryargi (r a f t)
  * */
-public class CameraOrbitController extends KeyAdapter {
+public class CameraOrbitController implements KeyListener, MouseListener, MouseMotionListener, MouseWheelListener {
 	
 	public final SimpleVector cameraTarget = new SimpleVector(0, 0, 0);
 	/** the angle with respect to positive Z axis. initial value is PI so looking down to positive Z axis. */
@@ -24,6 +29,11 @@ public class CameraOrbitController extends KeyAdapter {
 	public float minCameraRadius = 3f;
 	public float cameraMoveStepSize = 0.5f;
 	
+	public float dragTurnAnglePerPixel = (float) (Math.PI / 256);
+	public float dragMovePerPixel = 1f;
+	public float cameraMovePerWheelClick = 1.1f;
+	
+	
 	private boolean cameraMovingUp = false;
 	private boolean cameraMovingDown = false;
 	private boolean cameraMovingIn = false;
@@ -31,13 +41,16 @@ public class CameraOrbitController extends KeyAdapter {
 	private boolean cameraTurningLeft = false;
 	private boolean cameraTurningRight = false;
 	
+ 	private Point dragStartPoint = null;
+	private float cameraAngleAtDragStart = 0f;
+	private float cameraHeightAtDragStart = 0f;
+	
 	private Camera camera;
 	
 	public CameraOrbitController(Camera camera) {
 		this.camera = camera;
 	}
 	
-	@Override
 	public void keyPressed(KeyEvent e) {
 		switch (e.getKeyCode()) {
 			case KeyEvent.VK_UP:
@@ -61,7 +74,6 @@ public class CameraOrbitController extends KeyAdapter {
 		}
 	}
 
-	@Override
 	public void keyReleased(KeyEvent e) {
 		switch (e.getKeyCode()) {
 		case KeyEvent.VK_UP:
@@ -83,6 +95,9 @@ public class CameraOrbitController extends KeyAdapter {
 			cameraMovingOut = false;
 			break;
 		}
+	}
+	
+	public void keyTyped(KeyEvent e) {
 	}
 	
     public void placeCamera() {
@@ -107,6 +122,56 @@ public class CameraOrbitController extends KeyAdapter {
         camera.setPosition(camPos);
         camera.lookAt(cameraTarget);
 	}
+
+	public void mouseClicked(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void mouseEntered(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void mouseExited(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void mousePressed(MouseEvent event) {
+        dragStartPoint = event.getPoint();
+        cameraAngleAtDragStart = cameraAngle;
+        cameraHeightAtDragStart = cameraTarget.y;
+	}
+
+	public void mouseReleased(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void mouseDragged(MouseEvent event) {
+		cameraAngle = cameraAngleAtDragStart 
+				+ (event.getPoint().x - dragStartPoint.x) * dragTurnAnglePerPixel;
+		cameraTarget.y = cameraHeightAtDragStart
+				- (event.getPoint().y - dragStartPoint.y) * dragMovePerPixel;
+	}
+
+	public void mouseMoved(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void mouseWheelMoved(MouseWheelEvent event) {
+		int clicks = event.getWheelRotation();
+		for (int i = 0; i < Math.abs(clicks); i++) {
+			if (clicks > 0) 
+				cameraRadius *= cameraMovePerWheelClick;
+			else 
+				cameraRadius /= cameraMovePerWheelClick;
+		}
+		cameraRadius = Math.max(minCameraRadius, cameraRadius);
+	}
+
 	
 
 }

@@ -81,7 +81,8 @@ public class ProceduralAnimationSample extends AbstractSample {
 			ColladaImporter colladaImporter = new ColladaImporter().loadTextures(false);
 			ColladaStorage colladaStorage = colladaImporter.load(uri.toString());
 			
-			this.skinnedGroup = BonesImporter.importCollada(colladaStorage, 1f);
+			this.skinnedGroup = BonesImporter.importCollada(colladaStorage, 1f, 
+					new Quaternion().rotateX((float)Math.PI));
 		} finally {
 			ResourceLocatorTool.removeResourceLocator(ResourceLocatorTool.TYPE_MODEL, resLocater);
 		}
@@ -92,6 +93,7 @@ public class ProceduralAnimationSample extends AbstractSample {
 		world.setAmbientLight(255, 255, 255);
 
 		for (Animated3D o : skinnedGroup) {
+			
 			o.setTexture("seymour");
 			o.build();
 			o.discardMeshData();
@@ -100,9 +102,6 @@ public class ProceduralAnimationSample extends AbstractSample {
 		
 		// all SkinnedObject3D share the same pose 
 		this.currentPose = skinnedGroup.get(0).getSkeletonPose();
-		
-		// seymour is oriented for GL coordinates, rotate it for jPCT
-		currentPose.getSkeleton().getTransform().rotateX((float)Math.PI);
 		
 		this.skeletonDebugger = new SkeletonDebugger(currentPose);
 		skeletonDebugger.addToWorld(world);
@@ -115,6 +114,7 @@ public class ProceduralAnimationSample extends AbstractSample {
         cameraController = new CameraOrbitController(world.getCamera());
         cameraController.cameraTarget.set(0, -5, 0);
         cameraController.cameraRadius = 20;
+        cameraController.dragMovePerPixel = 20f / frameBuffer.getOutputHeight();
         
 		ControlsPanel controlsPanel = new ControlsPanel();
 		renderPanel.add(controlsPanel);
@@ -124,6 +124,9 @@ public class ProceduralAnimationSample extends AbstractSample {
 		
 		
 		renderPanel.addKeyListener(cameraController);
+		renderPanel.addMouseListener(cameraController);
+		renderPanel.addMouseMotionListener(cameraController);
+		renderPanel.addMouseWheelListener(cameraController);
         
         update(0); // update once to reflect changes visible in first scene
 	}
@@ -134,6 +137,7 @@ public class ProceduralAnimationSample extends AbstractSample {
 		updateBallLocation();
 		
 		//stretchNeck();
+		//currentPose.setToBindPose();
 		
         currentPose.updateTransforms();
         skeletonDebugger.update(currentPose);
@@ -145,28 +149,32 @@ public class ProceduralAnimationSample extends AbstractSample {
 	
 	private void stretchNeck() {
 		currentPose.setToBindPose();
+
+		float seconds = totalTime / 1000f;
 		
 		final int jointIndex = 13; 
 		final Joint neckJoint = currentPose.getSkeleton().getJoint(jointIndex);
+		final Joint parentJoint = currentPose.getSkeleton().getJoint(neckJoint.getParentIndex());
 		
-        //final Matrix[] globals = currentPose.getGlobalJointTransforms();
-        final int parentIndex = neckJoint.getParentIndex();
-		
-        SimpleVector boneDirection = currentPose.getGlobal(neckJoint.getIndex()).getTranslation().calcSub(
-        		currentPose.getGlobal(parentIndex).getTranslation()).normalize();
-        boneDirection.scalarMul(2f);
+        SimpleVector boneDirection = neckJoint.getBindPose().getTranslation().calcSub(
+        		parentJoint.getBindPose().getTranslation()).normalize();
+        boneDirection.scalarMul((float)Math.sin(seconds) + 1);
         
-        boneDirection.rotate(neckJoint.getInverseBindPose());
-        currentPose.getLocal(jointIndex).translate(boneDirection);
+        Matrix global = new Matrix(neckJoint.getBindPose());
+        global.translate(boneDirection);
+        global.rotateAxis(boneDirection, (float)Math.sin(2 * Math.sin(seconds)));
+        global.matMul(parentJoint.getInverseBindPose());
+        
+        currentPose.getLocal(jointIndex).setTo(global);
 	}
 
     private void updateBallLocation() {
 		float seconds = totalTime / 1000f;
 		
-		SimpleVector ballPos = new SimpleVector(Math.sin(seconds) * 5, Math.cos(seconds) * 5 + 10, 5);
+		SimpleVector ballPos = new SimpleVector(Math.sin(seconds) * 5, -Math.cos(seconds) * 5 - 10, -5);
         
          //Neck
-         targetJoint(currentPose, 13, new SimpleVector(0, 0, 1), ballPos, 1.0f);
+         targetJoint(currentPose, 13, new SimpleVector(0, 0, -1), ballPos, 1.0f);
         
          // Right arm
          targetJoint(currentPose, 10, new SimpleVector(-1, 0, 0), ballPos, 0.4f);
@@ -178,19 +186,14 @@ public class ProceduralAnimationSample extends AbstractSample {
          targetJoint(currentPose, 8, new SimpleVector(1, 0, 0), ballPos, 0.15f);
         
          // Waist
-         targetJoint(currentPose, 5, new SimpleVector(0, 1, 0), ballPos, 0.1f);
+         targetJoint(currentPose, 5, new SimpleVector(0, -1, 0), ballPos, 0.1f);
          
-         // all above demo calculations assume GL coordinates of Seymour. 
-         // i take the easy way, leave them as they are, and finally transform to new location for rendering 
-         ballPos.matMul(currentPose.getSkeleton().getTransform());
          ballSphere.translate(ballPos.calcSub(ballSphere.getTranslation()));
     }
     
     private void targetJoint(SkeletonPose pose, int jointIndex, SimpleVector bindPoseDirection,
     		SimpleVector targetPos, final float targetStrength) {
     	
-        //final Matrix[] globalTransforms = pose.getGlobalJointTransforms();
-
         final int parentIndex = pose.getSkeleton().getJoint(jointIndex).getParentIndex();
 
         // neckBindGlobalTransform is the neck bone -> model space transform. essentially, it is the world transform of

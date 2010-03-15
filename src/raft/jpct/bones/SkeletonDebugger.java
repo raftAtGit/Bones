@@ -23,23 +23,26 @@ public class SkeletonDebugger {
 	public static float minBoneLength = 0.01f;
 	
 	/** Default value of bone scale. */
-	public static final float DEFAULT_SCALE = 3f;
+	public static final float DEFAULT_BONE_SCALE = 10f;
+	/** Default value of joint scale. */
+	public static final float DEFAULT_JOINT_SCALE = 0.3f;
 	
 	private final Skeleton skeleton;
     private final Object3D[] jointObjects; 
     private final Object3D[] boneObjects; 
 	private final float boneScale;
+	private final float jointScale;
 	
     private Matrix tempMatrix = new Matrix();
 
     /** 
-     * Creates a new Debugger with {@link #DEFAULT_SCALE}
+     * Creates a new Debugger with {@link #DEFAULT_BONE_SCALE} and {@link #DEFAULT_JOINT_SCALE}
      *  
      * @param pose the pose this debugger represents
      * @param ignoreJoints these joints and the bones associated with them will not be displayed. 
      * */
 	public SkeletonDebugger(SkeletonPose pose, short... ignoreJoints) {
-		this(pose, DEFAULT_SCALE);
+		this(pose, DEFAULT_BONE_SCALE, DEFAULT_JOINT_SCALE);
 	}
 	
     /** 
@@ -51,9 +54,10 @@ public class SkeletonDebugger {
      * 
      *  @see Primitives#getPyramide(float, float)
      * */
-	public SkeletonDebugger(SkeletonPose pose, float boneScale, int... ignoreJoints) {
+	public SkeletonDebugger(SkeletonPose pose, float boneScale, float jointScale, int... ignoreJoints) {
 		this.skeleton = pose.skeleton;
 		this.boneScale = boneScale;
+		this.jointScale = jointScale;
 		
 		this.jointObjects = new Object3D[skeleton.joints.length];
 		this.boneObjects = new Object3D[skeleton.joints.length];
@@ -116,7 +120,7 @@ public class SkeletonDebugger {
 	
     private Object3D createJoint(Matrix jntTransform) {
 
-    	Object3D joint = Primitives.getBox(0.3f, 1f);
+    	Object3D joint = Primitives.getBox(jointScale, 1f);
     	
     	joint.getRotationMatrix().setTo(jntTransform);
     	SkinHelper.clearTranslation(joint.getRotationMatrix());
@@ -134,10 +138,6 @@ public class SkeletonDebugger {
     private void updateJoint(Object3D joint, Matrix jntTransform) {
     	tempMatrix.setTo(jntTransform);
     	
-    	if (!skeleton.transform.isIdentity()) {
-    		tempMatrix.matMul(skeleton.transform);
-    	}
-    	
     	joint.getRotationMatrix().setTo(tempMatrix);
     	SkinHelper.clearTranslation(joint.getRotationMatrix());
     	joint.translate(tempMatrix.getTranslation().calcSub(joint.getTranslation()));
@@ -147,11 +147,6 @@ public class SkeletonDebugger {
     	SimpleVector from = start.getTranslation();
     	SimpleVector to = end.getTranslation();
 
-    	if (!skeleton.transform.isIdentity()) {
-    		from.matMul(skeleton.transform);
-    		to.matMul(skeleton.transform);
-    	}
-    	
 		SimpleVector direction = to.calcSub(from);
 		
 		bone.setScale(1f);

@@ -36,16 +36,29 @@ public class BonesImporter {
 	 * <p>Constructs an {@link AnimatedGroup} out of Ardor's skinData.</p>
 	 * 
 	 * @param colladaStorage Ardor collada storage
-	 * @param scale the scale. not used at the moment.
+	 * @param scale the scaling applied
+	 * @param rotation the rotation applied to whole system. maybe null
 	 * 
 	 * @see AnimatedGroup
 	 * */
-	public static AnimatedGroup importCollada(ColladaStorage colladaStorage, float scale) { 
+	public static AnimatedGroup importCollada(ColladaStorage colladaStorage, float scale, Quaternion rotation) { 
 		if (colladaStorage.getSkins().isEmpty())
 			throw new IllegalArgumentException("ColladaStorage contains no skins.");
 		
 		if (scale != 1f)
 			Logger.log("Scale is not supported at the moment, ignoring", Logger.WARNING);
+		
+		if (scale == 0)
+			throw new IllegalArgumentException("scale: " + scale);
+		
+		Matrix transform = null;
+		if ((scale != 1) || (rotation != null)) {
+			transform = new Matrix();
+			if (rotation != null)
+				rotation.setRotation(transform);
+			if (scale != 1) 
+				transform.matMul(SkinHelper.getScaleMatrix(scale));
+		}
 		
 		Skeleton skeleton = convertArdorSkeleton(findUniqueArdorSkeleton(colladaStorage));
 		
@@ -58,6 +71,10 @@ public class BonesImporter {
 			for (SkinnedMesh sm : skinData.getSkins()) {
 				SkinData skin = convertArdorSkinData(sm);
 				MeshData mesh = convertArdorMeshData(sm);
+				
+				if (transform != null)
+					mesh.applyTransform(transform);
+				
 				Animated3D skinnedObject = new Animated3D(mesh, skin, currentPose);
 				objects.add(skinnedObject);
 			}
@@ -65,12 +82,39 @@ public class BonesImporter {
 		
 		AnimatedGroup group = new AnimatedGroup(objects.toArray(new Animated3D[objects.size()]));
 		
+		// there is no example of collada file with multiple animations
 		List<com.ardor3d.extension.animation.skeletal.JointChannel> jointChannels = colladaStorage.getJointChannels();
 		if ((jointChannels != null && !jointChannels.isEmpty())) {
-			SkinClip clip = convertArdorSkinClip(skeleton, jointChannels);
-			group.setSkinClipSequence(new SkinClipSequence(clip));
+			SkinClip skinClip = convertArdorSkinClip(skeleton, jointChannels);
+			group.setSkinClipSequence(new SkinClipSequence(skinClip));
+			
+			if (rotation != null) {
+				for (JointChannel channel : skinClip) {
+					if (channel != null) 
+						channel.rotate(skeleton, rotation);
+				}
+			}
+			if (scale != 1) {
+				for (JointChannel channel : skinClip) {
+					if (channel != null) { 
+						channel.scale(scale);
+					}
+				}
+			}
 			Logger.log("Created one animation clip", Logger.MESSAGE);
 		}
+		
+		// finally rotate/scale skeleton. this should be done after jointChannels are rotated/scaled
+		if ((skeleton != null) && (transform != null)) {
+			if (rotation != null)
+				skeleton.rotate(rotation);
+			if (scale != 1)
+				skeleton.scale(scale);
+			
+			currentPose.setToBindPose();
+			currentPose.updateTransforms();
+		}
+		
 		return group;
 	}
 
@@ -80,13 +124,23 @@ public class BonesImporter {
 	 * 
 	 * @param node jME OgreEntityNode
 	 * @param scale the scale. not used at the moment.
+	 * @param rotation the rotation applied to whole system. maybe null
 	 * */
-	public static AnimatedGroup importOgre(OgreEntityNode node, float scale) throws IOException {
+	public static AnimatedGroup importOgre(OgreEntityNode node, float scale, Quaternion rotation) throws IOException {
 		if (node.getControllerCount() == 0)
 			throw new IllegalArgumentException("No controller found in OgreEntityNode. Means there is no skeleton or pose animation!");
 		
-		if (scale != 1f)
-			Logger.log("Scale is not supported at the moment, ignoring", Logger.WARNING);
+		if (scale == 0)
+			throw new IllegalArgumentException("scale: " + scale);
+		
+		Matrix transform = null;
+		if ((scale != 1) || (rotation != null)) {
+			transform = new Matrix();
+			if (rotation != null)
+				rotation.setRotation(transform);
+			if (scale != 1) 
+				transform.matMul(SkinHelper.getScaleMatrix(scale, scale, scale));
+		}
 		
 		MeshAnimationController controller = (MeshAnimationController) node.getController(0);
 
@@ -95,11 +149,10 @@ public class BonesImporter {
 		
 		if (controller.getSkeleton() != null) {
 			skeleton = convertJMESkeleton(controller.getSkeleton());
-			
+
 			currentPose = new SkeletonPose(skeleton);
 			currentPose.updateTransforms();
 		}
-		
 		
 		List<Animated3D> list = new LinkedList<Animated3D>();
 		
@@ -108,16 +161,22 @@ public class BonesImporter {
 			SkinData skin = (skeleton == null) ? null : convertJMESkinData(ogreMesh);
 			MeshData mesh = convertJMEMeshData(ogreMesh);
 
+			if (transform != null)
+				mesh.applyTransform(transform);
+
 			Animated3D skinnedObject = new Animated3D(mesh, skin, currentPose);
 			skinnedObject.setIndex(index++);
 			list.add(skinnedObject);
 		}
 		
-		Animated3D[] skinnedObjects = list.toArray(new Animated3D[list.size()]);
+		Animated3D[] objects = list.toArray(new Animated3D[list.size()]);
 		
-		List<SkinClip> skeletonClips = new LinkedList<SkinClip>();
+		List<SkinClip> skinClips = new LinkedList<SkinClip>();
 		List<PoseClip> poseClips = new LinkedList<PoseClip>();
-		//Map<Skinned3D, List<PoseClip>> poseClips = new IdentityHashMap<Skinned3D, List<PoseClip>>();
+		
+    	// first iterate through all pose animations to collect poses
+    	Map<com.jmex.model.ogrexml.anim.Pose, MeshPose> poseCache = createJMEPoseCache(controller, transform);
+    			new IdentityHashMap<com.jmex.model.ogrexml.anim.Pose, MeshPose>();
 		
 		for (com.jmex.model.ogrexml.anim.Animation anim : controller.getAnimations()) {
 			if (anim.hasBoneAnimation()) {
@@ -125,13 +184,27 @@ public class BonesImporter {
 					throw new IllegalStateException("Skeleton is null but controller has Bone animation!");
 				
 				com.jmex.model.ogrexml.anim.BoneAnimation boneAnim = anim.getBoneAnimation();
-				skeletonClips.add(convertJMESkinClip(skeleton, boneAnim));
+				SkinClip skinClip = convertJMESkinClip(skeleton, boneAnim); 
+				skinClips.add(skinClip);
+
+				if (rotation != null) {
+					for (JointChannel channel : skinClip) {
+						if (channel != null) 
+							channel.rotate(skeleton, rotation);
+					}
+				}
+				if (scale != 1) {
+					for (JointChannel channel : skinClip) {
+						if (channel != null) 
+							channel.scale(scale);
+					}
+				}
 				Logger.log("Created skeleton animation clip: " + boneAnim.getName(), Logger.MESSAGE);
 			}
 			
 			if (anim.hasMeshAnimation()) {
 				com.jmex.model.ogrexml.anim.MeshAnimation meshAnim = anim.getMeshAnimation();
-				List<MeshChannel> poseChannels = new LinkedList<MeshChannel>();
+				List<MeshChannel> meshChannels = new LinkedList<MeshChannel>();
 				
 				for (com.jmex.model.ogrexml.anim.Track track : meshAnim.getTracks()) {
 					if (!(track instanceof com.jmex.model.ogrexml.anim.PoseTrack)) {
@@ -139,31 +212,74 @@ public class BonesImporter {
 						continue;
 					}
 					com.jmex.model.ogrexml.anim.PoseTrack poseTrack = (com.jmex.model.ogrexml.anim.PoseTrack) track;
-					poseChannels.add(convertJMEMeshChannel(poseTrack)); 
-					
+					MeshChannel meshChannel = convertJMEMeshChannel(poseCache, poseTrack); 
+					meshChannels.add(meshChannel); 
 				}
-				if (poseChannels.isEmpty()) {
+				
+				if (meshChannels.isEmpty()) {
 					Logger.log("No pose tracks in mesh animation '" + meshAnim.getName() + "', skipping completely", Logger.WARNING);
 					continue;
 				}
-				PoseClip poseClip = new PoseClip(skinnedObjects.length, poseChannels);
+				PoseClip poseClip = new PoseClip(objects.length, meshChannels);
 				poseClip.setName(meshAnim.getName());
 				poseClips.add(poseClip);
 				
 				Logger.log("Created pose animation clip: " + meshAnim.getName(), Logger.MESSAGE);
-				
 			}			
 		}
 		
-		AnimatedGroup group = new AnimatedGroup(skinnedObjects);
-		if (!skeletonClips.isEmpty()) 
-			group.setSkinClipSequence(new SkinClipSequence(skeletonClips));
+		// finally rotate/scale skeleton. this should be done after jointChannels are rotated/scaled
+		if ((skeleton != null) && (transform != null)) {
+			if (rotation != null)
+				skeleton.rotate(rotation);
+			if (scale != 1)
+				skeleton.scale(scale);
+			
+			currentPose.setToBindPose();
+			currentPose.updateTransforms();
+		}
+		
+		AnimatedGroup group = new AnimatedGroup(objects);
+		if (!skinClips.isEmpty()) 
+			group.setSkinClipSequence(new SkinClipSequence(skinClips));
 		if (!poseClips.isEmpty()) 
 			group.setPoseClipSequence(new PoseClipSequence(poseClips));
 		
 		return group;
 	}
 	
+	private static Map<com.jmex.model.ogrexml.anim.Pose, MeshPose> createJMEPoseCache(MeshAnimationController controller, Matrix transform) {
+    	Map<com.jmex.model.ogrexml.anim.Pose, MeshPose> poseCache = 
+    		new IdentityHashMap<com.jmex.model.ogrexml.anim.Pose, MeshPose>();
+
+		// first iterate through all pose animations to collect poses
+		for (com.jmex.model.ogrexml.anim.Animation anim : controller.getAnimations()) {
+			if (anim.hasMeshAnimation()) {
+				com.jmex.model.ogrexml.anim.MeshAnimation meshAnim = anim.getMeshAnimation();
+				
+				for (com.jmex.model.ogrexml.anim.Track track : meshAnim.getTracks()) {
+					if (!(track instanceof com.jmex.model.ogrexml.anim.PoseTrack)) {
+						continue;
+					}
+					com.jmex.model.ogrexml.anim.PoseTrack poseTrack = (com.jmex.model.ogrexml.anim.PoseTrack) track;
+					for (com.jmex.model.ogrexml.anim.PoseTrack.PoseFrame poseFrame : poseTrack.getFrames()) {
+						for (com.jmex.model.ogrexml.anim.Pose jmePose : poseFrame.getPoses()) {
+			    			MeshPose pose = poseCache.get(jmePose);
+			    			if (pose == null) {
+			    				pose = convertJMEMeshPose(jmePose);
+			    				poseCache.put(jmePose, pose);
+		
+								if (transform != null)
+									pose.applyTransform(transform);
+			    			}
+						}
+					}
+				}
+			}			
+		}
+		return poseCache;
+	}
+
 	private static com.ardor3d.extension.animation.skeletal.Skeleton findUniqueArdorSkeleton(ColladaStorage colladaStorage) {
 		if (colladaStorage.getSkins().isEmpty())
 			throw new IllegalArgumentException("ColladaStorage contains no skins.");
@@ -315,10 +431,12 @@ public class BonesImporter {
 		Joint parentJoint = joint.hasParent() ? 
 				skeleton.getJoint(joint.getParentIndex()) : null;
 
+		// there is no scale information in jME OGRE implementation
+		final SimpleVector noScale = new SimpleVector(1f, 1f, 1f);
+		
 		for (int sampleIndex = 0; sampleIndex < length; sampleIndex++) {
 			times[sampleIndex] = track.getTimes()[sampleIndex];
-			// there is no scale information in jME OGRE implementation
-			scales[sampleIndex] = new SimpleVector(1f, 1f, 1f); 
+			scales[sampleIndex] = noScale; 
 			
 			Matrix m = convertQuaternion(track.getRotations()[sampleIndex]).getRotationMatrix();
 			com.jme.math.Vector3f tx = track.getTranslations()[sampleIndex];
@@ -326,6 +444,7 @@ public class BonesImporter {
 
 			m.matMul(joint.getBindPose()); // -> take to joint object space
 			if (joint.hasParent()) {
+				// TODO uncomment for previous behaviour
 				// remove parent transform -> take to joint local space 
 				m.matMul(parentJoint.getInverseBindPose());
 			}
@@ -381,14 +500,11 @@ public class BonesImporter {
 		return new SkinData(weights, jointIndices);
 	}
 	
-    private static MeshChannel convertJMEMeshChannel(com.jmex.model.ogrexml.anim.PoseTrack poseTrack) {
+    private static MeshChannel convertJMEMeshChannel(Map<com.jmex.model.ogrexml.anim.Pose, MeshPose> poseCache, com.jmex.model.ogrexml.anim.PoseTrack poseTrack) {
     	int length = poseTrack.getTimes().length;
     	
     	PoseFrame[] frames = new PoseFrame[length];
     	float[] times = new float[length];
-    	
-    	Map<com.jmex.model.ogrexml.anim.Pose, MeshPose> poseCache = 
-    		new IdentityHashMap<com.jmex.model.ogrexml.anim.Pose, MeshPose>();
     	
     	for (int i = 0; i < times.length; i++) {
     		
@@ -399,10 +515,8 @@ public class BonesImporter {
     		for (int j = 0; j < framePoses.length; j++) {
     			com.jmex.model.ogrexml.anim.Pose jmePose = jmeFrame.getPoses()[j];
     			MeshPose pose = poseCache.get(jmePose);
-    			if (pose == null) {
-    				pose = convertJMEMeshPose(jmePose);
-    				poseCache.put(jmePose, pose);
-    			}
+    			if (pose == null) 
+    				throw new AssertionError("couldnt get MeshPose from jME PoseCache");
     			framePoses[j] = pose;
     		}
     		

@@ -1,5 +1,6 @@
 package raft.jpct.bones;
 
+import com.threed.jpct.Matrix;
 import com.threed.jpct.SimpleVector;
 
 /**
@@ -58,6 +59,12 @@ public class MeshPose implements java.io.Serializable {
 
             vertices[vertIndex].add(tmpVector);
         }
+	}
+
+	void applyTransform(Matrix transform) {
+		for (SimpleVector offset : offsets) {
+			offset.matMul(transform);
+		}
 	}
 	
 	

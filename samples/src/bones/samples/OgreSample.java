@@ -7,10 +7,13 @@ import java.net.URL;
 import raft.jpct.bones.Animated3D;
 import raft.jpct.bones.AnimatedGroup;
 import raft.jpct.bones.BonesImporter;
+import raft.jpct.bones.Quaternion;
 import raft.jpct.bones.SkeletonDebugger;
 
 import com.jmex.model.ogrexml.OgreEntityNode;
 import com.jmex.model.ogrexml.OgreLoader;
+import com.threed.jpct.Matrix;
+import com.threed.jpct.SimpleVector;
 import com.threed.jpct.Texture;
 import com.threed.jpct.TextureManager;
 
@@ -40,7 +43,9 @@ public class OgreSample extends AbstractSkinSample {
 		OgreLoader loader = new OgreLoader();
 		OgreEntityNode node = loader.loadModel(ninjaUrl);
 
-		AnimatedGroup skinnedGroup = BonesImporter.importOgre(node, 1f);
+		// data in ogre file is upside down, so rotate around x axis
+		AnimatedGroup skinnedGroup = BonesImporter.importOgre(node, 2f, new Quaternion().rotateX((float)Math.PI));
+		//AnimatedGroup skinnedGroup = BonesImporter.importOgre(node, 2f, null);
 
 		Texture texture = new Texture("./samples/data/ninja/nskingr.jpg");
 		TextureManager.getInstance().addTexture("ninja", texture);
@@ -60,8 +65,22 @@ public class OgreSample extends AbstractSkinSample {
 		
 		world.setAmbientLight(255, 255, 255);
 		
+//		Matrix transform = new Matrix();
+//		transform.rotateX((float)Math.PI);
+//		
+//		//transform.translate(100, 100, 100);
+//		
+//		Matrix scale = new Matrix();
+//		scale.set(0, 0, 2f);
+//		scale.set(1, 1, 2f);
+//		scale.set(2, 2, 2f);
+		
+		//transform.matMul(scale);
+		
 		// skeleton is oriented upside down, rotate it
-		currentPose.getSkeleton().getTransform().rotateX((float)Math.PI);
+//		animatedGroup.getSkinClipSequence().applyTransform(transform);
+//		currentPose.getSkeleton().applyTransform(transform);
+		
 		
         update(0); // update once to reflect changes visible in first scene
 
@@ -70,7 +89,11 @@ public class OgreSample extends AbstractSkinSample {
 		autoAdjustCamera();
 	}
 	
-	
+	@Override
+	protected void update(long deltaTime) {
+		// TODO Auto-generated method stub
+		super.update(deltaTime);
+	}
 	
 	public static void main(String[] args) throws Exception {
 		new OgreSample().loop();

@@ -1,61 +1,128 @@
 <html>
     <head>
-        <title>Bones - skeletal animation for jPCT</title>
+        <title>Bones - Skeletal and Pose animations for jPCT</title>
         <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-        <link href="style.css" rel="stylesheet">
+        
+        <style type="text/css">
+            h2 {
+                font-weight: bold;
+                font-size: 1.2em;
+            }
+            
+            h3 {
+                font-weight: bold;
+                font-size: 0.8em;
+            }
+            .header {
+			    font-size: 1.5em;
+			    text-decoration: underline;            
+			    padding-top: 30px;
+                padding-left: 20px;
+            }   
+            .image {
+                font-style: italic;
+            }
+        </style>
     </head>
 
-    <body>
-    	<img alt="quake3_bones.jpg" src="images/quake3_bones.jpg">
-    
-    	<h2>Bones - skeletal animation for jPCT</h2>
-    	<p><font size="-1">Last update: 7 Feb 2010. See <a href="history.html">history</a></font></p>
-    
-    	<p>Bones is a skeletal animation API for <a href="http://www.jpct.net">jPCT</a>. It's aimed to be small library with no additional dependencies 
-    	 where possible. Minimum Java version is 1.5.</p>
-    	 
-    	 <p>It can load <a href="http://www.collada.org">Collada</a> skins via <a href="http://www.ardor3d.com">Ardor3D's</a> Collada loader 
-    	 and <a href="http://www.ogre3d.org/">Ogre3D</a> skins via <a href="http://www.jmonkeyengine.com/">jME's</a> OgreXml loader.   	 
-    	 After this initial loading, skins can be saved in a compact binary form. Saved skins can be later reloaded
-    	 with loader, with no dependencies to Ardor3D or jME. Either way after loading they are ready in jPCT terms. 
-    	 They have mesh data, textures coordinates and skinning information. It's enough to set their textures and call build() 
-    	 to prepare them to be added into a jPCT world. </p>
-    	
-    	 <p>Bones initially started as a partial/modified port of <a href="http://www.ardor3d.com">Ardor3D's</a> animation system to jPCT. 
-    	 Then it evolved to match jPCT semantics and to load Ogre3D skins.</p>
-    	 
-    	 <p>Bones can be downloaded from <a href="http://www.aptalkarga.com/bones/bones.zip">here</a>. 
-    	 Javadocs can be found <a href="api/index.html" target="_blank">here</a>. It contains
-    	 the source code, necessary libraries, import scripts, Eclipse project files and a few sample applications.
-    	 Bones is definitely free software with a <i>"Do whatever with it"</i> license. <b>However</b>, please note, adapted sources 
-    	 and sample model data may still be subject to provider's license terms.</p>
-    	
-    	<p>As Bones is at a early phase, expect changes in the API. Even for later phases, the author claims
-    	<b>no warranty</b> to maintain backward compatibility.</p>
-    	
-    	<p>For discussion and questions, visit the <a href="http://www.jpct.net/forum2/index.php/topic,1503.0.html" target="_blank">Bones thread at jPCT forums</a></p>
+    <body style="margin: 20px;">
+        <h1>Bones - Skeletal and Pose Animations for jPCT</h1>
+        
+    	<img alt="quake3_bones.jpg" src="images/quake3_bones.jpg" style="float: left;">
+        
+        <div style="padding-left: 200px; padding-top: 50px;">
+	        <ul>
+	            <li><a href="#overview">Overview</a></li>
+	            <li><a href="#features">Features</a></li>
+	            <li><a href="#formats">Supported formats</a></li>
+                <li><a href="#download">Download</a></li>
+                <li><a href="#feedback">Feedback</a></li>
+                <li><a href="api/index.html" target="_blank">Javadocs</a></li>
+                <li><a href="#demos">Demos</a></li>
+	        </ul>
+	    
+	    	<p><font size="-1">Last update: 7 Feb 2010. See <a href="history.html">history</a></font></p>
+        </div>
+        
+        <a id="overview"></a>
+        <h3 style="clear: left;" class="header">Overview</h3>
 
-		<p>A screen capture of a skin loaded with jME's OgreXml loader:</p>
-		<object width="640" height="505">
-		<param name="movie"
-			value="http://www.youtube.com/v/dGaaxiSwH_Y&hl=en_US&fs=1&"></param>
-		<param name="allowFullScreen" value="true"></param>
-		<param name="allowscriptaccess" value="always"></param>
-		<embed src="http://www.youtube.com/v/dGaaxiSwH_Y&hl=en_US&fs=1&"
-			type="application/x-shockwave-flash" allowscriptaccess="always"
-			allowfullscreen="true" width="640" height="505"></embed></object>
+        <p>Bones is a small animation library for <a href="http://www.jpct.net">jPCT</a>. 
+        It supports skeletal and pose animations.  
+        Bones is pure Java and requires at least Java version 1.5.</p>
+         
+         <p>Bones is definitely free software with a <i>"Do whatever with it"</i> license. <b>However</b>, please note, adapted sources 
+         and sample model data may still be subject to provider's license terms.</p>
+            
+         <p>Bones initially started as a partial/modified port of <a href="http://www.ardor3d.com">Ardor3D's</a> animation system to jPCT. 
+         Then it evolved to match jPCT semantics and load <a href="http://www.ogre3d.org/">Ogre3D</a> skins and pose animations.</p>
+            
+        <p><b>Please note:</b> As Bones is at an early phase, expect changes in the API. Even for later phases, the author claims
+        <b>no warranty</b> to maintain backward compatibility.</p>
 
-		<p>A screen capture of procedural animation:</p>
-		<object width="640" height="505">
-		<param name="movie"
-			value="http://www.youtube.com/v/G3MLLsaKKxI&hl=en_US&fs=1&"></param>
-		<param name="allowFullScreen" value="true"></param>
-		<param name="allowscriptaccess" value="always"></param>
-		<embed src="http://www.youtube.com/v/G3MLLsaKKxI&hl=en_US&fs=1&"
-			type="application/x-shockwave-flash" allowscriptaccess="always"
-			allowfullscreen="true" width="640" height="505"></embed> </object>
+        <a id="features"></a>
+        <h3 class="header">Features</h3>
+        
+        <p>Bones supports <a href="http://www.okino.com/conv/skinning.htm" target="_blank">skeletal</a> and 
+        <a href="http://www.ogre3d.org/docs/manual/manual_80.html#SEC352" target="_blank">pose</a>
+        animations. Pose animations can be blended with each other and with a single 
+        skin (skeletal) animation. Skeletal animations can not be blended. Scaling and rotation is supported during initial loading.
+        API allows programmatically created animated objects, skeletons and animations. GPU based animations are not supported.</p>
+        
+        <p>Bones is pure Java and requires at least Java version 1.5. Bones can
+        run on Android with <a href="http://www.jpct.net/jpct-ae/">Android edition of jPCT</a>.</p>
+        
+        <a id="formats"></a>
+        <h3 class="header">Supported formats</h3>
 
+         <p><b>Collada:</b> Bones can load <a href="http://www.collada.org">Collada</a> animation files via
+         <a href="http://www.ardor3d.com">Ardor3D's</a> Collada loader. Only mesh data, texture coordinates and 
+         skeletal animation data is loaded.</p>
+         
+         <p><b>Ogre3D:</b> Bones can load <a href="http://www.ogre3d.org/">Ogre3D</a> animation files 
+         via <a href="http://www.jmonkeyengine.com/">jME's</a> OgreXml loader. Only mesh data, texture coordinates and 
+         skeletal and pose animation data is loaded.</p>             
+
+         <p>After initial loading, Bones objects and animation data can be saved in a compact binary form. 
+         Saved animations can be later reloaded with loader, with no dependencies to Ardor3D or jME. 
+         Either way after loading they are ready in jPCT terms. 
+         They have mesh data, textures coordinates and skinning information. It's enough to set their textures and call build() 
+         to prepare them to be added into a jPCT world.</p>
+        
+         <p>Command line scripts are provided to ease importing process.</p>
+        
+        <a id="download"></a>
+        <h3 class="header">Download</h3>
+            
+         <p>Bones can be downloaded from <a href="http://www.aptalkarga.com/bones/bones.zip">here</a>. 
+         It contains the source code, necessary libraries, import scripts, Eclipse project files and a few sample applications.</p>
+        
+            
+        <a id="feedback"></a>
+        <h3 class="header">Feedback</h3>
+        
+        <p>For discussion, questions and any kind of feedback, visit the 
+        <a href="http://www.jpct.net/forum2/index.php/topic,1503.0.html" target="_blank">Bones thread at jPCT forums</a></p>
+
+
+
+        <a id="demos"></a>
+        <h3 class="header">Demos</h3>
+        
+        <p>Here are screen captures of a few sample applications:</p>
+        
+        <p class="image">Facial animation loaded as Ogre3D Pose animation:</p>
+    	<object width="425" height="344"><param name="movie" value="http://www.youtube.com/v/vemKY9kosvI&hl=en_US&fs=1&"></param><param name="allowFullScreen" value="true"></param><param name="allowscriptaccess" value="always"></param><embed src="http://www.youtube.com/v/vemKY9kosvI&hl=en_US&fs=1&" type="application/x-shockwave-flash" allowscriptaccess="always" allowfullscreen="true" width="425" height="344"></embed></object>
+    	
+		<p class="image">Skeletal animation loaded with jME's OgreXml loader:</p>
+		<object width="425" height="344"><param name="movie" value="http://www.youtube.com/v/dGaaxiSwH_Y&hl=en_US&fs=1&"></param><param name="allowFullScreen" value="true"></param><param name="allowscriptaccess" value="always"></param><embed src="http://www.youtube.com/v/dGaaxiSwH_Y&hl=en_US&fs=1&" type="application/x-shockwave-flash" allowscriptaccess="always" allowfullscreen="true" width="425" height="344"></embed></object>
+
+		<p class="image">Collada skin procedurally animated (sample adapted from Ardor3d):</p>
+		<object width="425" height="344"><param name="movie" value="http://www.youtube.com/v/G3MLLsaKKxI&hl=en_US&fs=1&"></param><param name="allowFullScreen" value="true"></param><param name="allowscriptaccess" value="always"></param><embed src="http://www.youtube.com/v/G3MLLsaKKxI&hl=en_US&fs=1&" type="application/x-shockwave-flash" allowscriptaccess="always" allowfullscreen="true" width="425" height="344"></embed></object>
 	
+        <p class="image">Ninja demo running on Android (captured by EgonOlsen):</p>
+        <object width="425" height="344"><param name="movie" value="http://www.youtube.com/v/QP4LoJ-87vY&hl=en_US&fs=1&"></param><param name="allowFullScreen" value="true"></param><param name="allowscriptaccess" value="always"></param><embed src="http://www.youtube.com/v/QP4LoJ-87vY&hl=en_US&fs=1&" type="application/x-shockwave-flash" allowscriptaccess="always" allowfullscreen="true" width="425" height="344"></embed></object>
+
 
 
 		<p align="center"><br><br><br><br>

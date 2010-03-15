@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.net.URL;
+import java.text.MessageFormat;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -11,6 +12,7 @@ import java.util.NoSuchElementException;
 import raft.jpct.bones.BonesIO;
 import raft.jpct.bones.AnimatedGroup;
 import raft.jpct.bones.BonesImporter;
+import raft.jpct.bones.Quaternion;
 
 import com.jmex.model.ogrexml.OgreEntityNode;
 import com.jmex.model.ogrexml.OgreLoader;
@@ -27,6 +29,7 @@ public class JMEOgreImporter {
 	private final File outFile;
 	private final List<File> inputFiles;
 	private final float scale;
+	private final Quaternion rotation;
 	
 	/** 
 	 * Creates a new importer with given parameters.
@@ -35,17 +38,19 @@ public class JMEOgreImporter {
 	 * @param inputFiles list of Ogre3D mesh xml files. There must be at least one. If there are many,
 	 * 		their skeletons must match. 
 	 * @param scale the scaling of group
+	 * @param rotation the rotation applied while loading 
 	 * 
-	 * @see BonesImporter#importOgre(OgreEntityNode, float)
+	 * @see BonesImporter#importOgre(OgreEntityNode, float, Quaternion)
 	 * @see AnimatedGroup#mergeSkin(AnimatedGroup...)
 	 * */
-	public JMEOgreImporter(File outFile, List<File> inputFiles, float scale) {
+	public JMEOgreImporter(File outFile, List<File> inputFiles, float scale, Quaternion rotation) {
 		if (inputFiles.isEmpty())
 			throw new IllegalArgumentException("No input files");
 		
 		this.outFile = outFile;
 		this.inputFiles = inputFiles;
 		this.scale  = scale;
+		this.rotation = rotation;
 	}
 
 	/** Executes the importer. */
@@ -85,17 +90,26 @@ public class JMEOgreImporter {
 		OgreLoader loader = new OgreLoader();
 		OgreEntityNode node = loader.loadModel(url);
 
-		AnimatedGroup skinnedGroup = BonesImporter.importOgre(node, scale);
-		return skinnedGroup;
+		AnimatedGroup group = BonesImporter.importOgre(node, scale, rotation);
+		
+		int skinAnims = (group.getSkinClipSequence() == null) ? 0 : group.getSkinClipSequence().getSize();
+		int poseAnims = (group.getPoseClipSequence() == null) ? 0 : group.getPoseClipSequence().getSize();
+		
+		Logger.log(MessageFormat.format("Loaded ogre file: {0}, scale: {1}, rotation: {2}\n" +
+				"\t{3} sub objects, {4} skin animation(s), {5} pose animation(s)", 
+				meshFile, scale, rotation, group.getSize(), skinAnims, poseAnims), Logger.MESSAGE);
+		
+		return group;
 	}
 
 	private static void printUsage(PrintStream ps) {
         ps.println("usage: JMEOgreImporter [options] -in <ogre.mesh.xml> [ogre.mesh.xml...]");
         ps.println("options:");
-        ps.println("    -out <destination file>                     : destination file to write");
-        ps.println("    -scale <scale>                              : loading scale, default 1");
-        ps.println("    -h | -help                                  : print help");
-        ps.println("    -log <logLevel: VERBOSE*|WARNING|ERROR>     : set log level");
+        ps.println("    -out <destination file>                      	: destination file to write");
+        ps.println("    -scale <scale>                               	: loading scale, default 1");
+        ps.println("    -rotation <<x|y|z=degrees>[,x|y|z=degrees]...> 	: loading rotation, default none (sample: x=180,y=180)");
+        ps.println("    -h | -help                                   	: print help");
+        ps.println("    -log <logLevel: VERBOSE*|WARNING|ERROR>      	: set log level");
     }
 
 	
@@ -124,11 +138,13 @@ public class JMEOgreImporter {
         
         File outFile = comLine.containsArg("-out") ? new File(comLine.getArg("-out")) : null;
         float scale = comLine.containsArg("-scale") ? Float.parseFloat(comLine.getArg("-scale")) : 1f;
+        Quaternion rotation = comLine.containsArg("-rotation") ? 
+        		Helper.parseRotation(comLine.getArg("-rotation")) : null; 
         
         if (comLine.isUnconsumed())
             throw new IllegalArgumentException("Unknown args: " + comLine.getUnconsumed());
         
-        new JMEOgreImporter(outFile, inputFiles, scale).run();
+        new JMEOgreImporter(outFile, inputFiles, scale, rotation).run();
         
 	}
 }

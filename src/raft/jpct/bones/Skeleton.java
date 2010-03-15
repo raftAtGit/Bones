@@ -12,7 +12,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 
 import com.threed.jpct.Logger;
-import com.threed.jpct.Matrix;
+import com.threed.jpct.SimpleVector;
 
 
 /**
@@ -29,8 +29,6 @@ public class Skeleton implements java.io.Serializable, Iterable<Joint> {
 	
     final Joint[] joints;
     
-    final Matrix transform = new Matrix();
-	
     /** <p>Creates a new Skeleton out of given joints. Joint's indices must match their position in array
      * and array should be ordered such that, parent comes first.</p> */
     public Skeleton(Joint[] joints) {
@@ -63,12 +61,6 @@ public class Skeleton implements java.io.Serializable, Iterable<Joint> {
 	public Joint getJoint(int index) {
 		return joints[index];
 	}	
-	
-	/** Returns the transform which is finally applied to joints. 
-	 * Can be used to rotate or scale the skeleton (and poses of it) */
-	public Matrix getTransform() {
-		return transform;
-	}
 	
     /** <p>Returns an iterator of joints</p> */
 	public Iterator<Joint> iterator() {
@@ -109,4 +101,19 @@ public class Skeleton implements java.io.Serializable, Iterable<Joint> {
 		System.out.println("-- --");
 	}
 
+	void rotate(Quaternion rotation) {
+		for (Joint joint : joints) {
+			joint.bindPose.matMul(rotation.getRotationMatrix());
+			joint.inverseBindPose.setTo(joint.bindPose.invert());
+		}
+	}
+	
+	void scale(float scale) {
+		for (Joint joint : joints) {
+			SimpleVector tx = joint.bindPose.getTranslation();
+			tx.scalarMul(scale);
+			SkinHelper.setTranslation(joint.bindPose, tx);
+			joint.inverseBindPose.setTo(joint.bindPose.invert());
+		}
+	}
 }

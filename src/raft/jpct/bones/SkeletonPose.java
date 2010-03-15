@@ -40,7 +40,7 @@ public class SkeletonPose implements java.io.Serializable {
 		return skeleton;
 	}
 
-	/** Returns the joint transform in joint space.
+	/** Returns the joint transform in local space (relative to its parent).
 	 * 
 	 * @param index the joint index */
 	public Matrix getLocal(int index) {
@@ -67,7 +67,7 @@ public class SkeletonPose implements java.io.Serializable {
         // go through our local transforms
         for (int i = 0; i < locals.length; i++) {
             // inverse of inverseBindPose = bindPose :)
-            locals[i] = skeleton.joints[i].inverseBindPose.invert();
+            locals[i].setTo(skeleton.joints[i].bindPose);
 
             // At this point we are in model space, so we need to remove our parent's transform (if we have one.)
             if (skeleton.joints[i].hasParent()) {
@@ -106,10 +106,6 @@ public class SkeletonPose implements java.io.Serializable {
             // vertex from bind pose (model space) to current pose (model space).
             palette[index].setTo(skeleton.joints[index].inverseBindPose);
             palette[index].matMul(globals[index]);
-
-            if (!skeleton.transform.isIdentity()) {
-            	palette[index].matMul(skeleton.transform);
-            }
         }
     }
     

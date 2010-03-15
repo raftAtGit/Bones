@@ -12,6 +12,7 @@ import com.threed.jpct.Animation;
  * A PoseClip consists of {@link MeshChannel}s. There is at most one MeshChannel for each {@link Animated3D} in object group.
  * A PoseClip is analogue of sub sequence in jPCT's {@link Animation} except a pose clip can span multiple objects.</p>
  * 
+ * @see MeshChannel
  * 
  * @author hakan eryargi (r a f t)
  */
@@ -23,6 +24,12 @@ public class PoseClip implements java.io.Serializable, Iterable<MeshChannel>  {
 	private int size = 0;
 	private String name = null;
 	
+	/**
+	 * <p>Creates a new PoseClip.</p>
+	 *  
+	 * @param groupSize the size {@link AnimatedGroup} this clip is intended to be applied.
+	 * @param channels the channels   
+	 * */
 	public PoseClip(int groupSize, MeshChannel... channels) {
 		this(groupSize);
 		
@@ -31,6 +38,12 @@ public class PoseClip implements java.io.Serializable, Iterable<MeshChannel>  {
 		}
 	}
 	
+	/**
+	 * <p>Creates a new PoseClip. Same as {@link #PoseClip(int, MeshChannel...)} but uses a List instead of an array.</p>
+	 *  
+	 * @param groupSize the size {@link AnimatedGroup} this clip is intended to be applied.
+	 * @param channels the channels   
+	 * */
 	public PoseClip(int groupSize, List<MeshChannel> channels) {
 		this(groupSize);
 		
@@ -48,6 +61,11 @@ public class PoseClip implements java.io.Serializable, Iterable<MeshChannel>  {
         return maxTime;
     }
 
+    /** 
+     * <p>Adds a new channel.</p>
+     * 
+     * @throws IllegalStateException if there is already a channel related to same object
+     * */
     public void addChannel(MeshChannel channel) {
     	if (channels[channel.objectIndex] != null)
     		throw new IllegalStateException("there is already a channel for joint " + channel.objectIndex);
@@ -58,6 +76,8 @@ public class PoseClip implements java.io.Serializable, Iterable<MeshChannel>  {
     		maxTime = channel.getTime();
     }
 
+    /** 
+     * <p>Removes a channel.</p> */
     public boolean removeChannel(MeshChannel channel) {
     	if (channels[channel.objectIndex] == channel) {
     		channels[channel.objectIndex] = null;
@@ -67,8 +87,12 @@ public class PoseClip implements java.io.Serializable, Iterable<MeshChannel>  {
     	}
     	return false;
     }
-    /** applies channels in this clip to given {@link SkeletonPose}  */
-    void applyTo(float time, AnimatedGroup targetGroup, float weight) {
+    /** Applies channels in this clip to given {@link AnimatedGroup}. Animations are cumulative.
+     * The Meshes are not changed by calling this method.  
+     * 
+     * @see AnimatedGroup#resetAnimation()
+     * @see AnimatedGroup#applyAnimation() */
+    public void applyTo(float time, AnimatedGroup targetGroup, float weight) {
     	time = SkinHelper.clamp(0f, maxTime, time);
     	
     	for (MeshChannel channel : channels) {
@@ -79,8 +103,13 @@ public class PoseClip implements java.io.Serializable, Iterable<MeshChannel>  {
     	}
     }
     
-    /** applies channels in this clip to given {@link SkeletonPose}  */
-    void applyTo(float time, Animated3D target, float weight) {
+    /** 
+     * Applies channels in this clip to given {@link Animated3D}. Animations are cumulative.
+     * The Mesh is not changed by calling this method.
+     * 
+     * @see Animated3D#resetAnimation()
+     * @see Animated3D#applyAnimation() */
+    public void applyTo(float time, Animated3D target, float weight) {
     	MeshChannel channel = channels[target.getIndex()];
     	if (channel == null)
     		return;
@@ -116,6 +145,7 @@ public class PoseClip implements java.io.Serializable, Iterable<MeshChannel>  {
 		return Arrays.asList(channels).iterator();
 	}
     
+	/** Returns string representation. */
     @Override
     public String toString() {
         return "PoseClip [channel count=" + size + ", max time=" + maxTime + "]";

@@ -52,7 +52,7 @@ public class MorphSample2 extends AbstractSample {
 		TextureManager.getInstance().addTexture("glasses", new Texture(8, 8, Color.YELLOW));
 		TextureManager.getInstance().addTexture("head", new Texture("/home/raft/projects/karga-workspace/Temp/data/ogre/Dr_Bunsen_Head.jpg"));
 		
-		this.group = BonesImporter.importOgre(node, 1f);
+		this.group = BonesImporter.importOgre(node, 2f, null);
 		group.addToWorld(world);
 		for (Animated3D m : group) {
 			//world.addObject(m);

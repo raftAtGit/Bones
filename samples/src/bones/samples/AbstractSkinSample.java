@@ -3,16 +3,9 @@ package bones.samples;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionAdapter;
-import java.awt.event.MouseWheelEvent;
 import java.util.Hashtable;
 
 import javax.swing.BorderFactory;
@@ -57,6 +50,7 @@ public abstract class AbstractSkinSample extends AbstractSample {
 	protected SkinClipSequence skinClipSequence;
 	protected PoseClipSequence poseClipSequence;
 	
+	protected boolean animate = true;
 	protected boolean skinAnim = true;
 	protected int animationSequence = -1; // bind pose
 	protected float animationSpeed = 1f;
@@ -78,23 +72,15 @@ public abstract class AbstractSkinSample extends AbstractSample {
 
 	protected abstract SkeletonDebugger createSkeletonDebugger() throws Exception;
 	
-	protected float dragTurnAnglePerPixel = (float) (Math.PI / 256);
-	protected float dragMovePerPixel = 1f;
-	protected float cameraMovePerWheelClick = 1.1f;
-	
 	protected boolean hasSkinAnimation = false;
 	protected boolean hasPoseAnimation = false;
 	
- 	private Point dragStartPoint = null;
-	private float cameraAngleAtDragStart = 0f;
-	private float cameraHeightAtDragStart = 0f;
-	
-	protected boolean blendEnabled = false;
+	//protected boolean blendEnabled = false;
 	
 	@Override
 	protected void initialize() throws Exception {
 		this.animatedGroup = createAnimatedGroup();
-		animatedGroup.setAutoApplyAnimation(!blendEnabled);
+		//animatedGroup.setAutoApplyAnimation(!blendEnabled);
 		
 		this.skinClipSequence = animatedGroup.getSkinClipSequence();
 		this.poseClipSequence = animatedGroup.getPoseClipSequence();
@@ -119,7 +105,7 @@ public abstract class AbstractSkinSample extends AbstractSample {
         cameraController = new CameraOrbitController(world.getCamera());
         float[] bb = calcBoundingBox();
         float height = bb[3] - bb[2];
-        dragMovePerPixel = height / frameBuffer.getOutputHeight();
+        cameraController.dragMovePerPixel = height / frameBuffer.getOutputHeight();
         Config.farPlane = Math.max(height * 100, Config.farPlane);
 		
 		for (Animated3D o : animatedGroup) {
@@ -127,70 +113,9 @@ public abstract class AbstractSkinSample extends AbstractSample {
 		}
 
 		renderPanel.addKeyListener(cameraController);
-		
-		renderPanel.addKeyListener(new KeyAdapter() {
-			public void keyPressed(KeyEvent e) {
-				switch (e.getKeyCode()) {
-					case KeyEvent.VK_S:
-						if (!hasSkinAnimation)
-							return;
-						showSkeleton = !showSkeleton;
-						skeletonDebugger.setVisibility(showSkeleton);
-						break;
-					case KeyEvent.VK_M:
-						showMesh = !showMesh;
-						for (Animated3D o : animatedGroup) {
-							o.setVisibility(showMesh);
-						}
-						break;
-					case KeyEvent.VK_0:
-					case KeyEvent.VK_1:
-					case KeyEvent.VK_2:
-					case KeyEvent.VK_3:
-					case KeyEvent.VK_4:
-					case KeyEvent.VK_5:
-					case KeyEvent.VK_6:
-					case KeyEvent.VK_7:
-					case KeyEvent.VK_8:
-					case KeyEvent.VK_9:
-						toggleVisible(e.getKeyCode() - KeyEvent.VK_0);
-						break;
-				}
-			}
-		});
-
-		renderPanel.addMouseListener(new MouseAdapter() {
-			@Override
-		    public void mousePressed(MouseEvent event) {
-		        dragStartPoint = event.getPoint();
-		        cameraAngleAtDragStart = cameraController.cameraAngle;
-		        cameraHeightAtDragStart = cameraController.cameraTarget.y;
-		    }
-		});
-		
-		renderPanel.addMouseMotionListener(new MouseMotionAdapter() {
-			@Override
-		    public void mouseDragged(MouseEvent event) {
-		        cameraController.cameraAngle = cameraAngleAtDragStart 
-		        	+ (event.getPoint().x - dragStartPoint.x) * dragTurnAnglePerPixel;
-		        cameraController.cameraTarget.y = cameraHeightAtDragStart 
-	        		- (event.getPoint().y - dragStartPoint.y) * dragMovePerPixel;
-		    }
-		});
-		
-		renderPanel.addMouseWheelListener(new MouseAdapter() {
-			@Override
-			public void mouseWheelMoved(MouseWheelEvent e) {
-				int clicks = e.getWheelRotation();
-				for (int i = 0; i < Math.abs(clicks); i++) {
-					if (clicks > 0) 
-						cameraController.cameraRadius *= cameraMovePerWheelClick;
-					else 
-						cameraController.cameraRadius /= cameraMovePerWheelClick;
-				}
-				cameraController.cameraRadius = Math.max(cameraController.minCameraRadius, cameraController.cameraRadius);
-			}
-		});
+		renderPanel.addMouseListener(cameraController);
+		renderPanel.addMouseMotionListener(cameraController);
+		renderPanel.addMouseWheelListener(cameraController);
 		
 		createGUI();
 		
@@ -283,29 +208,37 @@ public abstract class AbstractSkinSample extends AbstractSample {
 	protected void update(long deltaTime) {
 		cameraController.placeCamera();
 		
+		if (!animate)
+			return;
 		if (!hasPoseAnimation && !hasSkinAnimation)
 			return;
 		
 		if (animationSequence < 0) {
-			currentPose.setToBindPose();
-			currentPose.updateTransforms();
-			animatedGroup.applySkeletonPose();
-		} else {
-			
-			if (blendEnabled) {
+			if (skinAnim) {
+				currentPose.setToBindPose();
+				currentPose.updateTransforms();
+				animatedGroup.applySkeletonPose();
 				
 			} else {
 				
-				float clipTime = getClipTime(animationSequence, skinAnim); 
-
-				animationIndex += deltaTime * animationSpeed / clipTime / 1000;
-				while (animationIndex > 1) {
-					animationIndex -= 1;
-				}
-				
-				animate(animationIndex, animationSequence, skinAnim);
+				animatedGroup.animatePose(0, 0);
+				if (!animatedGroup.isAutoApplyAnimation())
+					animatedGroup.applyAnimation();
 			}
 			
+		} else {
+			
+			float clipTime = getClipTime(animationSequence, skinAnim); 
+
+			animationIndex += deltaTime * animationSpeed / clipTime / 1000;
+			while (animationIndex > 1) {
+				animationIndex -= 1;
+			}
+			
+			animate(animationIndex, animationSequence, skinAnim);
+			
+			if (!animatedGroup.isAutoApplyAnimation())
+				animatedGroup.applyAnimation();
 		} 		
 		if (skinAnim)
 			skeletonDebugger.update(currentPose);
@@ -350,6 +283,10 @@ public abstract class AbstractSkinSample extends AbstractSample {
 				return;
 			}
 			
+			JPanel topPanel = new JPanel();
+			topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.Y_AXIS));
+			add(topPanel, BorderLayout.NORTH);
+			
 			Hashtable<Integer, JComponent> labels = new Hashtable<Integer, JComponent>();
 			labels.put(0, new JLabel("Stop"));
 			labels.put(100, new JLabel("Normal"));
@@ -367,7 +304,15 @@ public abstract class AbstractSkinSample extends AbstractSample {
 				}
 			});
 			
-			add(speedSlider, BorderLayout.NORTH);
+			final JCheckBox animateCheckBox = new JCheckBox("Animate", animate);
+			animateCheckBox.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					animate = animateCheckBox.isSelected();
+				}
+			});
+			
+			topPanel.add(speedSlider);
+			topPanel.add(animateCheckBox);
 
 			ButtonGroup animationGroup = new ButtonGroup();
 			
@@ -401,10 +346,12 @@ public abstract class AbstractSkinSample extends AbstractSample {
 		}
 		
 		protected void addPoseAnimations(ButtonGroup animationGroup) {
+			
 			JPanel animationPanel = new JPanel();
 			animationPanel.setBorder(BorderFactory.createTitledBorder("Pose Animation"));
 			animationPanel.setLayout(new BoxLayout(animationPanel, BoxLayout.Y_AXIS));
 
+			addPoseAnimationButton("None <InitialPose>", animationGroup, animationPanel, -1, true);
 			addPoseAnimationButton("All", animationGroup, animationPanel, 0, !hasSkinAnimation);
 			
 			int clipNo = 1;
@@ -432,29 +379,29 @@ public abstract class AbstractSkinSample extends AbstractSample {
 		}
 		
 		protected void addPoseAnimationButton(String text, ButtonGroup group, JComponent container, final int animation, boolean selected) {
-			if (blendEnabled) {
-				final JCheckBox button = new JCheckBox(text);
-				container.add(button);
-				button.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						animationSequence = animation;
-						animationIndex = 0;
-					}
-				});
-				
-			} else {
-				JRadioButton button = new JRadioButton(text);
-				group.add(button);
-				container.add(button);
-				group.setSelected(button.getModel(), selected);
-				button.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						skinAnim = false;
-						animationSequence = animation;
-						animationIndex = 0;
-					}
-				});
-			}
+			JRadioButton button = new JRadioButton(text);
+			group.add(button);
+			container.add(button);
+			group.setSelected(button.getModel(), selected);
+			button.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					skinAnim = false;
+					animationSequence = animation;
+					animationIndex = 0;
+				}
+			});
+//			if (blendEnabled) {
+//				final JCheckBox button = new JCheckBox(text);
+//				container.add(button);
+//				button.addActionListener(new ActionListener() {
+//					public void actionPerformed(ActionEvent e) {
+//						animationSequence = animation;
+//						animationIndex = 0;
+//					}
+//				});
+//				
+//			} else {
+//			}
 		}
 		
 	}

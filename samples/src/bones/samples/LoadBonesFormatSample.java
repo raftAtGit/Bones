@@ -3,9 +3,9 @@ package bones.samples;
 import java.awt.Dimension;
 import java.io.FileInputStream;
 
-import raft.jpct.bones.BonesIO;
 import raft.jpct.bones.Animated3D;
 import raft.jpct.bones.AnimatedGroup;
+import raft.jpct.bones.BonesIO;
 import raft.jpct.bones.SkeletonDebugger;
 
 import com.threed.jpct.Texture;
@@ -85,9 +85,6 @@ public class LoadBonesFormatSample extends AbstractSkinSample {
 		super.initialize();
 		
 		world.setAmbientLight(255, 255, 255);
-		
-		// skeleton is oriented upside down, rotate it
-		currentPose.getSkeleton().getTransform().rotateX((float)Math.PI);
 		
         update(0); // update once to reflect changes visible in first scene
 

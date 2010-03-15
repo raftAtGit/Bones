@@ -29,7 +29,7 @@ public class AnimatedGroup implements java.io.Serializable, Iterable<Animated3D>
 	private boolean autoApplyAnimation = true;
 	
 	/**
-	 * Creates a new SkinnedGroup out of given objects. All objects must have the same {@link Skeleton}.
+	 * Creates a new AnimatedGroup out of given objects. All objects must have the same {@link Skeleton}.
 	 * 
 	 *  @throws IllegalArgumentException if object array is empty or they have different skeletons.
 	 *  @see Animated3D#mergeSkin(Animated3D...)
@@ -66,7 +66,7 @@ public class AnimatedGroup implements java.io.Serializable, Iterable<Animated3D>
 	}
 	
 
-	/** returns root object that all skinned objects are added as child */
+	/** returns root object that all animated objects are added as child */
 	public Object3D getRoot() {
 		return root;
 	}
@@ -76,7 +76,7 @@ public class AnimatedGroup implements java.io.Serializable, Iterable<Animated3D>
 		return objects[index];
 	}
 	
-	/** Adds all skinned objects to world. 
+	/** Adds all animated objects to world. 
 	 * @see World#addObject(Object3D) */
 	public void addToWorld(World world) {
 		for (Animated3D so : objects) {
@@ -131,13 +131,15 @@ public class AnimatedGroup implements java.io.Serializable, Iterable<Animated3D>
 	
 	/** 
 	 * <p>Animates this object group using assigned {@link SkinClipSequence}. 
-	 * Updates curentPose once and calls {@link Animated3D#applySkeletonPose()} on each of objects.</p>
+	 * Updates curentPose once and if "auto apply animation" is enabled calls 
+	 * {@link Animated3D#applySkeletonPose()} on each of objects.</p>
 	 * 
 	 * <p>This method behaves similar to {@link Object3D#animate(float, int)}.</p> 
 	 * 
 	 * @see SkinClipSequence
+	 * @see Animated3D#animateSkin(float, int)
+	 * @see #setAutoApplyAnimation(boolean)
 	 * @see Object3D#animate(float, int)
-	 * @throws NullPointerException if clipSequence is null
 	 * */
 	public void animateSkin(float index, int sequence) {
 		if (skinClipSequence == null)
@@ -172,10 +174,22 @@ public class AnimatedGroup implements java.io.Serializable, Iterable<Animated3D>
 		}
 	}
 	
+	/** Returns if animateXX methods are automatically applied.
+	 *  
+	 * @see #animatePose(float, int)
+	 * @see #animateSkin(float, int) */
 	public boolean isAutoApplyAnimation() {
 		return autoApplyAnimation;
 	}
 
+	/** 
+	 * <p>Sets if animateXX methods are automatically applied. Also calls {@link Animated3D#setAutoApplyAnimation setAutoApplyAnimation}
+	 * on each of objects. Default is true.</p>
+	 * 
+	 * <p>To enable animation blending automatic applying must be disabled.</p>
+	 *  
+	 * @see #animatePose(float, int)
+	 * @see #animateSkin(float, int) */
 	public void setAutoApplyAnimation(boolean autoApplyAnimation) {
 		this.autoApplyAnimation = autoApplyAnimation;
 		for (Animated3D so : objects) {
@@ -184,7 +198,7 @@ public class AnimatedGroup implements java.io.Serializable, Iterable<Animated3D>
 	}
 
 	/** 
-	 * <p>calls {@link Animated3D#applyAnimation()} on each of objects.</p>
+	 * <p>Calls {@link Animated3D#applyAnimation() applyAnimation()} on each of objects.</p>
 	 * 
 	 * @see Animated3D#applyAnimation()
 	 * */
@@ -194,10 +208,37 @@ public class AnimatedGroup implements java.io.Serializable, Iterable<Animated3D>
 		}
 	}
 	
+	/** 
+	 * <p>calls {@link Animated3D#resetAnimation() resetAnimation()} on each of objects.</p>
+	 * 
+	 * @see Animated3D#resetAnimation()
+	 * */
+	public void resetAnimation() {
+		for (Animated3D o : objects) {
+			o.resetAnimation();
+		}
+	}
+	
+	/** Same as {@link #animatePose(float, int, float) animatePose(float, int, 1)} */
 	public void animatePose(float index, int sequence) {
 		animatePose(index, sequence, 1f);
 	}
 	
+	/** <p>Animates this group using assigned {@link PoseClipSequence}. 
+	 * Updates curentPose and if "auto apply animation" is enabled calls {@link #applySkeletonPose()} </p>
+	 * 
+	 * <p>Pose animations are cumulative if "auto apply animation" is disabled. 
+	 * Each call to this method cancels previous skin animation.</p>
+	 * 
+	 * @param sequence the number of {@link PoseClip} in {@link PoseClipSequence}. 1 is the first sequence. 
+	 * 			0 means whole {@link PoseClipSequence}
+	 * @param index time index   
+	 * @param weight how much animation will be applied. 1 means as it is
+	 * 
+	 * @see SkinClipSequence
+	 * @see Object3D#animate(float, int)
+	 * @see #setAutoApplyAnimation(boolean)
+	 * */
 	public void animatePose(float index, int sequence, float weight) {
 		if (poseClipSequence == null)
 			return;
@@ -205,10 +246,12 @@ public class AnimatedGroup implements java.io.Serializable, Iterable<Animated3D>
 		for (Animated3D o : objects) {
 			o.animatePoseDontApply(index, sequence, weight);
 		}
+		if (autoApplyAnimation)
+			applyAnimation();
 	}
 	
 	
-	/** Returns an iterator of skinned objects. */
+	/** Returns an iterator of {@link Animated3D} objects. */
 	public Iterator<Animated3D> iterator() {
 		return Arrays.asList(objects).iterator();
 	}
@@ -228,7 +271,7 @@ public class AnimatedGroup implements java.io.Serializable, Iterable<Animated3D>
 		return objects.length;
 	}
 	
-	/** throws an exception if all clips does not have same skeleton. */
+	/** throws an exception if all objects does not have same skeleton. */
 	private void checkSameSkeleton() {
 		Skeleton lastSkeleton = null;
 		
@@ -243,11 +286,11 @@ public class AnimatedGroup implements java.io.Serializable, Iterable<Animated3D>
 	
 	
 	/** 
-	 * <p>Merge many <code>SkinnedGroup</code>s into one. This method
-	 * does not require all SkinnedGroups share the same {@link Skeleton}
+	 * <p>Merge many <code>AnimatedGroup</code>s into one. This method
+	 * does not require all AnimatedGroups share the same {@link Skeleton}
 	 * but skeletons are <i>almost</i> identical.</p> 
 	 * 
-	 * <p>If many SkinnedGroups are loaded from different files, their
+	 * <p>If many AnimatedGroups are loaded from different files, their
 	 * skeleton objects will be different even if they are identical.
 	 * This method is meant to help such cases.</p>
 	 * 
@@ -289,8 +332,9 @@ public class AnimatedGroup implements java.io.Serializable, Iterable<Animated3D>
 	}
 
 	/** 
-	 * <p>Clones this object group. {@link Skeleton}, {@link SkeletonPose} and {@link SkinClipSequence} will be shared. 
-	 * If they mesh is reused, the clone and master will inherit animations from each other.</p>
+	 * <p>Clones this object group. {@link Skeleton}, {@link SkeletonPose}, {@link SkinClipSequence} 
+	 * {@link PoseClipSequence} will be shared. 
+	 * If the mesh is reused, the clone and master will inherit animations from each other.</p>
 	 * 
 	 * @see Animated3D#Animated3D(Animated3D, boolean)
 	 * @see #MESH_REUSE 

@@ -7,12 +7,14 @@ import java.net.URI;
 import raft.jpct.bones.Animated3D;
 import raft.jpct.bones.AnimatedGroup;
 import raft.jpct.bones.BonesImporter;
+import raft.jpct.bones.Quaternion;
 import raft.jpct.bones.SkeletonDebugger;
 
 import com.ardor3d.extension.model.collada.jdom.ColladaImporter;
 import com.ardor3d.extension.model.collada.jdom.data.ColladaStorage;
 import com.ardor3d.util.resource.ResourceLocatorTool;
 import com.ardor3d.util.resource.SimpleResourceLocator;
+import com.threed.jpct.Matrix;
 import com.threed.jpct.Texture;
 import com.threed.jpct.TextureManager;
 
@@ -34,12 +36,13 @@ public class ColladaSample extends AbstractSkinSample {
 
 	@Override
 	protected SkeletonDebugger createSkeletonDebugger() throws Exception {
-		return new SkeletonDebugger(animatedGroup.get(0).getSkeletonPose(), 10f);
+		return new SkeletonDebugger(animatedGroup.get(0).getSkeletonPose());
 	}
 
 	@Override
 	protected AnimatedGroup createAnimatedGroup() throws Exception {
 		File colladaFile = new File("./samples/data/seymour/Seymour.dae");
+		//File colladaFile = new File("/home/raft/tmp/java/ardor/ardor3d-examples/src/main/resources/com/ardor3d/example/media/models/collada/skeleton/skeleton.run.dae");
 		URI uri = colladaFile.toURI();
 		
         final SimpleResourceLocator resLocater = new SimpleResourceLocator(uri.resolve("./"));
@@ -50,7 +53,7 @@ public class ColladaSample extends AbstractSkinSample {
 			ColladaImporter colladaImporter = new ColladaImporter().loadTextures(false);
 			ColladaStorage colladaStorage = colladaImporter.load(uri.toString());
 			
-			skinnedGroup = BonesImporter.importCollada(colladaStorage, 1f);
+			skinnedGroup = BonesImporter.importCollada(colladaStorage, 1f, new Quaternion().rotateX((float)Math.PI));
 		} finally {
 			ResourceLocatorTool.removeResourceLocator(ResourceLocatorTool.TYPE_MODEL, resLocater);
 		}
@@ -73,8 +76,8 @@ public class ColladaSample extends AbstractSkinSample {
 		
 		world.setAmbientLight(255, 255, 255);
 		
-		// skeleton is oriented upside down, rotate it
-		currentPose.getSkeleton().getTransform().rotateX((float)Math.PI);
+		Matrix transform = new Matrix();
+		transform.rotateX((float)Math.PI);
 		
         update(0); // update once to reflect changes visible in first scene
 

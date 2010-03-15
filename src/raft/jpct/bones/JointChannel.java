@@ -40,7 +40,9 @@ public class JointChannel implements java.io.Serializable {
     private static final Matrix tmpScaleMatrix = new Matrix();
     
     /**
-     * <p>Creates a new Channel out of given data.<p> 
+     * <p>Creates a new JointChannel out of given data. The arrays must be same length.<p>
+     * 
+     * @param jointIndex index of {@link Joint} in {@link Skeleton} this channel is related to 
      * */
     public JointChannel(int jointIndex, float[] times, SimpleVector[] translations, 
     		Quaternion[] rotations, SimpleVector[] scales) {
@@ -151,6 +153,7 @@ public class JointChannel implements java.io.Serializable {
     	target.setIdentity();
     	rotation.setRotation(target);
     	SkinHelper.setTranslation(target, translation);
+    	//target.matMul(SkinHelper.getScaleMatrix(this.scale));
 
     	if ((scale.x != 1) || (scale.y != 1) || (scale.z != 1)) {
 	    	tmpScaleMatrix.set(0, 0, scale.x);
@@ -173,6 +176,46 @@ public class JointChannel implements java.io.Serializable {
 						+ "\n" + Arrays.toString(times));
 			last = time;
 		}
+	}
+
+	/** rotates channel data. this methos should be called before skeleton itself is rotated.
+	 * the conversion done here cannot be combined with a scaling, so this method
+	 * differs from its variants in {@link MeshPose} and {@link Skeleton}. */
+	void rotate(Skeleton skeleton, Quaternion rotation) {
+		Matrix transform = rotation.getRotationMatrix();
+		
+		Joint joint = skeleton.getJoint(jointIndex);
+		Joint parent = joint.hasParent() ? skeleton.getJoint(joint.getParentIndex()) : null;
+		
+		for (int i = 0; i < times.length; i++) {
+			Matrix frame = new Matrix();
+			rotations[i].setRotation(frame);
+			frame.translate(translations[i]);
+			
+			// take to object space
+			if (joint.hasParent())
+				frame.matMul(parent.bindPose);
+			
+			// do transform
+			frame.matMul(transform);
+
+			// take back to local space in parent's new space
+			if (joint.hasParent()) {
+				Matrix bindPose = new Matrix(parent.bindPose);
+				bindPose.matMul(transform);
+				frame.matMul(bindPose.invert());
+			}
+		
+			rotations[i] = new Quaternion(frame);
+			translations[i] = frame.getTranslation();
+		}
+	}
+
+	/** scales channel data. ie: scales translation data */
+	void scale(float scale) {
+		for (int i = 0; i < times.length; i++) {
+			translations[i].scalarMul(scale);
+		}		
 	}
     
 }

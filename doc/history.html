@@ -2,39 +2,61 @@
     <head>
         <title>Bones - History</title>
         <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-        <link href="style.css" rel="stylesheet">
+        
+        <style type="text/css">
+            h2 {
+                font-weight: bold;
+                font-size: 1.5em;
+            }
+            
+            h3 {
+                font-weight: bold;
+                font-size: 0.8em;
+            }
+            .item {
+                font-size: 0.8em;
+            }
+        </style>
     </head>
 
     <body>
     	<h2>Bones - Version History</h2>
+    	
+        <h3>xx March 10:</h3>
+        <p class="item">Added support to load Ogre3D pose animations via jME's OgreXMl loader.
+	        Renamed many classes to provide some space for new animations.
+	        Pose animations can be blended within each other and with a single skin animation.
+	        Completely decoupled jME and Ardor3D importing code into new classes. This was necessary to run
+	         Bones on Android (Dalvik refuses to load classes if there are constructors/methods
+	         which has parameters of unknown classes).
+	        Added support to scale/rotate objects/skeleton/animations at import time.
+	        Exposed some constructors, methods and data structures to allow programatically 
+	        created animated objects, skeletons and animations. Added some more sample applications.</p>
 
-        <p><font size="-1"><strong>07 February 10: </strong>
-        Updated documentation. Added support to clone SkinnedGroup.
-        </font></p>
+        <h3>07 February 10: </h3>
+        <p class="item">Updated documentation. Added support to clone SkinnedGroup.</p>
         
-        <p><font size="-1"><strong>06 February 10: </strong>
-        Added support to load Ogre3D animation files (mesh.xml + skeleton.xml)
-        via jME's OgreXMl loader. Main motivation behind this was figuring out
-        Collada exporters for 3dsMax (both Max's built-in and OpenCollada)
-        don't support Pyhsique modifier which is kind of annoying 
-        especially considering many of ready to buy models are skinned
-        with Pyhsique modifier. In contrast Ogre3D has very nice exporters
-        which both support Pyhsique and Skin modifier. 
-        </font></p>
+        <h3>06 February 10:</h3>
+        <p class="item">Added support to load Ogre3D animation files (mesh.xml + skeleton.xml)
+	        via jME's OgreXMl loader. Main motivation behind this was figuring out
+	        Collada exporters for 3dsMax (both Max's built-in and OpenCollada)
+	        don't support Pyhsique modifier which is kind of annoying 
+	        especially considering many of ready to buy models are skinned
+	        with Pyhsique modifier. In contrast Ogre3D has very nice exporters
+	        which both support Pyhsique and Skin modifier.</p>
         
-        <p><font size="-1"><strong>01 February 10: </strong>
-        Ardor3D now supports loading animations and animation blending (SVN pre 0.7 version).
-        Updated Bones accordingly without blending. This time
-        I've significantly diverged from Ardor's implementation
-        for sake of easy usage and to match jPCT semantics.  
-        </font></p>
+        <h3>01 February 10:</h3>
+        <p class="item">Ardor3D now supports loading animations and animation blending (SVN pre 0.7 version).
+	        Updated Bones accordingly without blending. This time
+	        I've significantly diverged from Ardor's implementation
+	        for sake of easy usage and to match jPCT semantics.</p>  
         
-		<p><font size="-1"><strong>07 January 10: </strong> 
-		First release of Bones. This release is a port of Ardor3D's (0.6) animation system.
-		Collada files are loaded via Ardor3D's Collada loader and then
-		converted into Bones data structures. Ardor3D doesn't support loading
-		animations and so does Bones. Only procedural animation is supported.
-        </font></p>
+		<h3>07 January 10:</h3>
+		<p class="item"> 
+		  First release of Bones. This release is a port of Ardor3D's (0.6) animation system.
+			Collada files are loaded via Ardor3D's Collada loader and then
+			converted into Bones data structures. Ardor3D doesn't support loading
+			animations and so does Bones. Only procedural animation is supported.</p>
 
 </body>
 </html>

@@ -167,9 +167,10 @@ public class SkinClipSequence implements java.io.Serializable, Iterable<SkinClip
 		return new SkinClipSequence(clips);
 	}
 
+    /** <p>Returns an iterator of {@link SkinClip}s.</p> */
 	public Iterator<SkinClip> iterator() {
 		return Arrays.asList(clips).iterator();
 	}
-	
+
 	
 }

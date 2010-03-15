@@ -18,6 +18,8 @@ import com.threed.jpct.Animation;
  * A Clip consists of {@link JointChannel}s. There is at most one Channel for each joint in Skeleton.
  * A Clip is analogue of sub sequence in jPCT's {@link Animation}.</p>
  * 
+ * @see JointChannel
+ * 
  * <p>This class is adapted from <a href="http://www.ardor3d.com">Ardor3D.</a></p>
  * */
 public class SkinClip implements java.io.Serializable, Iterable<JointChannel> {
@@ -29,6 +31,12 @@ public class SkinClip implements java.io.Serializable, Iterable<JointChannel> {
 	private int size = 0;
 	private String name = null;
 	
+	/**
+	 * <p>Creates a new SkinClip.</p>
+	 *  
+	 * @param skeleton the skeleton this clip is related to
+	 * @param channels the channels   
+	 * */
 	public SkinClip(Skeleton skeleton, JointChannel... channels) {
 		this(skeleton);
 		
@@ -37,6 +45,12 @@ public class SkinClip implements java.io.Serializable, Iterable<JointChannel> {
 		}
 	}
 	
+	/**
+	 * <p>Creates a new SkinClip. Same as {@link #SkinClip(Skeleton, JointChannel...)} but uses a List instead of an array.</p>
+	 *  
+	 * @param skeleton the skeleton this clip is related to
+	 * @param channels the channels   
+	 * */
 	public SkinClip(Skeleton skeleton, List<JointChannel> channels) {
 		this(skeleton);
 		
@@ -64,6 +78,11 @@ public class SkinClip implements java.io.Serializable, Iterable<JointChannel> {
         return maxTime;
     }
 
+    /** 
+     * <p>Adds a new channel.</p>
+     * 
+     * @throws IllegalStateException if there is already a channel related to joint
+     * */
     public void addChannel(JointChannel channel) {
     	if (channels[channel.jointIndex] != null)
     		throw new IllegalStateException("there is already a channel for joint " + channel.jointIndex);
@@ -74,6 +93,8 @@ public class SkinClip implements java.io.Serializable, Iterable<JointChannel> {
     		maxTime = channel.getTime();
     }
 
+    /** 
+     * <p>Removes a channel.</p> */
     public boolean removeChannel(JointChannel channel) {
     	if (channels[channel.jointIndex] == channel) {
     		channels[channel.jointIndex] = null;
@@ -89,8 +110,8 @@ public class SkinClip implements java.io.Serializable, Iterable<JointChannel> {
 		return skeleton;
 	}
     
-    /** applies channels in this clip to given {@link SkeletonPose}  */
-    void applyTo(float time, SkeletonPose pose) {
+    /** <p>Applies channels in this clip to given {@link SkeletonPose}</p>  */
+    public void applyTo(float time, SkeletonPose pose) {
     	if (skeleton != pose.skeleton)
     		throw new IllegalArgumentException("pose belongs to another skeleton");
     	
@@ -131,9 +152,10 @@ public class SkinClip implements java.io.Serializable, Iterable<JointChannel> {
 		return Arrays.asList(channels).iterator();
 	}
     
+	/** Returns string representation. */
     @Override
     public String toString() {
-        return "Clip [channel count=" + size + ", max time=" + maxTime + "]";
+        return "SkinClip [channel count=" + size + ", max time=" + maxTime + "]";
     }
 
 }

@@ -72,7 +72,10 @@ public class Quaternion implements java.io.Serializable, Cloneable {
     }
 
     /**
-     * Constructs a new quaternion by using rotation information from given matrix 
+     * Constructs a new quaternion by using rotation information from given matrix.
+     * The matrix should be a valid rotation matrix. Otherwise result will be incorrect.
+     * 
+     *  @see #fromMatrix(Matrix)
      */
     public Quaternion(Matrix matrix) {
         fromMatrix(matrix);
@@ -113,6 +116,7 @@ public class Quaternion implements java.io.Serializable, Cloneable {
 
     /**
      * Sets the value of this quaternion to the rotation described by the given matrix.
+     * The matrix should be a valid rotation matrix. Otherwise result will be incorrect.
      * 
      * @param matrix
      * @return this quaternion for chaining

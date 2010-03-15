@@ -126,6 +126,7 @@ public class PoseClipSequence implements java.io.Serializable, Iterable<PoseClip
 	}
 
 	
+    /** <p>Returns an iterator of {@link PoseClip}s.</p> */
 	public Iterator<PoseClip> iterator() {
 		return Arrays.asList(clips).iterator();
 	}

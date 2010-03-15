@@ -16,8 +16,16 @@ public class MeshChannel implements java.io.Serializable {
     private final PoseFrame[] frames;
     private final float[] times;
 	
+    /**
+     * <p>Creates a new MeshChannel out of given data. The arrays must be same length.<p>
+     * 
+     * @param objectIndex index of {@link Animated3D} in {@link AnimatedGroup} this channel is related to 
+     * */
     public MeshChannel(int objectIndex, PoseFrame[] frames, float[] times) {
     	this(objectIndex, times.length);
+    	
+    	if (times.length != frames.length)
+    		throw new IllegalArgumentException("The arrays must be same length");
     	
         for (int i = 0; i < times.length; i++) {
         	this.frames[i] = frames[i];
@@ -99,5 +107,5 @@ public class MeshChannel implements java.io.Serializable {
 			last = time;
 		}
 	}
-    
+
 }

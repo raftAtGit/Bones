@@ -1,3 +1,0 @@
-Skinned3D.discardSkeletonMesh -> discardMeshData
-
-SkinIO -> BonesIO

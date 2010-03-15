@@ -19,10 +19,10 @@ import com.threed.jpct.SimpleVector;
 import com.threed.jpct.TextureManager;
 
 /** 
- * <p>An {@link Object3D} which can be animated via skeletal animation or pose animation.</p> 
+ * <p>An {@link Object3D} which can be animated via skeletal or pose animation.</p> 
  * 
- * <p>Once constructed, Skinned3D sets a {@link IVertexController} on its mesh which
- * deforms the {@link Mesh} to perform animation. So if you set another IVertexController
+ * <p>Once constructed, Animated3D sets an {@link IVertexController} on its mesh which
+ * modifies the {@link Mesh} to perform animation. So if you set another IVertexController
  * on its mesh, you will break animation.</p>
  * 
  * <p>Skeletal animation part of this class is adapted from <a href="http://www.ardor3d.com">Ardor3D.</a></p>
@@ -70,7 +70,7 @@ public class Animated3D extends Object3D implements Cloneable {
 	
 	/**
 	 * <p>Behaves same as {@link Object3D#Object3D(Object3D, boolean) Object3D(Object3D, reuseMesh)}. 
-	 * In addition copies skin information.</p>
+	 * In addition copies animation data in addition.</p>
 	 *  
 	 * @see #MESH_REUSE 
 	 * @see #MESH_DONT_REUSE 
@@ -82,12 +82,13 @@ public class Animated3D extends Object3D implements Cloneable {
 		this.currentPose = object.currentPose;
 		this.meshData = object.meshData;
 		this.skinClipSequence = object.skinClipSequence;
+		this.poseClipSequence = object.poseClipSequence;
 		this.index = object.index;
 
 		attachVertexController();
 	}
 
-	/** Creates a Skinned3D out of given information. */
+	/** Creates a Animated3D out of given information. */
 	public Animated3D(MeshData meshData, SkinData skin, SkeletonPose currentPose) {
 		super(meshData.coordinates, meshData.uvs, meshData.indices, TextureManager.TEXTURE_NOTFOUND);
 		
@@ -99,7 +100,7 @@ public class Animated3D extends Object3D implements Cloneable {
 		attachVertexController();
 	}
 
-	/** Creates a Skinned3D out of given information. */
+	/** Creates a Animated3D out of given information. */
 	public Animated3D(Object3D object, SkinData skin, SkeletonPose currentPose) {
 		super(object, MESH_DONT_REUSE);
 		
@@ -111,7 +112,7 @@ public class Animated3D extends Object3D implements Cloneable {
 	}
 	
 	/** 
-	 * Creates a Skinned3D by re-loading information previously saved to stream. 
+	 * Creates a Animated3D by re-loading information previously saved to stream. 
 	 * @see #writeToStream(java.io.ObjectOutputStream) */
 	Animated3D(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
 		this((MeshData) in.readObject(), (SkinData) in.readObject(), (SkeletonPose) in.readObject());
@@ -151,14 +152,35 @@ public class Animated3D extends Object3D implements Cloneable {
 		meshData = null;
 	}
 	
+	/** Returns if animateXX methods are automatically applied.
+	 *  
+	 * @see #animatePose(float, int)
+	 * @see #animateSkin(float, int) */
 	public boolean isAutoApplyAnimation() {
 		return autoApplyAnimation;
 	}
 
+	/** <p>Sets if animateXX methods are automatically applied. Default is true.</p>
+	 *  
+	 * <p>To enable animation blending automatic applying must be disabled.</p>
+	 *  
+	 * @see #animatePose(float, int)
+	 * @see #animateSkin(float, int) */
 	public void setAutoApplyAnimation(boolean autoApplyAnimation) {
 		this.autoApplyAnimation = autoApplyAnimation;
 	}
 
+	/** Clears all animation state to initial position of Mesh.  */
+	public void resetAnimation() {
+        for (int i = 0; i < sourceMesh.length; i++) {
+        	destMesh[i].set(sourceMesh[i]);
+        }
+        destMeshDirty = false;
+	}
+	
+	// TODO hold a flag if an animation if actually done. then apply animation if flag is set
+	// this will increase performance for groups with pose animations 
+	/** Applies animation to mesh. */
 	public void applyAnimation() {
 		vertexController.updateMesh();
 		touch();
@@ -166,18 +188,24 @@ public class Animated3D extends Object3D implements Cloneable {
 	}
 	
 	/** <p>Animates this object using assigned {@link SkinClipSequence}. 
-	 * Updates curentPose and calls {@link #applySkeletonPose()}</p>
+	 * Updates current SkeletonPose and if "auto apply animation" is enabled calls {@link #applySkeletonPose()} </p>
 	 * 
-	 * <p>Note, if many skinned objects share the same pose,
+	 * <p>Skin animations are not cumulative. Each call to this method cancels previous skin animation.</p>
+	 * 
+	 * <p>Note, if many animated objects share the same pose,
 	 * updating current pose for each of them is a waste. Consider
 	 * using {@link AnimatedGroup#animateSkin(float, int)} 
 	 * </p>
 	 * 
 	 * <p>This method behaves similar to {@link Object3D#animate(float, int)}.</p> 
 	 * 
+	 * @param sequence the number of {@link SkinClip} in {@link SkinClipSequence}. 1 is the first sequence. 
+	 * 			0 means whole {@link SkinClipSequence}
+	 * @param index time index   
+	 * 
 	 * @see SkinClipSequence
 	 * @see Object3D#animate(float, int)
-	 * @throws NullPointerException if clipSequence is null
+	 * @see #setAutoApplyAnimation(boolean)
 	 * */
 	public void animateSkin(float index, int sequence) {
 		if (skinClipSequence == null)
@@ -195,23 +223,28 @@ public class Animated3D extends Object3D implements Cloneable {
 		if (autoApplyAnimation)
 			applySkeletonPose();
 	}
+	
+	/** Same as {@link #animatePose(float, int, float) animatePose(float, int, 1)} */
 	public void animatePose(float index, int sequence) {
 		animatePose(index, sequence, 1f);
 	}
 	
-	/** <p>Animates this object using assigned {@link SkinClipSequence}. 
-	 * Updates curentPose and calls {@link #applySkeletonPose()}</p>
+	/** <p>Animates this object using assigned {@link PoseClipSequence}. 
+	 * Updates curentPose and if "auto apply animation" is enabled calls {@link #applySkeletonPose()} </p>
 	 * 
-	 * <p>Note, if many skinned objects share the same pose,
-	 * updating current pose for each of them is a waste. Consider
-	 * using {@link AnimatedGroup#animateSkin(float, int)} 
-	 * </p>
+	 * <p>Pose animations are cumulative if "auto apply animation" is disabled. 
+	 * Each call to this method cancels previous skin animation.</p>
 	 * 
 	 * <p>This method behaves similar to {@link Object3D#animate(float, int)}.</p> 
 	 * 
+	 * @param sequence the number of {@link PoseClip} in {@link PoseClipSequence}. 1 is the first sequence. 
+	 * 			0 means whole {@link PoseClipSequence}
+	 * @param index time index   
+	 * @param weight how much animation will be applied. 1 means as it is
+	 * 
 	 * @see SkinClipSequence
 	 * @see Object3D#animate(float, int)
-	 * @throws NullPointerException if clipSequence is null
+	 * @see #setAutoApplyAnimation(boolean)
 	 * */
 	public void animatePose(float index, int sequence, float weight) {
 		animatePoseDontApply(index, sequence, weight);
@@ -225,10 +258,7 @@ public class Animated3D extends Object3D implements Cloneable {
 		
         // first reset to initial position
 		if (destMeshDirty) {
-            for (int i = 0; i < sourceMesh.length; i++) {
-            	destMesh[i].set(sourceMesh[i]);
-            }
-            destMeshDirty = false;
+			resetAnimation();
 		}
 		if (sequence == 0) {
 			poseClipSequence.animate(index * poseClipSequence.getTime(), this, weight);
@@ -285,7 +315,7 @@ public class Animated3D extends Object3D implements Cloneable {
 
 	/**
 	 * <p>Clones this object. Behaves same as {@link Object3D#cloneObject()} and copies
-	 * skinning information in addition.</p>
+	 * animation data in addition.</p>
 	 * 
 	 *  @see Object3D#cloneObject()
 	 * */
@@ -293,72 +323,6 @@ public class Animated3D extends Object3D implements Cloneable {
 	public Animated3D cloneObject() {
 		return new Animated3D(this, MESH_REUSE); 
 	}
-	
-//	public void addPoseBlend(int sequence, float seconds) {
-//		skinVertexController.addPose(seconds, poseClipSequence.getClip(sequence-1));
-//	}
-//	
-//	static class SkinBlend {
-//		final int sequence; 
-//		final float seconds;
-//		
-//		SkinBlend(int sequence, float seconds) {
-//			this.sequence = sequence;
-//			this.seconds = seconds;
-//		}
-//	}
-//	
-//	private List<SkinBlend> skinBlends = new LinkedList<SkinBlend>();
-//	
-//	public void addSkinBlend(int sequence, float seconds) {
-//		//skinVertexController.addSkin(seconds, clipSequence.getClip(sequence-1));
-//		skinBlends.add(new SkinBlend(sequence, seconds));
-//	}
-//
-//	public void animateBlend() {
-//		skinVertexController.applyPoseAnimation = skinVertexController.lastPoseIndex != 0;
-//		
-//		skinVertexController.applySkinAnimation = !skinBlends.isEmpty();
-//		if (!skinBlends.isEmpty()) {
-//			if (skinBlends.size() == 1) {
-//				SkinBlend skinBlend = skinBlends.get(0);
-//				clipSequence.getClip(skinBlend.sequence-1).applyTo(skinBlend.seconds, currentPose);
-//			} else {
-//				Matrix[][] locals = new Matrix[skeleton.getNumberOfJoints()][skinBlends.size()];
-//				for (int i = 0; i < skinBlends.size(); i++) {
-//					SkinBlend skinBlend = skinBlends.get(i);
-//					clipSequence.getClip(skinBlend.sequence-1).applyTo(skinBlend.seconds, currentPose);
-//					
-//					for (int j = 0; j < skeleton.getNumberOfJoints(); j++) {
-//						locals[j][i] = currentPose.getLocal(j).cloneMatrix();
-//					}
-//				}
-//				for (int i = 0; i < skeleton.getNumberOfJoints(); i++) {
-//					SimpleVector tx = new SimpleVector();
-//					SimpleVector scale = new SimpleVector();
-//					Quaternion rot = new Quaternion();
-//					
-//					for (int j = 0; j < skinBlends.size(); j++) {
-//						Matrix m = locals[i][j];
-//						tx.add(m.getTranslation());
-//						//scale.add(SkinHelper.);
-//						rot.add(new Quaternion(m));
-//					}
-//					rot.scalarMul(1f/skinBlends.size());
-//					tx.scalarMul(1f/skinBlends.size());
-//					Matrix m = new Matrix();
-//					rot.setRotation(m);
-//					m.translate(tx);
-//					currentPose.locals[i].setTo(m);
-//				}
-//			}
-//		}
-//		
-//		currentPose.updateTransforms();
-//		
-//		skinBlends.clear();
-//		getMesh().applyVertexController();
-//	}
 	
 	
 	/** 
@@ -400,12 +364,11 @@ public class Animated3D extends Object3D implements Cloneable {
 		calcNormals();
 		getMesh().setVertexController(vertexController, IVertexController.PRESERVE_SOURCE_MESH);
 		
-		if (sourceMesh == null) {
-			sourceMesh = vertexController.getSourceMesh();
-			destMesh = vertexController.getDestinationMesh();
-		}
+		sourceMesh = vertexController.getSourceMesh();
+		destMesh = vertexController.getDestinationMesh();
 	}
 	
+	/** applies skin animation to internal copy of mesh. actual mesh is not updated yet. */
 	void applySkinAnimation() {
         
         SimpleVector[] dest = destMesh;
@@ -447,11 +410,11 @@ public class Animated3D extends Object3D implements Cloneable {
 	}
 	
 	/** 
-	 * <p>Merge many <code>Skinned3D</code>s into one. This method
-	 * does not require all Skinned3Ds share the same {@link Skeleton}
+	 * <p>Merge many <code>Animated3D</code>s into one. This method
+	 * does not require all Animated3Ds share the same {@link Skeleton}
 	 * but skeletons are <i>almost</i> identical.</p> 
 	 * 
-	 * <p>If many Skinned3Ds are loaded from different files, their
+	 * <p>If many Animated3Ds are loaded from different files, their
 	 * skeleton objects will be different even if they are identical.
 	 * This method is meant to help such cases.</p>
 	 * 
@@ -474,15 +437,29 @@ public class Animated3D extends Object3D implements Cloneable {
 		}
 		Animated3D merged = new Animated3D(objects[0], MESH_DONT_REUSE);
 		
-		List<SkinClipSequence> sequences = new LinkedList<SkinClipSequence>();
+		List<SkinClipSequence> skinSequences = new LinkedList<SkinClipSequence>();
 		for (Animated3D object : objects) {
 			if (object.skinClipSequence != null)
-				sequences.add(object.skinClipSequence);
+				skinSequences.add(object.skinClipSequence);
 		}
-		if (!sequences.isEmpty()) {
-			SkinClipSequence mergedSequence = SkinClipSequence.merge(sequences.toArray(new SkinClipSequence[sequences.size()]));
+		if (!skinSequences.isEmpty()) {
+			SkinClipSequence mergedSequence = SkinClipSequence.merge(
+					skinSequences.toArray(new SkinClipSequence[skinSequences.size()]));
 			merged.setSkinClipSequence(mergedSequence);
 		}
+		
+		List<PoseClip> poseClips = new LinkedList<PoseClip>();
+		for (Animated3D object : objects) {
+			if (object.poseClipSequence != null) {
+				for (PoseClip clip : object.poseClipSequence) 
+					poseClips.add(clip);
+			}
+		}
+		if (!poseClips.isEmpty()) {
+			PoseClipSequence mergedSequence = new PoseClipSequence(poseClips);
+			merged.setPoseClipSequence(mergedSequence);
+		}
+		
 		return merged;
 	} 
 	
