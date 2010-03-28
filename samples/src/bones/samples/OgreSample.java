@@ -12,8 +12,6 @@ import raft.jpct.bones.SkeletonDebugger;
 
 import com.jmex.model.ogrexml.OgreEntityNode;
 import com.jmex.model.ogrexml.OgreLoader;
-import com.threed.jpct.Matrix;
-import com.threed.jpct.SimpleVector;
 import com.threed.jpct.Texture;
 import com.threed.jpct.TextureManager;
 

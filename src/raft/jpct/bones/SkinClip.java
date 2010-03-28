@@ -18,9 +18,9 @@ import com.threed.jpct.Animation;
  * A Clip consists of {@link JointChannel}s. There is at most one Channel for each joint in Skeleton.
  * A Clip is analogue of sub sequence in jPCT's {@link Animation}.</p>
  * 
- * @see JointChannel
- * 
  * <p>This class is adapted from <a href="http://www.ardor3d.com">Ardor3D.</a></p>
+ * 
+ * @see JointChannel
  * */
 public class SkinClip implements java.io.Serializable, Iterable<JointChannel> {
 	private static final long serialVersionUID = 1L;
