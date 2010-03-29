@@ -56,9 +56,11 @@ public abstract class AbstractSkinSample extends AbstractSample {
 	protected float animationSpeed = 1f;
 	protected float animationIndex = 0f;
     
-	
 	protected boolean showMesh = true;
 	protected boolean showSkeleton = false;
+	
+	protected boolean hasSkinAnimation = false;
+	protected boolean hasPoseAnimation = false;
 	
 	protected CameraOrbitController cameraController;
 	
@@ -72,15 +74,9 @@ public abstract class AbstractSkinSample extends AbstractSample {
 
 	protected abstract SkeletonDebugger createSkeletonDebugger() throws Exception;
 	
-	protected boolean hasSkinAnimation = false;
-	protected boolean hasPoseAnimation = false;
-	
-	//protected boolean blendEnabled = false;
-	
 	@Override
 	protected void initialize() throws Exception {
 		this.animatedGroup = createAnimatedGroup();
-		//animatedGroup.setAutoApplyAnimation(!blendEnabled);
 		
 		this.skinClipSequence = animatedGroup.getSkinClipSequence();
 		this.poseClipSequence = animatedGroup.getPoseClipSequence();
@@ -246,13 +242,13 @@ public abstract class AbstractSkinSample extends AbstractSample {
 	
 	protected float getClipTime(int sequence, boolean skinAnim) {
 		if (skinAnim) {
-			return (animationSequence == 0) 
+			return (sequence == 0) 
 				? skinClipSequence.getTime() // whole animation 
-				: skinClipSequence.getClip(animationSequence - 1).getTime(); // single clip 
+				: skinClipSequence.getClip(sequence - 1).getTime(); // single clip 
 		} else {
-			return (animationSequence == 0) 
+			return (sequence == 0) 
 				? poseClipSequence.getTime() // whole animation 
-				: poseClipSequence.getClip(animationSequence - 1).getTime(); // single clip 
+				: poseClipSequence.getClip(sequence - 1).getTime(); // single clip 
 		}
 	}
 	
@@ -390,18 +386,6 @@ public abstract class AbstractSkinSample extends AbstractSample {
 					animationIndex = 0;
 				}
 			});
-//			if (blendEnabled) {
-//				final JCheckBox button = new JCheckBox(text);
-//				container.add(button);
-//				button.addActionListener(new ActionListener() {
-//					public void actionPerformed(ActionEvent e) {
-//						animationSequence = animation;
-//						animationIndex = 0;
-//					}
-//				});
-//				
-//			} else {
-//			}
 		}
 		
 	}

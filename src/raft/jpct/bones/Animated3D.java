@@ -369,7 +369,7 @@ public class Animated3D extends Object3D implements Cloneable {
 	}
 	
 	/** applies skin animation to internal copy of mesh. actual mesh is not updated yet. */
-	void applySkinAnimation() {
+	public void applySkinAnimation() {
         
         SimpleVector[] dest = destMesh;
         // if pose animation is applied, destination vertices are already initialized based on source and offseted, so use them  

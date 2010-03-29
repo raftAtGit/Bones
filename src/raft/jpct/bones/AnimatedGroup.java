@@ -198,6 +198,17 @@ public class AnimatedGroup implements java.io.Serializable, Iterable<Animated3D>
 	}
 
 	/** 
+	 * <p>Calls {@link Animated3D#applySkinAnimation() applySkinAnimation()} on each of objects.</p>
+	 * 
+	 * @see Animated3D#applySkinAnimation()
+	 * */
+	public void applySkinAnimation() {
+		for (Animated3D so : objects) {
+			so.applySkinAnimation();
+		}
+	}
+	
+	/** 
 	 * <p>Calls {@link Animated3D#applyAnimation() applyAnimation()} on each of objects.</p>
 	 * 
 	 * @see Animated3D#applyAnimation()

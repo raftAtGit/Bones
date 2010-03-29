@@ -46,7 +46,7 @@ import com.threed.jpct.TextureManager;
  * */
 public class ProceduralAnimationSample extends AbstractSample {
 	
-	private AnimatedGroup skinnedGroup;
+	private AnimatedGroup animatedGroup;
     private SkeletonPose currentPose;
     private SkeletonDebugger skeletonDebugger;
     private Object3D ballSphere; 
@@ -81,7 +81,7 @@ public class ProceduralAnimationSample extends AbstractSample {
 			ColladaImporter colladaImporter = new ColladaImporter().loadTextures(false);
 			ColladaStorage colladaStorage = colladaImporter.load(uri.toString());
 			
-			this.skinnedGroup = BonesImporter.importCollada(colladaStorage, 1f, 
+			this.animatedGroup = BonesImporter.importCollada(colladaStorage, 1f, 
 					new Quaternion().rotateX((float)Math.PI));
 		} finally {
 			ResourceLocatorTool.removeResourceLocator(ResourceLocatorTool.TYPE_MODEL, resLocater);
@@ -92,16 +92,16 @@ public class ProceduralAnimationSample extends AbstractSample {
 		
 		world.setAmbientLight(255, 255, 255);
 
-		for (Animated3D o : skinnedGroup) {
+		for (Animated3D o : animatedGroup) {
 			
 			o.setTexture("seymour");
 			o.build();
 			o.discardMeshData();
 		}
-		skinnedGroup.addToWorld(world);
+		animatedGroup.addToWorld(world);
 		
 		// all SkinnedObject3D share the same pose 
-		this.currentPose = skinnedGroup.get(0).getSkeletonPose();
+		this.currentPose = animatedGroup.get(0).getSkeletonPose();
 		
 		this.skeletonDebugger = new SkeletonDebugger(currentPose);
 		skeletonDebugger.addToWorld(world);
@@ -141,7 +141,7 @@ public class ProceduralAnimationSample extends AbstractSample {
 		
         currentPose.updateTransforms();
         skeletonDebugger.update(currentPose);
-        skinnedGroup.applySkeletonPose();
+        animatedGroup.applySkeletonPose();
         
 		cameraController.placeCamera();
 	}
@@ -226,8 +226,8 @@ public class ProceduralAnimationSample extends AbstractSample {
     }
 
 	protected void toggleVisible(int index) {
-		if ((skinnedGroup.getSize() > 1) && (index < skinnedGroup.getSize()))
-			skinnedGroup.get(index).setVisibility(!skinnedGroup.get(index).getVisibility());
+		if ((animatedGroup.getSize() > 1) && (index < animatedGroup.getSize()))
+			animatedGroup.get(index).setVisibility(!animatedGroup.get(index).getVisibility());
 	}
 	
 	@SuppressWarnings("serial")
@@ -253,7 +253,7 @@ public class ProceduralAnimationSample extends AbstractSample {
 			showMeshCheckBox.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					showMesh = showMeshCheckBox.isSelected();
-					for (Animated3D o : skinnedGroup) {
+					for (Animated3D o : animatedGroup) {
 						o.setVisibility(showMesh);
 					}
 				}
@@ -268,12 +268,12 @@ public class ProceduralAnimationSample extends AbstractSample {
 			});
 			add(wireframeCheckBox);
 			
-			if (skinnedGroup.getSize() > 1) {
+			if (animatedGroup.getSize() > 1) {
 				JPanel subMeshPanel = new JPanel();
 				subMeshPanel.setBorder(BorderFactory.createTitledBorder("SubMesh"));
 				subMeshPanel.setLayout(new BoxLayout(subMeshPanel, BoxLayout.Y_AXIS));
 
-				for (int skin = 0; skin < skinnedGroup.getSize(); skin++) {
+				for (int skin = 0; skin < animatedGroup.getSize(); skin++) {
 					final int skinNo = skin;
 					final JCheckBox subMeshCheckBox = new JCheckBox("Show submesh (" + skin + ")", true);
 					subMeshCheckBox.addActionListener(new ActionListener() {

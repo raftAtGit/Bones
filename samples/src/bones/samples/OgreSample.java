@@ -30,7 +30,7 @@ public class OgreSample extends AbstractSkinSample {
 	protected SkeletonDebugger createSkeletonDebugger() throws Exception {
 		// in this file, root joint always remain in origin which doesn't look so good.
 		// so we tell debugger to ignore root joint (0)
-		return new SkeletonDebugger(animatedGroup.get(0).getSkeletonPose(), 10f, (short)0);
+		return new SkeletonDebugger(animatedGroup.get(0).getSkeletonPose(), 10f, 2f, (short)0);
 	}
 
 	@Override
