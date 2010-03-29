@@ -116,7 +116,7 @@ public class ArdorColladaImporter {
         ps.println("options:");
         ps.println("    -out <destination file>                      	: destination file to write");
         ps.println("    -scale <scale>                               	: loading scale, default 1");
-        ps.println("    -rotation <<x|y|z=degrees>[,x|y|z=degrees]...> 	: loading rotation, default none (sample: x=180,y=180)");
+        ps.println("    -rotation <<x|y|zdegrees>[,x|y|zdegrees]...> 	: loading rotation, default none (sample: x180,y180)");
         ps.println("    -h | -help                                   	: print help");
         ps.println("    -log <logLevel: VERBOSE*|WARNING|ERROR>      	: set log level");
     }

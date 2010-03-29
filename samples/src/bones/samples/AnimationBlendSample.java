@@ -6,25 +6,31 @@ import java.net.URL;
 import raft.jpct.bones.Animated3D;
 import raft.jpct.bones.AnimatedGroup;
 import raft.jpct.bones.BonesImporter;
+import raft.jpct.bones.Quaternion;
 import raft.jpct.bones.SkeletonDebugger;
 
 import com.jmex.model.ogrexml.OgreEntityNode;
 import com.jmex.model.ogrexml.OgreLoader;
+import com.threed.jpct.Texture;
+import com.threed.jpct.TextureManager;
 
 public class AnimationBlendSample extends AbstractSkinSample {
 
 	@Override
 	protected AnimatedGroup createAnimatedGroup() throws Exception {
 		// we only specify the mesh file, skeleton file automatically loaded, and should be in same directory.  
-		URL ninjaUrl = new File("./samples/data/blend/Box_morph.mesh.xml").toURI().toURL();
+		URL ninjaUrl = new File("./samples/data/blend/cylinder.mesh.xml").toURI().toURL();
 		
 		OgreLoader loader = new OgreLoader();
 		OgreEntityNode node = loader.loadModel(ninjaUrl);
 
-		AnimatedGroup group = BonesImporter.importOgre(node, 2f, null);
+		AnimatedGroup group = BonesImporter.importOgre(node, 2f, new Quaternion().rotateX((float)Math.PI));
 		group.setAutoApplyAnimation(false);
 
+		TextureManager.getInstance().addTexture("stone", new Texture("./samples/data/blend/stone.jpg"));
+		
 		for (Animated3D o : group) {
+			o.setTexture("stone");
 			o.build();
 			o.discardMeshData();
 		}

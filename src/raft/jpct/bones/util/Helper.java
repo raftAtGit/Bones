@@ -19,7 +19,7 @@ class Helper {
 	static final String LL_WARNING = "WARNING"; 
 	static final String LL_ERROR = "ERROR"; 
 
-	private static final Pattern ROTATION_PATTERN = Pattern.compile("([xXyYzZ]=\\d+)(,[xXyYzZ]=\\d+)*");
+	private static final Pattern ROTATION_PATTERN = Pattern.compile("([xXyYzZ]\\d+)(,[xXyYzZ]\\d+)*");
 	
 	/** sets log level of jPCT {@link Logger} from a string. */
 	static void setLogLevel(String level) {
@@ -48,8 +48,8 @@ class Helper {
 		
 		Quaternion rotation = new Quaternion();
 		for (String part : s.split(",")) {
-			System.out.println(part);
-			float angle = (float) Math.toRadians(Double.parseDouble(part.substring(part.indexOf('=') + 1)));
+			//System.out.println(part);
+			float angle = (float) Math.toRadians(Double.parseDouble(part.substring(1)));
 			
 			switch (part.charAt(0)) {
 				case 'x': 
@@ -69,5 +69,9 @@ class Helper {
 			}
 		}
 		return rotation;
+	}
+	
+	public static void main(String[] args) {
+		System.out.println(parseRotation(args[0]));
 	}
 }
