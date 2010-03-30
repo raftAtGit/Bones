@@ -42,18 +42,17 @@ public class OgreSample extends AbstractSkinSample {
 		OgreEntityNode node = loader.loadModel(ninjaUrl);
 
 		// data in ogre file is upside down, so rotate around x axis
-		AnimatedGroup skinnedGroup = BonesImporter.importOgre(node, 2f, new Quaternion().rotateX((float)Math.PI));
-		//AnimatedGroup skinnedGroup = BonesImporter.importOgre(node, 2f, null);
+		AnimatedGroup animatedGroup = BonesImporter.importOgre(node, 2f, new Quaternion().rotateX((float)Math.PI));
 
 		Texture texture = new Texture("./samples/data/ninja/nskingr.jpg");
 		TextureManager.getInstance().addTexture("ninja", texture);
 		
-		for (Animated3D o : skinnedGroup) {
+		for (Animated3D o : animatedGroup) {
 			o.setTexture("ninja");
 			o.build();
 			o.discardMeshData();
 		}
-		return skinnedGroup;
+		return animatedGroup;
 	}
 
 	

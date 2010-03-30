@@ -56,7 +56,7 @@ public class BonesIO {
 	}
 	
 	/** 
-	 * <p>Loads a {@link AnimatedGroup}'s from given stream. Group should be saved to stream
+	 * <p>Loads an {@link AnimatedGroup} from given stream. Group should be saved to stream
 	 * via {@link #saveGroup(AnimatedGroup, OutputStream)}</p>
 	 *  
 	 * @see AnimatedGroup

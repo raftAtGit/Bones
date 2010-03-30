@@ -169,7 +169,7 @@ public class AnimationBlendSample extends AbstractSample {
 			case SKIN_BIND_POSE:
 				currentPose.setToBindPose();
 				currentPose.updateTransforms();
-				animatedGroup.applySkinAnimation();
+				animatedGroup.applySkeletonPose();
 				break;
 			default:
 				float clipTime = getClipTime(skinAnimationSequence, ANIM_SKIN); 

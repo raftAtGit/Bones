@@ -214,6 +214,7 @@ public abstract class AbstractSkinSample extends AbstractSample {
 				currentPose.setToBindPose();
 				currentPose.updateTransforms();
 				animatedGroup.applySkeletonPose();
+				animatedGroup.applyAnimation();
 				
 			} else {
 				

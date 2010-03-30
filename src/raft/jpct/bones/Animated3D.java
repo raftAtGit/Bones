@@ -21,12 +21,23 @@ import com.threed.jpct.TextureManager;
 /** 
  * <p>An {@link Object3D} which can be animated via skeletal or pose animation.</p> 
  * 
+ * <p>{@link #animateSkin(float, int)} and {@link #animatePose(float, int)} methods are analogues of
+ * {@link Object3D#animate(float, int)} method. They calculate a new Mesh and apply it if "auto apply animation"
+ * is enabled (It's enabled by default). If you need animation blending, you should disable "auto apply animation",
+ * first perform pose animation(s) then perform skin animation and finally call {@link #applyAnimation()}.</p>
+ * 
  * <p>Once constructed, Animated3D sets an {@link IVertexController} on its mesh which
  * modifies the {@link Mesh} to perform animation. So if you set another IVertexController
  * on its mesh, you will break animation.</p>
  * 
+ * <p>Animated objects often consist of sub-objects and in such cases manipulating them in an {@link AnimatedGroup}
+ * is much easier and convenient. Most of the methods in this class also exist in AnimatedGroup to allow bulk operations.
+ * For skin animations with many (more than one) sub objects, animating via AnimatedGroup also performs better since
+ * {@link SkeletonPose} calculations are done once for whole group.</p>
+ * 
  * <p>Skeletal animation part of this class is adapted from <a href="http://www.ardor3d.com">Ardor3D.</a></p>
  * 
+ * @see AnimatedGroup
  * @see BonesIO#loadObject(java.io.InputStream)
  * 
  * @author hakan eryargi (r a f t)
@@ -138,16 +149,7 @@ public class Animated3D extends Object3D implements Cloneable {
 		return skeleton;
 	}
 
-	/** Applies current pose by applying vertex controller */
-	public void applySkeletonPose() {
-		if (skeleton == null)
-			throw new IllegalStateException("This object has no skeleton");
-		
-		applySkinAnimation();
-		applyAnimation();
-	}
-	
-	/** If this object is called via Ardor3D's loader, calling this method saves some memory. */
+	/** If this object is called via Ardor3D's or jME's loader, calling this method saves some memory. */
 	public void discardMeshData() {
 		meshData = null;
 	}
@@ -178,8 +180,6 @@ public class Animated3D extends Object3D implements Cloneable {
         destMeshDirty = false;
 	}
 	
-	// TODO hold a flag if an animation if actually done. then apply animation if flag is set
-	// this will increase performance for groups with pose animations 
 	/** Applies animation to mesh. */
 	public void applyAnimation() {
 		vertexController.updateMesh();
@@ -188,7 +188,8 @@ public class Animated3D extends Object3D implements Cloneable {
 	}
 	
 	/** <p>Animates this object using assigned {@link SkinClipSequence}. 
-	 * Updates current SkeletonPose and if "auto apply animation" is enabled calls {@link #applySkeletonPose()} </p>
+	 * Updates current {@link SkeletonPose}, applies current pose by calling
+	 * {@link #applySkeletonPose()} and if "auto apply animation" is enabled calls {@link #applyAnimation()} </p>
 	 * 
 	 * <p>Skin animations are not cumulative. Each call to this method cancels previous skin animation.</p>
 	 * 
@@ -218,10 +219,10 @@ public class Animated3D extends Object3D implements Cloneable {
 			clip.applyTo(index * clip.getTime(), currentPose);
 		}
 		currentPose.updateTransforms();
-		applySkinAnimation();
+		applySkeletonPose();
 		
 		if (autoApplyAnimation)
-			applySkeletonPose();
+			applyAnimation();
 	}
 	
 	/** Same as {@link #animatePose(float, int, float) animatePose(float, int, 1)} */
@@ -229,8 +230,8 @@ public class Animated3D extends Object3D implements Cloneable {
 		animatePose(index, sequence, 1f);
 	}
 	
-	/** <p>Animates this object using assigned {@link PoseClipSequence}. 
-	 * Updates curentPose and if "auto apply animation" is enabled calls {@link #applySkeletonPose()} </p>
+	/** <p>Animates this object using assigned {@link PoseClipSequence}.
+	 * If "auto apply animation" is enabled calls {@link #applyAnimation()}</p>
 	 * 
 	 * <p>Pose animations are cumulative if "auto apply animation" is disabled. 
 	 * Each call to this method cancels previous skin animation.</p>
@@ -242,7 +243,7 @@ public class Animated3D extends Object3D implements Cloneable {
 	 * @param index time index   
 	 * @param weight how much animation will be applied. 1 means as it is
 	 * 
-	 * @see SkinClipSequence
+	 * @see PoseClipSequence
 	 * @see Object3D#animate(float, int)
 	 * @see #setAutoApplyAnimation(boolean)
 	 * */
@@ -270,30 +271,26 @@ public class Animated3D extends Object3D implements Cloneable {
 	
 
 	/** 
-	 * <p>Sets the {@link SkinClipSequence} of this object. The skeleton of ClipSequence must be the same of
-	 * this object.</p>
+	 * <p>Sets the {@link PoseClipSequence} of this object.</p>
 	 * 
 	 * <p>This method is analogue of {@link Object3D#setAnimationSequence(com.threed.jpct.Animation)}.</p>
-	 * 
-	 * @see #mergeSkin(Animated3D...)
-	 * @throws IllegalArgumentException if given ClipSequence has a different {@link Skeleton} 
 	 * */
 	public void setPoseClipSequence(PoseClipSequence poseClipSequence) {
 		this.poseClipSequence = poseClipSequence;
 	}
 
-	/** <p>Returns the assigned ClipSequence if any.</p> */
+	/** <p>Returns the assigned {@link PoseClipSequence} if any.</p> */
 	public PoseClipSequence getPoseClipSequence() {
 		return poseClipSequence;
 	}
 
-	/** <p>Returns the assigned ClipSequence if any.</p> */
+	/** <p>Returns the assigned {@link SkinClipSequence} if any.</p> */
 	public SkinClipSequence getSkinClipSequence() {
 		return skinClipSequence;
 	}
 	
 	/** 
-	 * <p>Sets the {@link SkinClipSequence} of this object. The skeleton of ClipSequence must be the same of
+	 * <p>Sets the {@link SkinClipSequence} of this object. The skeleton of SkinClipSequence must be the same of
 	 * this object.</p>
 	 * 
 	 * <p>This method is analogue of {@link Object3D#setAnimationSequence(com.threed.jpct.Animation)}.</p>
@@ -368,8 +365,9 @@ public class Animated3D extends Object3D implements Cloneable {
 		destMesh = vertexController.getDestinationMesh();
 	}
 	
-	/** applies skin animation to internal copy of mesh. actual mesh is not updated yet. */
-	public void applySkinAnimation() {
+	/** Applies skin animation to internal copy of mesh. Actual mesh is not updated yet. 
+	 * Call {@link #applyAnimation()} to update mesh.  */
+	public void applySkeletonPose() {
         
         SimpleVector[] dest = destMesh;
         // if pose animation is applied, destination vertices are already initialized based on source and offseted, so use them  

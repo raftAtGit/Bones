@@ -6,7 +6,7 @@ package raft.jpct.bones;
  * 
  * <p>This class is adapted from <a href="http://www.ardor3d.com">Ardor3D.</a></p>
  *  */
-class SkinData implements java.io.Serializable {
+public class SkinData implements java.io.Serializable {
 	private static final long serialVersionUID = 1L;
 	
 	// TODO separate max joints for ardor and jME to be safe in the future
@@ -14,6 +14,11 @@ class SkinData implements java.io.Serializable {
 	final float[][] weights;
 	final short[][] jointIndices;
 	
+	/** <p>Creates a new SkinData out of given information. The arrays are copied.</p>
+	 * 
+	 * @param weights how much each vertex in mesh is effected by corresponding skeleton joints 
+	 * @param jointIndices which joints effect which vertices   
+	 * */
 	public SkinData(float[][] weights, short[][] jointIndices) {
 		this.weights = new float[weights.length][];
 		this.jointIndices = new short[jointIndices.length][];

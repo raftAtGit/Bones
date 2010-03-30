@@ -82,7 +82,7 @@
     </target>
 
 	<target name="zip">
-		<zip destfile="../bones.zip" basedir="../" includes="Bones/**/*" excludes="**/*.svn" />
+		<zip destfile="../bones.zip" basedir="../" includes="Bones/**/*" excludes="**/*.svn, Bones/bin/**" />
 	</target>
 	
 	<target name="release" depends="init" >

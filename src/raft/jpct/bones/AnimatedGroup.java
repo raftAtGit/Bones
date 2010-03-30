@@ -66,7 +66,8 @@ public class AnimatedGroup implements java.io.Serializable, Iterable<Animated3D>
 	}
 	
 
-	/** returns root object that all animated objects are added as child */
+	/** Returns root object that all animated objects are added as child. Root object is a dummy object, 
+	 * it isn't added to world. To translate/rotate the whole group, it's enough to apply translation/rotation to root object. */
 	public Object3D getRoot() {
 		return root;
 	}
@@ -154,13 +155,11 @@ public class AnimatedGroup implements java.io.Serializable, Iterable<Animated3D>
 		}
 		currentPose.updateTransforms();
 		
-		if (autoApplyAnimation) {
-			applySkeletonPose();
-		} else {
-			for (Animated3D so : objects) {
-				so.applySkinAnimation();
-			}
-		}
+		for (Animated3D so : objects) 
+			so.applySkeletonPose();
+		
+		if (autoApplyAnimation)
+			applyAnimation();
 	}
 	
 	/** 
@@ -197,17 +196,6 @@ public class AnimatedGroup implements java.io.Serializable, Iterable<Animated3D>
 		}
 	}
 
-	/** 
-	 * <p>Calls {@link Animated3D#applySkinAnimation() applySkinAnimation()} on each of objects.</p>
-	 * 
-	 * @see Animated3D#applySkinAnimation()
-	 * */
-	public void applySkinAnimation() {
-		for (Animated3D so : objects) {
-			so.applySkinAnimation();
-		}
-	}
-	
 	/** 
 	 * <p>Calls {@link Animated3D#applyAnimation() applyAnimation()} on each of objects.</p>
 	 * 
