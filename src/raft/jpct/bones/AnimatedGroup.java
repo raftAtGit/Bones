@@ -85,6 +85,14 @@ public class AnimatedGroup implements java.io.Serializable, Iterable<Animated3D>
 		}
 	}
 	
+	/** Removes all animated objects to world. 
+	 * @see World#removeObject(Object3D) */
+	public void removeFromWorld(World world) {
+		for (Animated3D so : objects) {
+			world.removeObject(so);
+		}
+	}
+	
 	/** <p>Returns the assigned ClipSequence if any.</p> */
 	public SkinClipSequence getSkinClipSequence() {
 		return skinClipSequence;
@@ -170,6 +178,17 @@ public class AnimatedGroup implements java.io.Serializable, Iterable<Animated3D>
 	public void applySkeletonPose() {
 		for (Animated3D so : objects) {
 			so.applySkeletonPose();
+		}
+	}
+	
+	/** 
+	 * <p>calls {@link Animated3D#setSkeletonPose(SkeletonPose)} on each of objects.</p>
+	 * 
+	 * @see Animated3D#setSkeletonPose(SkeletonPose)
+	 * */
+	public void setSkeletonPose(SkeletonPose currentPose) {
+		for (Animated3D so : objects) {
+			so.setSkeletonPose(currentPose);
 		}
 	}
 	

@@ -328,7 +328,7 @@ public class Animated3D extends Object3D implements Cloneable {
 	 * */
 	void writeToStream(java.io.ObjectOutputStream out) throws IOException {
 		if (meshData == null)
-			throw new IllegalStateException("this object does not contain skeleton mesh data. did you called discardSkeletonMesh() ?");
+			throw new IllegalStateException("this object does not contain mesh data. did you called discardMeshData() ?");
 		
 		out.writeObject(meshData);
 		out.writeObject(skin);

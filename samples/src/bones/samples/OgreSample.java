@@ -61,35 +61,12 @@ public class OgreSample extends AbstractSkinSample {
 		super.initialize();
 		
 		world.setAmbientLight(255, 255, 255);
-		
-//		Matrix transform = new Matrix();
-//		transform.rotateX((float)Math.PI);
-//		
-//		//transform.translate(100, 100, 100);
-//		
-//		Matrix scale = new Matrix();
-//		scale.set(0, 0, 2f);
-//		scale.set(1, 1, 2f);
-//		scale.set(2, 2, 2f);
-		
-		//transform.matMul(scale);
-		
-		// skeleton is oriented upside down, rotate it
-//		animatedGroup.getSkinClipSequence().applyTransform(transform);
-//		currentPose.getSkeleton().applyTransform(transform);
-		
-		
+
         update(0); // update once to reflect changes visible in first scene
 
         // ninja is facing positive Z axis, so place camera accordingly
         cameraController.cameraAngle = 0f;
 		autoAdjustCamera();
-	}
-	
-	@Override
-	protected void update(long deltaTime) {
-		// TODO Auto-generated method stub
-		super.update(deltaTime);
 	}
 	
 	public static void main(String[] args) throws Exception {
