@@ -73,7 +73,9 @@ public class Animated3D extends Object3D implements Cloneable {
 	// TODO maybe add a method createAnimationSequence() to create jPCT mesh animation sequence
 
 	/** 
-	 * <p>Same as {@link #Animated3D(Animated3D, boolean)  Object3D(Object3D, true)}</p>
+	 * <p>Same as {@link #Animated3D(Animated3D, boolean)  Animated3D(Object3D, MESH_REUSE)}</p>
+	 * 
+	 * @see #Animated3D(Animated3D, boolean)
 	 */
 	public Animated3D(Animated3D object) {
 		this(object, MESH_REUSE);
@@ -81,7 +83,10 @@ public class Animated3D extends Object3D implements Cloneable {
 	
 	/**
 	 * <p>Behaves same as {@link Object3D#Object3D(Object3D, boolean) Object3D(Object3D, reuseMesh)}. 
-	 * In addition copies animation data in addition.</p>
+	 * In addition copies animation data.</p> 
+	 * 
+	 * <p>Note: If master object has skin animation, its mesh must be in bind pose, 
+	 * otherwise created object will have garbled animation.</p>
 	 *  
 	 * @see #MESH_REUSE 
 	 * @see #MESH_DONT_REUSE 
@@ -311,10 +316,9 @@ public class Animated3D extends Object3D implements Cloneable {
 	}
 
 	/**
-	 * <p>Clones this object. Behaves same as {@link Object3D#cloneObject()} and copies
-	 * animation data in addition.</p>
-	 * 
-	 *  @see Object3D#cloneObject()
+	 * <p>Clones this object. Behaves same as {@link #Animated3D(Animated3D, boolean) Animated3D(Animated3D, MESH_REUSE)}.</p>
+	 *
+	 *  @see #Animated3D(Animated3D, boolean)
 	 * */
 	@Override
 	public Animated3D cloneObject() {
