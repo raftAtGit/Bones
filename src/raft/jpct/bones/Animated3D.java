@@ -99,6 +99,7 @@ public class Animated3D extends Object3D implements Cloneable {
 		this.meshData = object.meshData;
 		this.skinClipSequence = object.skinClipSequence;
 		this.poseClipSequence = object.poseClipSequence;
+		this.autoApplyAnimation = object.autoApplyAnimation;
 		this.index = object.index;
 
 		attachVertexController();
@@ -376,6 +377,9 @@ public class Animated3D extends Object3D implements Cloneable {
         SimpleVector[] dest = destMesh;
         // if pose animation is applied, destination vertices are already initialized based on source and offseted, so use them  
         SimpleVector[] source = !destMeshDirty ? dest : sourceMesh;
+        
+        SimpleVector temp = this.temp;
+        SimpleVector vertexSum = this.vertexSum;
         
         // Cycle through each vertex
         for (int i = 0; i < source.length; i++) {

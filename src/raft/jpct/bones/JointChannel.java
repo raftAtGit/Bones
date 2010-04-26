@@ -178,7 +178,7 @@ public class JointChannel implements java.io.Serializable {
 		}
 	}
 
-	/** rotates channel data. this methos should be called before skeleton itself is rotated.
+	/** rotates channel data. this method should be called before skeleton itself is rotated.
 	 * the conversion done here cannot be combined with a scaling, so this method
 	 * differs from its variants in {@link MeshPose} and {@link Skeleton}. */
 	void rotate(Skeleton skeleton, Quaternion rotation) {

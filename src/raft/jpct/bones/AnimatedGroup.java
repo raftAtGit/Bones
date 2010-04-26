@@ -363,6 +363,8 @@ public class AnimatedGroup implements java.io.Serializable, Iterable<Animated3D>
 		for (int i = 0; i < clones.length; i++) {
 			clones[i] = new Animated3D(objects[i], reuseMesh);
 		}
-		return new AnimatedGroup(clones, skinClipSequence, poseClipSequence);
+		AnimatedGroup clone = new AnimatedGroup(clones, skinClipSequence, poseClipSequence);
+		clone.autoApplyAnimation = this.autoApplyAnimation;
+		return clone;
 	}
 }
