@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.nio.IntBuffer;
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.IdentityHashMap;
@@ -180,12 +179,6 @@ public class BonesImporter {
 			jointOrder = new int[jmeBones.size()];
 			for (int i = 0; i < jointOrder.length; i++) {
 				jointOrder[i] = jmeSkeleton.getBoneIndex(jmeBones.get(i));
-				System.out.println(jointOrder[i] + " : " + jmeSkeleton.getBone(jointOrder[i]).getName());
-			}
-			System.out.println(Arrays.toString(jointOrder));
-			
-			for (com.jmex.model.ogrexml.anim.Bone b : jmeBones) {
-				System.out.println(b.getName() + ":" + jmeSkeleton.getBoneIndex(b) + " -> " + ((b.getParent() == null) ? "" : b.getParent().getName() + ":" + jmeSkeleton.getBoneIndex(b.getParent()))) ;
 			}
 			
 			skeleton = convertJMESkeleton(jmeSkeleton, jointOrder);
