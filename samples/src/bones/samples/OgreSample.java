@@ -34,15 +34,13 @@ public class OgreSample extends AbstractSkinSample {
 		for (int i = 0; i < ignore.length; i++) {
 			ignore[i] = i+20;
 		}
-		return new SkeletonDebugger(animatedGroup.get(0).getSkeletonPose(), 10f, 0.02f);
-		//return new SkeletonDebugger(animatedGroup.get(0).getSkeletonPose(), 10f, 0.2f, 0);
+		return new SkeletonDebugger(animatedGroup.get(0).getSkeletonPose(), 10f, 0.2f, 0);
 	}
 
 	@Override
 	protected AnimatedGroup createAnimatedGroup() throws Exception {
 		// we only specify the mesh file, skeleton file automatically loaded, and should be in same directory.  
 		URL ninjaUrl = new File("./samples/data/ninja/ninja.mesh.xml").toURI().toURL();
-//		URL ninjaUrl = new File("/home/raft/projects/karga-workspace/Temp/man-mesh/male.mesh.xml").toURI().toURL();
 		
 		OgreLoader loader = new OgreLoader();
 		OgreEntityNode node = loader.loadModel(ninjaUrl);
