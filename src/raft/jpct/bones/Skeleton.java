@@ -95,8 +95,9 @@ public class Skeleton implements java.io.Serializable, Iterable<Joint> {
 	private void printJoints() {
 		System.out.println("-- total " + joints.length + " joint(s) --");
 		for (Joint joint : joints) {
+			Joint parent = joint.hasParent() ? joints[joint.parentIndex] : null;
 			System.out.println(MessageFormat.format("{0} name: {1}, parent: {2}", 
-					joint.index, joint.name, ((joint.hasParent() ? String.valueOf(joint.parentIndex) : ""))));
+					joint.index, joint.name, ((joint.hasParent() ? (parent.index + ":" + parent.name) : ""))));
 		}
 		System.out.println("-- --");
 	}

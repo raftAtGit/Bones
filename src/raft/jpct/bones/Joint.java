@@ -34,7 +34,7 @@ public class Joint implements java.io.Serializable {
 			throw new IllegalArgumentException("joint cannot be parent of itself");
 		if (index < parentIndex)
 			throw new IllegalArgumentException("parent index should be less than joint index. " +
-					"o/w a joint array cannot be ordered such that parent comes first");
+					"o/w a joint array cannot be ordered such that parent comes first. index: " + index + ", parentIndex: " + parentIndex);
 		
 		this.inverseBindPose = inverseBindPose;
 		this.bindPose = inverseBindPose.invert();

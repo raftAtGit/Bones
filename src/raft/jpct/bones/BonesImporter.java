@@ -3,6 +3,10 @@ package raft.jpct.bones;
 import java.io.IOException;
 import java.nio.IntBuffer;
 import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.IdentityHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -123,7 +127,7 @@ public class BonesImporter {
 	 * <p>Constructs an {@link AnimatedGroup} out of jME OGRE data.</p>
 	 * 
 	 * @param node jME OgreEntityNode
-	 * @param scale the scale. not used at the moment.
+	 * @param scale the scale
 	 * @param rotation the rotation applied to whole system. maybe null
 	 * */
 	public static AnimatedGroup importOgre(OgreEntityNode node, float scale, Quaternion rotation) throws IOException {
@@ -146,9 +150,45 @@ public class BonesImporter {
 
 		Skeleton skeleton = null;
 		SkeletonPose currentPose = null;
+		int[] jointOrder = null;
 		
 		if (controller.getSkeleton() != null) {
-			skeleton = convertJMESkeleton(controller.getSkeleton());
+			com.jmex.model.ogrexml.anim.Skeleton jmeSkeleton = controller.getSkeleton();
+			jmeSkeleton.reset();
+			
+			List<com.jmex.model.ogrexml.anim.Bone> jmeBones = new ArrayList<com.jmex.model.ogrexml.anim.Bone>();
+			for (int i = 0; i < jmeSkeleton.getBoneCount(); i++) {
+				jmeBones.add(jmeSkeleton.getBone(i));
+			}
+			// sort bones such that parents always comes before 
+			Collections.sort(jmeBones, new Comparator<com.jmex.model.ogrexml.anim.Bone>() {
+				public int compare(com.jmex.model.ogrexml.anim.Bone b1, com.jmex.model.ogrexml.anim.Bone b2) {
+					return getDepth(b1) - getDepth(b2);
+				}
+				
+				private int getDepth(com.jmex.model.ogrexml.anim.Bone b) {
+					com.jmex.model.ogrexml.anim.Bone parent = b.getParent();
+					int depth = 0;
+					while (parent != null) {
+						depth++;
+						parent = parent.getParent();
+					}
+					return depth;
+				}
+			});
+			assert (ordered(jmeBones));
+			jointOrder = new int[jmeBones.size()];
+			for (int i = 0; i < jointOrder.length; i++) {
+				jointOrder[i] = jmeSkeleton.getBoneIndex(jmeBones.get(i));
+				System.out.println(jointOrder[i] + " : " + jmeSkeleton.getBone(jointOrder[i]).getName());
+			}
+			System.out.println(Arrays.toString(jointOrder));
+			
+			for (com.jmex.model.ogrexml.anim.Bone b : jmeBones) {
+				System.out.println(b.getName() + ":" + jmeSkeleton.getBoneIndex(b) + " -> " + ((b.getParent() == null) ? "" : b.getParent().getName() + ":" + jmeSkeleton.getBoneIndex(b.getParent()))) ;
+			}
+			
+			skeleton = convertJMESkeleton(jmeSkeleton, jointOrder);
 
 			currentPose = new SkeletonPose(skeleton);
 			currentPose.updateTransforms();
@@ -158,7 +198,7 @@ public class BonesImporter {
 		
 		int index = 0;
 		for (OgreMesh ogreMesh : controller.getMeshList()) {
-			SkinData skin = (skeleton == null) ? null : convertJMESkinData(ogreMesh);
+			SkinData skin = (skeleton == null) ? null : convertJMESkinData(ogreMesh, jointOrder);
 			MeshData mesh = convertJMEMeshData(ogreMesh);
 
 			if (transform != null)
@@ -184,7 +224,7 @@ public class BonesImporter {
 					throw new IllegalStateException("Skeleton is null but controller has Bone animation!");
 				
 				com.jmex.model.ogrexml.anim.BoneAnimation boneAnim = anim.getBoneAnimation();
-				SkinClip skinClip = convertJMESkinClip(skeleton, boneAnim); 
+				SkinClip skinClip = convertJMESkinClip(skeleton, boneAnim, jointOrder); 
 				skinClips.add(skinClip);
 
 				if (rotation != null) {
@@ -247,6 +287,22 @@ public class BonesImporter {
 		
 		return group;
 	}
+	
+	private static boolean ordered(List<com.jmex.model.ogrexml.anim.Bone> bones) {
+		for (int i = 0; i < bones.size(); i++) {
+			com.jmex.model.ogrexml.anim.Bone bone = bones.get(i);
+			com.jmex.model.ogrexml.anim.Bone parent = bone.getParent();
+			
+			while (parent != null) {
+				int parentIndex = bones.indexOf(parent);
+				assert (parentIndex != -1);
+				if (parentIndex > i)
+					return false;
+				parent = parent.getParent();
+			}
+		}
+		return true;
+	} 
 	
 	private static Map<com.jmex.model.ogrexml.anim.Pose, MeshPose> createJMEPoseCache(MeshAnimationController controller, Matrix transform) {
     	Map<com.jmex.model.ogrexml.anim.Pose, MeshPose> poseCache = 
@@ -315,49 +371,52 @@ public class BonesImporter {
 	}
 	
 	
-	private static Skeleton convertJMESkeleton(com.jmex.model.ogrexml.anim.Skeleton skeleton) {
-		Joint[] joints = new Joint[skeleton.getBoneCount()];
+	private static Skeleton convertJMESkeleton(com.jmex.model.ogrexml.anim.Skeleton jmeSkeleton, int[] jointOrder) {
+		Joint[] joints = new Joint[jmeSkeleton.getBoneCount()];
 		
-		// it's not guaranteed bones are sorted for hierarchy 
-		// so we first create a map of joint indices
-		Map<com.jmex.model.ogrexml.anim.Bone, Integer> map =
-			new IdentityHashMap<com.jmex.model.ogrexml.anim.Bone, Integer>();
-
 		for (int i = 0; i < joints.length; i++) {
-			map.put(skeleton.getBone(i), i);
+			com.jmex.model.ogrexml.anim.Bone bone = jmeSkeleton.getBone(jointOrder[i]);
+			
+			final int parentIndex; 
+			if (bone.getParent() == null) {
+				parentIndex = Joint.NO_PARENT;  
+			} else {
+				int jmeParentIndex = jmeSkeleton.getBoneIndex(bone.getParent());
+				parentIndex = indexOf(jointOrder, jmeParentIndex);
+				assert (parentIndex != -1);
+			}
+			joints[i] = convertJMEJoint(joints, bone, i, parentIndex);
 		}
 		
-		// we cannot change original ordering of joints since channels use target joint index
-		for (int i = 0; i < joints.length; i++) {
-			joints[i] = convertJMEJoint(map, skeleton.getBone(i), i);
-		}
-		
-		Skeleton result = new Skeleton(joints);
+		Skeleton skeleton = new Skeleton(joints);
 		Logger.log(MessageFormat.format("Skeleton created out of jME OGRE skeleton, {0} joints", joints.length), Logger.MESSAGE);
-		return result;
+		
+		return skeleton;
 	}
 	
-	private static Joint convertJMEJoint(Map<com.jmex.model.ogrexml.anim.Bone, Integer> parentMap, 
-			com.jmex.model.ogrexml.anim.Bone bone, int index) {
+	private static Joint convertJMEJoint(Joint[] joints, 
+			com.jmex.model.ogrexml.anim.Bone bone, int index, int parentIndex) {
+		
+		// local = bindPose x parentInvertBindPose
+		// -> invertBindPose = (local x parentBindPose) -1
+		
+		com.jme.math.Vector3f tx = bone.getInitialPos();
+		com.jme.math.Quaternion rot = bone.getInitialRot();
 		
 		com.jmex.model.ogrexml.anim.Bone root = bone;
 		while (root.getParent() != null) {
 			root = root.getParent();
 		}
 		
-		com.jme.math.Vector3f tx = bone.getWorldBindInversePos();
-		com.jme.math.Quaternion rot = bone.getWorldBindInverseRot();
-		// due to jME's OGRE loading, root rotation is baked into all bind poses, remove it  
-		tx = root.getWorldBindInverseRot().mult(tx);
-
-		Matrix inverseBindPose = convertQuaternion(rot).getRotationMatrix();
-		inverseBindPose.translate(tx.x, tx.y, tx.z);
+		Matrix local = convertQuaternion(rot).getRotationMatrix();
+		local.translate(tx.x, tx.y, tx.z);
 		
-		int parentIndex = (bone.getParent() == null) ? Joint.NO_PARENT  
-				: parentMap.get(bone.getParent());
+		if (bone.getParent() != null) {
+			local.matMul(joints[parentIndex].bindPose);
+		}
+		Matrix invertBindPose = local.invert();
 		
-		return new Joint(inverseBindPose, index, parentIndex, bone.getName());
-		
+		return new Joint(invertBindPose, index, parentIndex, bone.getName());
 	}
 
 	private static MeshData convertArdorMeshData(SkinnedMesh mesh) {
@@ -416,9 +475,10 @@ public class BonesImporter {
     /**
      * <p>Creates a new Channel out of jME OGRE BoneTrack. Skeleton is used
      * for transforming track data into joint local space.<p> 
+     * @param jointOrder 
      * */
-	private static JointChannel convertJMEJointChannel(com.jmex.model.ogrexml.anim.BoneTrack track, Skeleton skeleton) {
-		int jointIndex = track.getTargetBoneIndex();
+	private static JointChannel convertJMEJointChannel(com.jmex.model.ogrexml.anim.BoneTrack track, Skeleton skeleton, int[] jointOrder) {
+		int jointIndex = indexOf(jointOrder, track.getTargetBoneIndex());
 		int length = track.getTimes().length;
 
 		float[] times = new float[length];
@@ -468,11 +528,11 @@ public class BonesImporter {
 		return result;
 	}
 	
-	private static SkinClip convertJMESkinClip(Skeleton skeleton, com.jmex.model.ogrexml.anim.BoneAnimation boneAnimation) {
+	private static SkinClip convertJMESkinClip(Skeleton skeleton, com.jmex.model.ogrexml.anim.BoneAnimation boneAnimation, int[] jointOrder) {
 		
 		List<JointChannel> channels = new LinkedList<JointChannel>();
 		for (com.jmex.model.ogrexml.anim.BoneTrack track : boneAnimation.getTracks()) {
-			channels.add(convertJMEJointChannel(track, skeleton));
+			channels.add(convertJMEJointChannel(track, skeleton, jointOrder));
 		}
 		SkinClip result = new SkinClip(skeleton, channels);
 		result.setName(boneAnimation.getName());
@@ -494,9 +554,18 @@ public class BonesImporter {
 				
 	}
 
-    private static SkinData convertJMESkinData(OgreMesh ogreMesh) {
+    private static SkinData convertJMESkinData(OgreMesh ogreMesh, int[] jointOrder) {
     	float[][] weights = SkinHelper.asArray(ogreMesh.getWeightBuffer().getWeights(), Skeleton.MAX_JOINTS_PER_VERTEX);
     	short[][] jointIndices = SkinHelper.asShortArray(ogreMesh.getWeightBuffer().getIndexes(), Skeleton.MAX_JOINTS_PER_VERTEX); 
+    	
+    	for (int i = 0; i < weights.length; i++) {
+    		for (int j = 0; j < weights[i].length; j++) {
+    			if (weights[i][j] == 0)
+    				continue;
+    			jointIndices[i][j] = (short)indexOf(jointOrder, jointIndices[i][j]);
+    		}
+    	}
+    	
 		return new SkinData(weights, jointIndices);
 	}
 	
@@ -541,7 +610,7 @@ public class BonesImporter {
 
 	
 	/** converts a transform matrix to a jPCT Matrix. rotation and translation information is retrieved. */
-	static Matrix convertArdorMatrix(Matrix4 m4) {
+    private static Matrix convertArdorMatrix(Matrix4 m4) {
 		Matrix m = new Matrix();
 		
 		for (int i = 0; i < 3; i++) {
@@ -555,36 +624,36 @@ public class BonesImporter {
 	
 	
 	/** converts a transform to a jPCT Matrix. rotation and translation information is retrieved. */
-	static Matrix getMatrix(ReadOnlyTransform transform) {
+    private static Matrix getMatrix(ReadOnlyTransform transform) {
 		return convertArdorMatrix(transform.getHomogeneousMatrix(null));
 	}
 	
 	/** converts Ardor3D Vector3 to jPCT SimpleVector */
-	static SimpleVector convertArdorVector(com.ardor3d.math.Vector3 vector3) {
+    private static SimpleVector convertArdorVector(com.ardor3d.math.Vector3 vector3) {
 		return new SimpleVector(vector3.getXf(), vector3.getYf(), vector3.getZf());
 	}
 	
 	/** converts jME Vector3f to jPCT SimpleVector */
-	static SimpleVector convertJMEVector(com.jme.math.Vector3f vector3) {
+    private static SimpleVector convertJMEVector(com.jme.math.Vector3f vector3) {
 		return new SimpleVector(vector3.x, vector3.y, vector3.z);
 	}
 	
     /**
      * Constructs a new quaternion from ardor quaternion
      */
-	static Quaternion convertQuaternion(com.ardor3d.math.Quaternion quat) {
+    private static Quaternion convertQuaternion(com.ardor3d.math.Quaternion quat) {
 		return new Quaternion(quat.getXf(), quat.getYf(), quat.getZf(), quat.getWf());
     }
 
     /**
      * Constructs a new quaternion from jME quaternion
      */
-	static Quaternion convertQuaternion(com.jme.math.Quaternion quat) {
+    private static Quaternion convertQuaternion(com.jme.math.Quaternion quat) {
 		return new Quaternion(quat.x, quat.y, quat.z, quat.w);
     }
 	
 	/** creates an ardor Transform out of given jPCT matrix */
-	static Transform getTransform(Matrix m) {
+    private static Transform getTransform(Matrix m) {
 		Transform t = new Transform();
 		
 		for (int i = 0; i < 3; i++) {
@@ -598,6 +667,14 @@ public class BonesImporter {
 		
 		return t;
 	}
+    
+    private static int indexOf(int[] array, int value) {
+    	for (int i = 0; i < array.length; i++) {
+    		if (array[i] == value)
+    			return i;
+    	}
+    	return -1;
+    }
 
 }
 
