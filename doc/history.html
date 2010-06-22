@@ -22,9 +22,11 @@
     <body>
     	<h2>Bones - Version History</h2>
     	
-        <h3>? April 10: </h3>
+        <h3>27 May 10: </h3>
         <p class="item">Cloning Animated3D and AnimatedGroup copies autoApplyAnimation field. 
-        Micro optimization in Animated3D.applySkeletonPose()</p>
+        Micro optimization in Animated3D.applySkeletonPose(). Relaxed the assumption joints in jME skeleton
+        are ordered such that parents come before children. Changed the internal mechanism joints are created
+        out of jME bones.</p>
         
         <h3>1 April 10: </h3>
         <p class="item">Added setSkeletonPose(SkeletonPose) and removeFromWorld(World) methods to AnimatedGroup.
