@@ -41,7 +41,7 @@ public class SkeletonDebugger {
      * @param pose the pose this debugger represents
      * @param ignoreJoints these joints and the bones associated with them will not be displayed. 
      * */
-	public SkeletonDebugger(SkeletonPose pose, short... ignoreJoints) {
+	public SkeletonDebugger(SkeletonPose pose, int... ignoreJoints) {
 		this(pose, DEFAULT_BONE_SCALE, DEFAULT_JOINT_SCALE);
 	}
 	

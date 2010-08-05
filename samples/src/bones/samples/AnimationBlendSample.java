@@ -113,7 +113,7 @@ public class AnimationBlendSample extends AbstractSample {
 		// all SkinnedObject3D share the same pose 
 		this.currentPose = animatedGroup.get(0).getSkeletonPose();
 		
-		this.skeletonDebugger = new SkeletonDebugger(animatedGroup.get(0).getSkeletonPose(), 5, 2);
+		this.skeletonDebugger = new SkeletonDebugger(animatedGroup.get(0).getSkeletonPose(), 5f, 2f);
 		if (skeletonDebugger != null) {
 			skeletonDebugger.addToWorld(world);
 			skeletonDebugger.setVisibility(showSkeleton);
