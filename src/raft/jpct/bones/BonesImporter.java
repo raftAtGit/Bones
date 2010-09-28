@@ -48,9 +48,6 @@ public class BonesImporter {
 		if (colladaStorage.getSkins().isEmpty())
 			throw new IllegalArgumentException("ColladaStorage contains no skins.");
 		
-		if (scale != 1f)
-			Logger.log("Scale is not supported at the moment, ignoring", Logger.WARNING);
-		
 		if (scale == 0)
 			throw new IllegalArgumentException("scale: " + scale);
 		
