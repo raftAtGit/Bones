@@ -66,7 +66,7 @@ public class LoadBonesFormatSample extends AbstractSkinSample {
 		try {
 			AnimatedGroup skinnedGroup = BonesIO.loadGroup(fis);
 	
-			Texture texture = new Texture("./samples/data/seymour/seymour_flipped.png");
+			Texture texture = new Texture("./samples/data/seymour/seymour.png");
 			TextureManager.getInstance().addTexture("ninja", texture);
 			
 			for (Animated3D o : skinnedGroup) {

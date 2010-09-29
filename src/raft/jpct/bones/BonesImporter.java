@@ -412,6 +412,8 @@ public class BonesImporter {
 	private static MeshData convertArdorMeshData(SkinnedMesh mesh) {
 		final float[] coordinates = SkinHelper.asArray(mesh.getMeshData().getVertexBuffer()); 
 		final float[] uvs = SkinHelper.asArray(mesh.getMeshData().getTextureBuffer(0));
+		for (int i = 1; i < uvs.length; i += 2)
+			uvs[i] = 1 - uvs[i];
 		
 		IntBuffer indexBuffer = mesh.getMeshData().getIndexBuffer();
 		final int[] indices = (indexBuffer == null) ? null : SkinHelper.asArray(indexBuffer);

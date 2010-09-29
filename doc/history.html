@@ -22,8 +22,10 @@
     <body>
     	<h2>Bones - Version History</h2>
     	
-        <h3>?? 10: </h3>
-        <p class="item">Removed the unnecessary warning when loading a scaled Collada model.</p>
+        <h3>29 September 2010: </h3>
+        <p class="item">Removed the unnecessary warning when loading a scaled Collada model. Seems as Collada's V coordinate 
+        is flipped compared to OpenGL's (see this <a href="http://www.collada.org/public_forum/viewtopic.php?f=12&t=1227">post</a>). 
+        Started flipping V coordinate during loading to match OpenGL's.</p>
         
         <h3>27 May 10: </h3>
         <p class="item">Cloning Animated3D and AnimatedGroup copies autoApplyAnimation field. 

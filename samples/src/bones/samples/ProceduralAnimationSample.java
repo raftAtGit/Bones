@@ -87,7 +87,7 @@ public class ProceduralAnimationSample extends AbstractSample {
 			ResourceLocatorTool.removeResourceLocator(ResourceLocatorTool.TYPE_MODEL, resLocater);
 		}
 
-		Texture texture = new Texture("./samples/data/seymour/seymour_flipped.png");
+		Texture texture = new Texture("./samples/data/seymour/seymour.png");
 		TextureManager.getInstance().addTexture("seymour", texture);
 		
 		world.setAmbientLight(255, 255, 255);

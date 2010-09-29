@@ -58,7 +58,7 @@ public class ColladaSample extends AbstractSkinSample {
 			ResourceLocatorTool.removeResourceLocator(ResourceLocatorTool.TYPE_MODEL, resLocater);
 		}
 
-		Texture texture = new Texture("./samples/data/seymour/seymour_flipped.png");
+		Texture texture = new Texture("./samples/data/seymour/seymour.png");
 		TextureManager.getInstance().addTexture("seymour", texture);
 		
 		for (Animated3D o : skinnedGroup) {
@@ -75,9 +75,6 @@ public class ColladaSample extends AbstractSkinSample {
 		super.initialize();
 		
 		world.setAmbientLight(255, 255, 255);
-		
-		Matrix transform = new Matrix();
-		transform.rotateX((float)Math.PI);
 		
         update(0); // update once to reflect changes visible in first scene
 
