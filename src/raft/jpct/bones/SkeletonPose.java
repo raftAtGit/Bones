@@ -109,6 +109,13 @@ public class SkeletonPose implements java.io.Serializable {
         }
     }
     
+    /** Returns a new {@link SkeletonPose} sharing same skeleton with this.
+     * Created SkeletonPose is initially in bind pose. */
+    @Override
+    public SkeletonPose clone() {
+    	return new SkeletonPose(skeleton);
+    }
+    
 	private static Matrix[] createNMatrices(int length) {
 		Matrix[] result = new Matrix[length];
         for (int i = 0; i < length; i++) {

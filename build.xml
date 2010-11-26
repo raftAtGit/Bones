@@ -17,7 +17,7 @@
 
 	<!-- for javac -->
 	<path id="classpath">
-        <pathelement path="lib/jpct-1.21.alpha.jar"/>
+        <pathelement path="lib/jpct-1.22.jar"/>
 		
         <pathelement path="lib/ardor-core-0.7-beta.jar"/>
         <pathelement path="lib/ardor-collada-0.7-beta.jar"/>
@@ -82,7 +82,7 @@
     </target>
 
 	<target name="zip">
-		<zip destfile="../bones.zip" basedir="../" includes="Bones/**/*" excludes="**/*.svn, Bones/bin/**" />
+		<zip destfile="../bones.zip" basedir="../" includes="Bones/**/*" excludes="**/*.svn, Bones/bin/**, Bones/tmp/**" />
 	</target>
 	
 	<target name="release" depends="init" >

@@ -30,10 +30,6 @@ public class OgreSample extends AbstractSkinSample {
 	protected SkeletonDebugger createSkeletonDebugger() throws Exception {
 		// in this file, root joint always remain in origin which doesn't look so good.
 		// so we tell debugger to ignore root joint (0)
-		int[] ignore = new int[animatedGroup.get(0).getSkeleton().getNumberOfJoints() - 20];
-		for (int i = 0; i < ignore.length; i++) {
-			ignore[i] = i+20;
-		}
 		return new SkeletonDebugger(animatedGroup.get(0).getSkeletonPose(), 10f, 0.2f, 0);
 	}
 
@@ -41,6 +37,7 @@ public class OgreSample extends AbstractSkinSample {
 	protected AnimatedGroup createAnimatedGroup() throws Exception {
 		// we only specify the mesh file, skeleton file automatically loaded, and should be in same directory.  
 		URL ninjaUrl = new File("./samples/data/ninja/ninja.mesh.xml").toURI().toURL();
+		//URL ninjaUrl = new File("/home/raft/projects/karga-workspace/Bones/tmp/shadow/Cube.mesh.xml").toURI().toURL();
 		
 		OgreLoader loader = new OgreLoader();
 		OgreEntityNode node = loader.loadModel(ninjaUrl);
@@ -72,6 +69,11 @@ public class OgreSample extends AbstractSkinSample {
         cameraController.cameraAngle = 0f;
 		autoAdjustCamera();
 	}
+	
+//	@Override
+//	protected void update(long deltaTime) {
+//		cameraController.placeCamera();
+//	}
 	
 	public static void main(String[] args) throws Exception {
 		new OgreSample().loop();

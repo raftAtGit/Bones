@@ -7,6 +7,7 @@
  */
 package raft.jpct.bones;
 
+import java.io.IOException;
 import java.util.Arrays;
 
 import com.threed.jpct.Matrix;
@@ -34,10 +35,10 @@ public class JointChannel implements java.io.Serializable {
 	private final SimpleVector[] translations;
     private final SimpleVector[] scales;
 	
-    private static final Quaternion tmpRotation = new Quaternion();
-    private static final SimpleVector tmpTranslation = new SimpleVector();
-    private static final SimpleVector tmpScale = new SimpleVector();
-    private static final Matrix tmpScaleMatrix = new Matrix();
+    private transient Quaternion tmpRotation = new Quaternion();
+    private transient SimpleVector tmpTranslation = new SimpleVector();
+    private transient SimpleVector tmpScale = new SimpleVector();
+    private transient Matrix tmpScaleMatrix = new Matrix();
     
     /**
      * <p>Creates a new JointChannel out of given data. The arrays must be same length.<p>
@@ -217,5 +218,14 @@ public class JointChannel implements java.io.Serializable {
 			translations[i].scalarMul(scale);
 		}		
 	}
-    
+
+	private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
+		in.defaultReadObject();
+		
+	    tmpRotation = new Quaternion();
+	    tmpTranslation = new SimpleVector();
+	    tmpScale = new SimpleVector();
+	    tmpScaleMatrix = new Matrix();
+
+	}
 }
