@@ -1,5 +1,7 @@
 package raft.jpct.bones;
 
+import java.io.IOException;
+
 import com.threed.jpct.Matrix;
 import com.threed.jpct.SimpleVector;
 
@@ -19,7 +21,7 @@ public class MeshPose implements java.io.Serializable {
     private final SimpleVector[] offsets;
     private final int[] indices;
     
-    private static final SimpleVector tmpVector = new SimpleVector();
+    private transient SimpleVector tmpVector = new SimpleVector();
     
 
     /** Creates a new MeshPose out of given  data. */
@@ -50,6 +52,8 @@ public class MeshPose implements java.io.Serializable {
 	void apply(float poseWeight, Animated3D target) { 
 		SimpleVector[] vertices = target.getDestinationMesh(); 
 		
+		SimpleVector tmpVector = this.tmpVector; 
+		
         for (int i = 0; i < indices.length; i++){
         	SimpleVector offset = offsets[i];
             int vertIndex = indices[i];
@@ -67,5 +71,10 @@ public class MeshPose implements java.io.Serializable {
 		}
 	}
 	
+	private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
+		in.defaultReadObject();
+		
+	    tmpVector = new SimpleVector();
+	}
 	
 }

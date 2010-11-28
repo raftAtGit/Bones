@@ -22,10 +22,16 @@
     <body>
     	<h2>Bones - Version History</h2>
     	
+        <h3>28 November 2010: </h3>
+        <p class="item">Skeletal animation now updates vertex normals for proper lighting effects. However pose animation does not update normals
+        since it is simply too expensive. Even Ogre3D does not do it, see this <a href="http://www.ogre3d.org/forums/viewtopic.php?f=1&t=18829">post.</a></p>
+        
         <h3>27 November 2010: </h3>
         <p class="item">Converted static filler objects in JointChannel to instance fields. This will slightly use more memory but
         will allow multiple threads operate on different JointChannel's. Added clone() method to SkeletonPose. Fixed incorrect documentation
-        of ComLineArgs. Switched to jPCT 1.22.</p>
+        of ComLineArgs. Skeletal animation now updates vertex normals for proper lighting effects. However pose animation does not update normals
+        since it is simply too expensive. Even Ogre3D does not do it, see this <a href="http://www.ogre3d.org/forums/viewtopic.php?f=1&t=18829">post.</a>
+        Switched to jPCT 1.22.</p>
         
         <h3>29 September 2010: </h3>
         <p class="item">Removed the unnecessary warning when loading a scaled Collada model. Seems as Collada's V coordinate 

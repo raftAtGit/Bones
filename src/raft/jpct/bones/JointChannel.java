@@ -226,6 +226,5 @@ public class JointChannel implements java.io.Serializable {
 	    tmpTranslation = new SimpleVector();
 	    tmpScale = new SimpleVector();
 	    tmpScaleMatrix = new Matrix();
-
 	}
 }
