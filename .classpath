@@ -6,12 +6,12 @@
 	<classpathentry kind="lib" path="lib/jdom.jar"/>
 	<classpathentry kind="lib" path="lib/jaxen.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="lib/ardor-animation-0.7-beta.jar"/>
-	<classpathentry kind="lib" path="lib/ardor-collada-0.7-beta.jar"/>
-	<classpathentry kind="lib" path="lib/ardor-core-0.7-beta.jar"/>
-	<classpathentry kind="lib" path="lib/jme-2.0.1.jar" sourcepath="/jme"/>
-	<classpathentry kind="lib" path="lib/jme-model-2.0.1.jar"/>
-	<classpathentry kind="lib" path="lib/jme-ogrexml-2.0.1-exposed.jar" sourcepath="lib/jme-ogrexml-2.0.1-exposed.jar"/>
+	<classpathentry kind="lib" path="lib/ardor-animation-0.7-beta.jar" sourcepath="lib/src/ardor-animation-0.7-beta-src.jar"/>
+	<classpathentry kind="lib" path="lib/ardor-collada-0.7-beta.jar" sourcepath="lib/src/ardor-collada-0.7-beta-src.jar"/>
+	<classpathentry kind="lib" path="lib/ardor-core-0.7-beta.jar" sourcepath="lib/src/ardor-core-0.7-beta-src.jar"/>
+	<classpathentry kind="lib" path="lib/jme-2.0.1.jar" sourcepath="lib/src/jme-2.0.1-src.jar"/>
+	<classpathentry kind="lib" path="lib/jme-model-2.0.1.jar" sourcepath="lib/src/jme-model-2.0.1-src.jar"/>
+	<classpathentry kind="lib" path="lib/jme-ogrexml-2.0.1-exposed.jar" sourcepath="lib/src/jme-ogrexml-2.0.1-exposed-src.jar"/>
 	<classpathentry kind="lib" path="lib/jpct-1.22.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="file:/home/raft/work/jpct/doc/javadoc/"/>
