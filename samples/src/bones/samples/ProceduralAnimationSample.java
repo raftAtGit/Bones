@@ -142,6 +142,7 @@ public class ProceduralAnimationSample extends AbstractSample {
         currentPose.updateTransforms();
         skeletonDebugger.update(currentPose);
         animatedGroup.applySkeletonPose();
+        animatedGroup.applyAnimation();
         
 		cameraController.placeCamera();
 	}

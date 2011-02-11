@@ -14,7 +14,6 @@ import com.ardor3d.extension.model.collada.jdom.ColladaImporter;
 import com.ardor3d.extension.model.collada.jdom.data.ColladaStorage;
 import com.ardor3d.util.resource.ResourceLocatorTool;
 import com.ardor3d.util.resource.SimpleResourceLocator;
-import com.threed.jpct.Matrix;
 import com.threed.jpct.Texture;
 import com.threed.jpct.TextureManager;
 

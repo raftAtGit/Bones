@@ -74,7 +74,7 @@ public class OgreSample extends AbstractSkinSample {
 //	protected void update(long deltaTime) {
 //		cameraController.placeCamera();
 //	}
-	
+
 	public static void main(String[] args) throws Exception {
 		new OgreSample().loop();
 	}
