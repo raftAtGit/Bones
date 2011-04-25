@@ -76,6 +76,7 @@ public class BonesImporter {
 					mesh.applyTransform(transform);
 				
 				Animated3D skinnedObject = new Animated3D(mesh, skin, currentPose);
+				skinnedObject.setName(sm.getName());
 				objects.add(skinnedObject);
 			}
 		}
@@ -195,6 +196,7 @@ public class BonesImporter {
 				mesh.applyTransform(transform);
 
 			Animated3D skinnedObject = new Animated3D(mesh, skin, currentPose);
+			skinnedObject.setName(ogreMesh.getName());
 			skinnedObject.setIndex(index++);
 			list.add(skinnedObject);
 		}

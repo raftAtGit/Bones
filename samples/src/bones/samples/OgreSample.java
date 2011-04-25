@@ -36,15 +36,15 @@ public class OgreSample extends AbstractSkinSample {
 	@Override
 	protected AnimatedGroup createAnimatedGroup() throws Exception {
 		// we only specify the mesh file, skeleton file automatically loaded, and should be in same directory.  
-		URL ninjaUrl = new File("./samples/data/ninja/ninja.mesh.xml").toURI().toURL();
-		//URL ninjaUrl = new File("/home/raft/projects/karga-workspace/Bones/tmp/shadow/Cube.mesh.xml").toURI().toURL();
+//		URL ninjaUrl = new File("./samples/data/ninja/ninja.mesh.xml").toURI().toURL();
+		URL ninjaUrl = new File("/home/raft/Downloads/babu/2/mesh_2ma.mesh.xml").toURI().toURL();
 		
 		OgreLoader loader = new OgreLoader();
 		OgreEntityNode node = loader.loadModel(ninjaUrl);
 
 		// data in ogre file is upside down, so rotate around x axis
 		AnimatedGroup animatedGroup = BonesImporter.importOgre(node, 2f, new Quaternion().rotateX((float)Math.PI));
-
+	
 		Texture texture = new Texture("./samples/data/ninja/nskingr.jpg");
 		TextureManager.getInstance().addTexture("ninja", texture);
 		

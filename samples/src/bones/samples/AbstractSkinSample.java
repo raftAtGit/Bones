@@ -437,8 +437,10 @@ public abstract class AbstractSkinSample extends AbstractSample {
 				subMeshPanel.setLayout(new BoxLayout(subMeshPanel, BoxLayout.Y_AXIS));
 
 				for (int skin = 0; skin < animatedGroup.getSize(); skin++) {
+					final Animated3D animated3d = animatedGroup.get(skin);
 					final int skinNo = skin;
-					final JCheckBox subMeshCheckBox = new JCheckBox("Show submesh (" + skin + ")", true);
+					final String name = (animated3d.getName() == null) ? "<No name>" : animated3d.getName();
+					final JCheckBox subMeshCheckBox = new JCheckBox("Show submesh (" + skin + ") (" + name + ")", true);
 					subMeshCheckBox.addActionListener(new ActionListener() {
 						public void actionPerformed(ActionEvent e) {
 							toggleVisible(skinNo);

@@ -1,6 +1,9 @@
 package raft.jpct.bones;
 
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+
 import com.threed.jpct.Matrix;
 
 /** 
@@ -35,6 +38,11 @@ public class SkeletonPose implements java.io.Serializable {
         setToBindPose();
 	}
 	
+//	private SkeletonPose(ObjectInputStream in) throws IOException, ClassNotFoundException {
+////		this(Skeleton.readFromStream(in)); 
+//		this((Skeleton)in.readObject()); 
+//	}
+
 	/** Returns the {@link Skeleton} this pose is related to. */
 	public Skeleton getSkeleton() {
 		return skeleton;
@@ -115,6 +123,23 @@ public class SkeletonPose implements java.io.Serializable {
     public SkeletonPose clone() {
     	return new SkeletonPose(skeleton);
     }
+    
+//	static SkeletonPose readFromStream(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
+//		if (in.readInt() == BonesIO.NULL)
+//			return null;
+//		return new SkeletonPose(in);
+//	}
+//	
+//	static void writeToStream(SkeletonPose object, java.io.ObjectOutputStream out) throws IOException {
+//		if (object == null) {
+//			out.writeInt(BonesIO.NULL);
+//		} else {
+//			out.writeInt(BonesIO.NON_NULL);
+//			// write skeleton as object since it's shared among other objects
+//			out.writeObject(object.skeleton);
+////			Skeleton.writeToStream(object.skeleton, out);
+//		}
+//	}
     
 	private static Matrix[] createNMatrices(int length) {
 		Matrix[] result = new Matrix[length];

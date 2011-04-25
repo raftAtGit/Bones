@@ -73,6 +73,19 @@ public class SkinClip implements java.io.Serializable, Iterable<JointChannel> {
 		this.channels = new JointChannel[skeleton.getNumberOfJoints()];
 	}
 	
+//	private SkinClip(ObjectInputStream in) throws IOException, ClassNotFoundException {
+//		this.skeleton = (Skeleton) in.readObject();
+//		this.maxTime = in.readFloat();
+//		this.size = in.readInt();
+//		this.name = BonesIO.readString(in);
+//		
+//		int length = in.readInt();
+//		this.channels = new JointChannel[length];
+//		for (int i = 0; i < length; i++) {
+//			channels[i] = JointChannel.readFromStream(in); 
+//		}
+//	}
+
 	/** returns time of this clip in seconds. time of clip is the time of the longest channel */
     public float getTime() {
         return maxTime;
@@ -158,4 +171,34 @@ public class SkinClip implements java.io.Serializable, Iterable<JointChannel> {
         return "SkinClip [channel count=" + size + ", max time=" + maxTime + "]";
     }
 
+	void replaceSkeleton(Skeleton skeleton) {
+		this.skeleton.checkAlmostEqual(skeleton);
+		this.skeleton = skeleton;
+	}
+	
+//	static SkinClip readFromStream(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
+//		if (in.readInt() == BonesIO.NULL)
+//			return null;
+//		return new SkinClip(in);
+//	}
+//	
+//	static void writeToStream(SkinClip object, java.io.ObjectOutputStream out) throws IOException {
+//		if (object == null) {
+//			out.writeInt(BonesIO.NULL);
+//		} else {
+//			out.writeInt(BonesIO.NON_NULL);
+//			
+//			out.writeObject(object.skeleton);
+//			out.writeFloat(object.maxTime);
+//			out.writeInt(object.size);
+//			
+//			BonesIO.writeString(out, object.name);
+//			
+//			out.writeInt(object.channels.length);
+//			for (JointChannel channel : object.channels) {
+//				JointChannel.writeToStream(channel, out);
+//			}
+//		}
+//	}
+	
 }

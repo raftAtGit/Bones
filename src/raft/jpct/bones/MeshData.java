@@ -37,6 +37,13 @@ public class MeshData implements java.io.Serializable {
 			System.arraycopy(indices, 0, this.indices, 0, indices.length);
 	}
 	
+//	private MeshData(ObjectInputStream in) throws IOException {
+//		this.coordinates = BonesIO.readFloatArray(in);
+//		this.uvs = BonesIO.readFloatArray(in);
+//		this.indices = BonesIO.readIntArray(in);
+//	} 
+	
+	
 	boolean isEmpty() {
 		return (coordinates.length == 0);
 	}
@@ -53,5 +60,25 @@ public class MeshData implements java.io.Serializable {
 			coordinates[i+2] = v.z;
 		}
 	}
+	
+//	static MeshData readFromStream(java.io.ObjectInputStream in) throws IOException {
+//		if (in.readInt() == BonesIO.NULL)
+//			return null;
+//		return new MeshData(in);
+//	}
+//	
+//	static void writeToStream(MeshData object, java.io.ObjectOutputStream out) throws IOException {
+//		if (object == null) {
+//			out.writeInt(BonesIO.NULL);
+//		} else {
+//			out.writeInt(BonesIO.NON_NULL);
+//			
+//			BonesIO.writeFloatArray(out, object.coordinates);
+//			BonesIO.writeFloatArray(out, object.uvs);
+//			BonesIO.writeIntArray(out, object.indices);
+//		}
+//	}
+	
+	
 
 }

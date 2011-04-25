@@ -76,6 +76,14 @@ public class JointChannel implements java.io.Serializable {
 		this.scales = new SimpleVector[length];
 	}
 	
+//	private JointChannel(ObjectInputStream in) throws IOException {
+//		this.jointIndex = in.readShort();
+//		this.times = BonesIO.readFloatArray(in);
+//		this.rotations = BonesIO.readQuaternionArray(in);
+//		this.translations = BonesIO.readSimpleVectorArray(in);
+//		this.scales = BonesIO.readSimpleVectorArray(in);
+//	}
+
 	/** returns the index of joint this channel is related to. */
 	public int getJointIndex() {
 		return jointIndex;
@@ -227,4 +235,26 @@ public class JointChannel implements java.io.Serializable {
 	    tmpScale = new SimpleVector();
 	    tmpScaleMatrix = new Matrix();
 	}
+	
+//	static JointChannel readFromStream(java.io.ObjectInputStream in) throws IOException {
+//		if (in.readInt() == BonesIO.NULL)
+//			return null;
+//		return new JointChannel(in);
+//	}
+//	
+//	static void writeToStream(JointChannel object, java.io.ObjectOutputStream out) throws IOException {
+//		if (object == null) {
+//			out.writeInt(BonesIO.NULL);
+//		} else {
+//			out.writeInt(BonesIO.NON_NULL);
+//			
+//			out.writeShort(object.jointIndex);
+//			BonesIO.writeFloatArray(out, object.times);
+//			BonesIO.writeQuaternionArray(out, object.rotations);
+//			BonesIO.writeSimpleVectorArray(out, object.translations);
+//			BonesIO.writeSimpleVectorArray(out, object.scales);
+//			
+//		}
+//	}
+	
 }

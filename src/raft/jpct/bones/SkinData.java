@@ -1,6 +1,7 @@
 package raft.jpct.bones;
 
 
+
 /** 
  * <p>Skin contains information how a {@link Animated3D} is deformed with respect to {@link SkeletonPose}.</p>
  * 
@@ -33,9 +34,31 @@ public class SkinData implements java.io.Serializable {
 		}
 	}
 	
+//	private SkinData(ObjectInputStream in) throws IOException {
+//		this.weights = BonesIO.readFloat2Array(in);
+//		this.jointIndices = BonesIO.readShort2Array(in);
+//	} 
+	
 	void checkAlmostEqual(SkinData other) {
 		if (weights.length != other.weights.length)
 			throw new IllegalArgumentException("Number of vertices differ!");
 	}
+
+//	static SkinData readFromStream(java.io.ObjectInputStream in) throws IOException {
+//		if (in.readInt() == BonesIO.NULL)
+//			return null;
+//		return new SkinData(in);
+//	}
+//	
+//	static void writeToStream(SkinData object, java.io.ObjectOutputStream out) throws IOException {
+//		if (object == null) {
+//			out.writeInt(BonesIO.NULL);
+//		} else {
+//			out.writeInt(BonesIO.NON_NULL);
+//			
+//			BonesIO.writeFloat2Array(out, object.weights);
+//			BonesIO.writeShort2Array(out, object.jointIndices);
+//		}
+//	}
 	
 }

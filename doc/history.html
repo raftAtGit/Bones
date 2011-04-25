@@ -22,6 +22,19 @@
     <body>
     	<h2>Bones - Version History</h2>
     	
+        <h3>24 April 2011: </h3>
+        <p class="item">jME 2.1 has a bug in loading pose animations. Fixed that.</p>
+        
+        <h3>18 April 2011: </h3>
+        <p class="item">Animated3D names are now written to stream. This changes stream version, formerly serialized groups should be re-serialized 
+        with BonedIO or script files.
+        <!-- Added AnimatedGroup.mergeGroups(..) method to merge Animated3D's in many groups into one group. Renamed the former 
+        AnimatedGroup.mergeSkin(..) to AnimatedGroup.mergeAnimations(..). For import script files merging animations is still
+        default behaviour. Merging groups can be forced with -mergeGroups argument. --></p>
+        
+        <h3>17 April 2011: </h3>
+        <p class="item">Bones now imports submesh names from Collada and Ogre3D files. Added a method to AnimatedGroup to get an Animated3D by name.</p>
+    	
         <h3>10 March 2011: </h3>
         <p class="item">Switched to jME 2.1. Also changed some piece of jME code to throw a meaningful exception instead of NPE.</p>
         

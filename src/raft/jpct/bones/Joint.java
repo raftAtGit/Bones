@@ -43,6 +43,15 @@ public class Joint implements java.io.Serializable {
 		this.name = name;
 	}
 	
+//	private Joint(ObjectInputStream in) throws IOException {
+//		this.index = in.readInt();
+//		this.parentIndex = in.readInt();
+//		
+//		this.name = BonesIO.readString(in);
+//		this.bindPose = BonesIO.readMatrix(in);
+//		this.inverseBindPose = BonesIO.readMatrix(in);
+//	}
+
 	/** Returns a copy of invertBindPose matrix */
 	public Matrix getInverseBindPose() {
 		return inverseBindPose.cloneMatrix();
@@ -72,4 +81,26 @@ public class Joint implements java.io.Serializable {
 	public boolean hasParent() {
 		return (parentIndex != NO_PARENT);
 	}
+	
+//	static Joint readFromStream(java.io.ObjectInputStream in) throws IOException {
+//		if (in.readInt() == BonesIO.NULL)
+//			return null;
+//		return new Joint(in);
+//	}
+//	
+//	static void writeToStream(Joint object, java.io.ObjectOutputStream out) throws IOException {
+//		if (object == null) {
+//			out.writeInt(BonesIO.NULL);
+//		} else {
+//			out.writeInt(BonesIO.NON_NULL);
+//			
+//			out.writeInt(object.index);
+//			out.writeInt(object.parentIndex);
+//			
+//			BonesIO.writeString(out, object.name);
+//			BonesIO.writeMatrix(out, object.bindPose);
+//			BonesIO.writeMatrix(out, object.inverseBindPose);
+//		}
+//	}
+	
 }

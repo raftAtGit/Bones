@@ -54,7 +54,7 @@ public class Animated3D extends Object3D implements Cloneable {
 	/** Use a separate mesh. */
 	public static final boolean MESH_DONT_REUSE = false;
 	
-	final Skeleton skeleton;
+	private Skeleton skeleton;
 	final SkinData skin;
 	private SkeletonPose currentPose;
 	private MeshData meshData;
@@ -142,8 +142,11 @@ public class Animated3D extends Object3D implements Cloneable {
 	 * @see #writeToStream(java.io.ObjectOutputStream) */
 	Animated3D(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
 		this((MeshData) in.readObject(), (SkinData) in.readObject(), (SkeletonPose) in.readObject());
+//		this(MeshData.readFromStream(in), SkinData.readFromStream(in), SkeletonPose.readFromStream(in));
 		this.index = in.readInt();
+		setName((String)in.readObject());
 		this.skinClipSequence = (SkinClipSequence) in.readObject();
+//		this.skinClipSequence = SkinClipSequence.readFromStream(in);
 		this.poseClipSequence = (PoseClipSequence) in.readObject();
 	}
 	
@@ -164,6 +167,18 @@ public class Animated3D extends Object3D implements Cloneable {
 		return skeleton;
 	}
 
+	void replaceSkeleton(Skeleton skeleton) {
+		this.skeleton.checkAlmostEqual(skeleton);
+		this.skeleton = skeleton;
+		setSkeletonPose(new SkeletonPose(skeleton));
+		
+		if (skinClipSequence != null) {
+			for (SkinClip clip : skinClipSequence) {
+				clip.replaceSkeleton(skeleton);
+			}
+		}
+	}
+	
 	/** If this object is called via Ardor3D's or jME's loader, calling this method saves some memory. */
 	public void discardMeshData() {
 		meshData = null;
@@ -310,7 +325,7 @@ public class Animated3D extends Object3D implements Cloneable {
 	 * 
 	 * <p>This method is analogue of {@link Object3D#setAnimationSequence(com.threed.jpct.Animation)}.</p>
 	 * 
-	 * @see #mergeSkin(Animated3D...)
+	 * @see #mergeAnimations(Animated3D...)
 	 * @throws IllegalArgumentException if given ClipSequence has a different {@link Skeleton} 
 	 * */
 	public void setSkinClipSequence(SkinClipSequence clipSequence) {
@@ -343,12 +358,17 @@ public class Animated3D extends Object3D implements Cloneable {
 	void writeToStream(java.io.ObjectOutputStream out) throws IOException {
 		if (meshData == null)
 			throw new IllegalStateException("this object does not contain mesh data. did you called discardMeshData() ?");
-		
+
+//		MeshData.writeToStream(meshData, out);
+//		SkinData.writeToStream(skin, out);
+//		SkeletonPose.writeToStream(currentPose, out);
 		out.writeObject(meshData);
 		out.writeObject(skin);
 		out.writeObject(currentPose);
 		out.writeInt(index);
+		out.writeObject(getName());
 		out.writeObject(skinClipSequence);
+//		SkinClipSequence.writeToStream(skinClipSequence, out);
 		out.writeObject(poseClipSequence);
 	}
 	
@@ -460,11 +480,11 @@ public class Animated3D extends Object3D implements Cloneable {
 	 * 
 	 * <p>This method always uses the skeleton of first object.</p>
 	 * 
-	 *  @see AnimatedGroup#mergeSkin(raft.jpct.bones.AnimatedGroup...)
+	 *  @see AnimatedGroup#mergeAnimations(raft.jpct.bones.AnimatedGroup...)
 	 *  @see SkinClipSequence#merge(SkinClipSequence...)
 	 * 
 	 * */
-	public static Animated3D mergeSkin(Animated3D... objects) {
+	public static Animated3D mergeAnimations(Animated3D... objects) {
 		if (objects.length == 0) 
 			throw new IllegalArgumentException("No objects!");
 		
@@ -511,5 +531,5 @@ public class Animated3D extends Object3D implements Cloneable {
 		public void apply() {
 		}
 	}
-	
+
 }

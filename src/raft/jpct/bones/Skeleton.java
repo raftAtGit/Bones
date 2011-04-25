@@ -52,6 +52,14 @@ public class Skeleton implements java.io.Serializable, Iterable<Joint> {
 			printJoints();
     }
     
+//	private Skeleton(ObjectInputStream in) throws IOException {
+//		int size = in.readInt();
+//		joints = new Joint[size];
+//		for (int i = 0; i < size; i++) {
+//			joints[i] = Joint.readFromStream(in);
+//		}
+//	}
+
 	/** Returns number of joints */
 	public int getNumberOfJoints() {
 		return joints.length;
@@ -117,4 +125,24 @@ public class Skeleton implements java.io.Serializable, Iterable<Joint> {
 			joint.inverseBindPose.setTo(joint.bindPose.invert());
 		}
 	}
+	
+//	static Skeleton readFromStream(java.io.ObjectInputStream in) throws IOException {
+//		if (in.readInt() == BonesIO.NULL)
+//			return null;
+//		return new Skeleton(in);
+//	}
+//	
+//	static void writeToStream(Skeleton object, java.io.ObjectOutputStream out) throws IOException {
+//		if (object == null) {
+//			out.writeInt(BonesIO.NULL);
+//		} else {
+//			out.writeInt(BonesIO.NON_NULL);
+//			
+//			out.writeInt(object.joints.length);
+//			for (Joint joint : object.joints) {
+//				Joint.writeToStream(joint, out);
+//			}
+//		}
+//	}
+	
 }

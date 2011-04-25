@@ -30,6 +30,7 @@ public class JMEOgreImporter {
 	private final List<File> inputFiles;
 	private final float scale;
 	private final Quaternion rotation;
+//	private boolean mergeAnimations = true;
 	
 	/** 
 	 * Creates a new importer with given parameters.
@@ -41,9 +42,10 @@ public class JMEOgreImporter {
 	 * @param rotation the rotation applied while loading 
 	 * 
 	 * @see BonesImporter#importOgre(OgreEntityNode, float, Quaternion)
-	 * @see AnimatedGroup#mergeSkin(AnimatedGroup...)
+	 * @see AnimatedGroup#mergeAnimations(AnimatedGroup...)
 	 * */
 	public JMEOgreImporter(File outFile, List<File> inputFiles, float scale, Quaternion rotation) {
+		
 		if (inputFiles.isEmpty())
 			throw new IllegalArgumentException("No input files");
 		
@@ -52,6 +54,15 @@ public class JMEOgreImporter {
 		this.scale  = scale;
 		this.rotation = rotation;
 	}
+	
+	/** Sets if merge animations. By default animations are merged if many input files are given. Otherwise groups are merged.
+	 *  
+	 * @param mergeAnimations merge animations or groups
+	 * @return this for chaining */
+//	public JMEOgreImporter setMergeAnimations(boolean mergeAnimations) {
+//		this.mergeAnimations = mergeAnimations;
+//		return this;
+//	}
 
 	/** Executes the importer. */
 	public void run() throws Exception {
@@ -80,7 +91,15 @@ public class JMEOgreImporter {
 			for (File input : inputFiles) {
 				groups.add(loadGroup(input));
 			}
-			return AnimatedGroup.mergeSkin(groups.toArray(new AnimatedGroup[groups.size()]));
+			Logger.log("Merging animations in multiple input files", Logger.MESSAGE);
+			return AnimatedGroup.mergeAnimations(groups.toArray(new AnimatedGroup[groups.size()]));
+//			if (mergeAnimations) {
+//				Logger.log("Merging animations in multiple input files", Logger.MESSAGE);
+//				return AnimatedGroup.mergeAnimations(groups.toArray(new AnimatedGroup[groups.size()]));
+//			} else {
+//				Logger.log("Merging groups in multiple input files", Logger.MESSAGE);
+//				return AnimatedGroup.mergeGroups(groups.toArray(new AnimatedGroup[groups.size()]));
+//			}
 		}
 	}
 	
@@ -105,11 +124,12 @@ public class JMEOgreImporter {
 	private static void printUsage(PrintStream ps) {
         ps.println("usage: JMEOgreImporter [options] -in <ogre.mesh.xml> [ogre.mesh.xml...]");
         ps.println("options:");
-        ps.println("    -out <destination file>                      	: destination file to write");
-        ps.println("    -scale <scale>                               	: loading scale, default 1");
-        ps.println("    -rotation <<x|y|zdegrees>[,x|y|zdegrees]...> 	: loading rotation, default none (sample: x180,y180)");
-        ps.println("    -h | -help                                   	: print help");
-        ps.println("    -log <logLevel: VERBOSE*|WARNING|ERROR>      	: set log level");
+        ps.println("    -out <destination file>                         : destination file to write");
+        ps.println("    -scale <scale>                                  : loading scale, default 1");
+        ps.println("    -rotation <<x|y|zdegrees>[,x|y|zdegrees]...>    : loading rotation, default none (sample: x180,y180)");
+//        ps.println("    -mergeGroups                                    : merge groups if many input files are given. by default animations are merged");
+        ps.println("    -h | -help                                      : print help");
+        ps.println("    -log <logLevel: VERBOSE*|WARNING|ERROR>         : set log level");
     }
 
 	
@@ -141,9 +161,12 @@ public class JMEOgreImporter {
         Quaternion rotation = comLine.containsArg("-rotation") ? 
         		Helper.parseRotation(comLine.getArg("-rotation")) : null; 
         
+//        boolean mergeAnimations = !comLine.containsArg("-mergeGroups");
+        
         if (comLine.isUnconsumed())
             throw new IllegalArgumentException("Unknown args: " + comLine.getUnconsumed());
         
+//        new JMEOgreImporter(outFile, inputFiles, scale, rotation).setMergeAnimations(mergeAnimations).run();
         new JMEOgreImporter(outFile, inputFiles, scale, rotation).run();
         
 	}

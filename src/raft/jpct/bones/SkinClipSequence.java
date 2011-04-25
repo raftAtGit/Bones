@@ -48,6 +48,16 @@ public class SkinClipSequence implements java.io.Serializable, Iterable<SkinClip
 		updateTimes();
 	}
 	
+//	private SkinClipSequence(ObjectInputStream in) throws IOException, ClassNotFoundException {
+//		this.times = BonesIO.readFloatArray(in);
+//		
+//		int length = in.readInt(); 
+//		this.clips = new SkinClip[length];
+//		for (int i = 0; i < length; i++) {
+//			clips[i] = SkinClip.readFromStream(in); 
+//		}
+//	}
+
 	/** Returns number of clips */
 	public int getSize() {
 		return clips.length;
@@ -131,7 +141,7 @@ public class SkinClipSequence implements java.io.Serializable, Iterable<SkinClip
 
 	
 	/** 
-	 * <p>Merges many <code>ClipSequence<code>s into one. This method
+	 * <p>Merges many <code>SkinClipSequence<code>s into one. This method
 	 * does not require all ClipSequences share the same {@link Skeleton}
 	 * but skeletons are <i>almost</i> identical.</p>
 	 * 
@@ -141,8 +151,8 @@ public class SkinClipSequence implements java.io.Serializable, Iterable<SkinClip
 	 * 
 	 * <p>This method always uses the skeleton of first sequence.</p>
 	 * 
-	 *  @see AnimatedGroup#mergeSkin(raft.jpct.bones.AnimatedGroup...)
-	 *  @see Animated3D#mergeSkin(Animated3D...)
+	 *  @see AnimatedGroup#mergeAnimations(raft.jpct.bones.AnimatedGroup...)
+	 *  @see Animated3D#mergeAnimations(Animated3D...)
 	 * */
 	public static SkinClipSequence merge(SkinClipSequence... sequences) {
 		if (sequences.length == 0)
@@ -171,6 +181,27 @@ public class SkinClipSequence implements java.io.Serializable, Iterable<SkinClip
 	public Iterator<SkinClip> iterator() {
 		return Arrays.asList(clips).iterator();
 	}
+	
 
+//	static SkinClipSequence readFromStream(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
+//		if (in.readInt() == BonesIO.NULL)
+//			return null;
+//		return new SkinClipSequence(in);
+//	}
+//	
+//	static void writeToStream(SkinClipSequence object, java.io.ObjectOutputStream out) throws IOException {
+//		if (object == null) {
+//			out.writeInt(BonesIO.NULL);
+//		} else {
+//			out.writeInt(BonesIO.NON_NULL);
+//			
+//			BonesIO.writeFloatArray(out, object.times);
+//			
+//			out.writeInt(object.clips.length);
+//			for (SkinClip clip : object.clips) {
+//				SkinClip.writeToStream(clip, out);
+//			}
+//		}
+//	}
 	
 }

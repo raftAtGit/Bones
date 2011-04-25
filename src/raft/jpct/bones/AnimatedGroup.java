@@ -3,6 +3,7 @@ package raft.jpct.bones;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 import com.threed.jpct.Object3D;
 import com.threed.jpct.World;
@@ -32,7 +33,7 @@ public class AnimatedGroup implements java.io.Serializable, Iterable<Animated3D>
 	 * Creates a new AnimatedGroup out of given objects. All objects must have the same {@link Skeleton}.
 	 * 
 	 *  @throws IllegalArgumentException if object array is empty or they have different skeletons.
-	 *  @see Animated3D#mergeSkin(Animated3D...)
+	 *  @see Animated3D#mergeAnimations(Animated3D...)
 	 * */
 	public AnimatedGroup(Animated3D... objects) {
 		if (objects.length == 0)
@@ -76,6 +77,16 @@ public class AnimatedGroup implements java.io.Serializable, Iterable<Animated3D>
 	public Animated3D get(int index) {
 		return objects[index];
 	}
+
+	/** Returns the first object with given name. 
+	 * @throws NoSuchElementException if object not found */
+	public Animated3D get(String name) {
+		for (Animated3D animated3d : objects) {
+			if (equals(name, animated3d.getName()))
+				return animated3d;
+		}
+		throw new NoSuchElementException(name);
+	}
 	
 	/** Adds all animated objects to world. 
 	 * @see World#addObject(Object3D) */
@@ -104,11 +115,11 @@ public class AnimatedGroup implements java.io.Serializable, Iterable<Animated3D>
 	 * 
 	 * <p>This method is analogue of {@link Object3D#setAnimationSequence(com.threed.jpct.Animation)}.</p>
 	 * 
-	 * @see #mergeSkin(AnimatedGroup...)
+	 * @see #mergeAnimations(AnimatedGroup...)
 	 * @throws IllegalArgumentException if given ClipSequence has a different {@link Skeleton} 
 	 * */
 	public void setSkinClipSequence(SkinClipSequence clipSequence) {
-		if ((clipSequence != null) && (clipSequence.getSkeleton() != objects[0].skeleton)) 
+		if ((clipSequence != null) && (clipSequence.getSkeleton() != objects[0].getSkeleton())) 
 			throw new IllegalArgumentException("SkinClipSequence's skeleton is different from this group's skeleton");
 		 
 		this.skinClipSequence = clipSequence;
@@ -128,7 +139,7 @@ public class AnimatedGroup implements java.io.Serializable, Iterable<Animated3D>
 	 * 
 	 * <p>This method is analogue of {@link Object3D#setAnimationSequence(com.threed.jpct.Animation)}.</p>
 	 * 
-	 * @see #mergeSkin(AnimatedGroup...)
+	 * @see #mergeAnimations(AnimatedGroup...)
 	 * @throws IllegalArgumentException if given ClipSequence has a different {@link Skeleton} 
 	 * */
 	public void setPoseClipSequence(PoseClipSequence poseClipSequence) {
@@ -302,10 +313,22 @@ public class AnimatedGroup implements java.io.Serializable, Iterable<Animated3D>
 		}
 	}
 	
+	/** throws an exception if given two groups does not have identical skeletons. */
+//	private static void checkIdenticalSkeleton(AnimatedGroup one, AnimatedGroup other) {
+//		Skeleton skeleton1 = one.objects[0].getSkeleton();
+//		Skeleton skeleton2 = other.objects[0].getSkeleton();
+//		
+//		if ((skeleton1 == null) ^ (skeleton2 == null))
+//			throw new IllegalArgumentException("one group has skeleton but other does not");
+//		
+//		if (skeleton1 != null)
+//			skeleton1.checkAlmostEqual(skeleton2);
+//	}
+	
 	
 	/** 
-	 * <p>Merge many <code>AnimatedGroup</code>s into one. This method
-	 * does not require all AnimatedGroups share the same {@link Skeleton}
+	 * <p>Merge many identical <code>AnimatedGroup</code>s with different animations into one. 
+	 * This method does not require all AnimatedGroups share the same {@link Skeleton}
 	 * but skeletons are <i>almost</i> identical.</p> 
 	 * 
 	 * <p>If many AnimatedGroups are loaded from different files, their
@@ -314,11 +337,11 @@ public class AnimatedGroup implements java.io.Serializable, Iterable<Animated3D>
 	 * 
 	 * <p>This method always uses the skeleton of first group.</p>
 	 * 
-	 *  @see Animated3D#mergeSkin(Animated3D...)
+	 *  @see Animated3D#mergeAnimations(Animated3D...)
 	 *  @see SkinClipSequence#merge(SkinClipSequence...)
 	 * 
 	 * */
-	public static AnimatedGroup mergeSkin(AnimatedGroup... groups) {
+	public static AnimatedGroup mergeAnimations(AnimatedGroup... groups) {
 		if (groups.length == 0)
 			throw new IllegalArgumentException("no groups");
 		
@@ -335,10 +358,56 @@ public class AnimatedGroup implements java.io.Serializable, Iterable<Animated3D>
 			for (int j = 0; j < groups.length; j++) {
 				objects[j] = groups[j].get(i);
 			}
-			merged[i] = Animated3D.mergeSkin(objects);
+			merged[i] = Animated3D.mergeAnimations(objects);
 		}
 		return new AnimatedGroup(merged, merged[0].getSkinClipSequence(), merged[0].getPoseClipSequence());
 	}
+	
+	/** 
+	 * <p>Merge many <code>AnimatedGroup</code>s with same animations into one. This method
+	 * does not require all AnimatedGroups share the same {@link Skeleton}
+	 * but skeletons are <i>almost</i> identical.</p> 
+	 *
+	 * <p>This method does not actually check animations are the same but only checks Skeleton's are identical. 
+	 * So if animations differ the merged group will behave strange.</p>
+	 * 
+	 * <p>This method is used to merge groups where animations are identical. 
+	 * If you want to merge AnimetedGroup's instead of animations use {@link AnimatedGroup#mergeGroups(AnimatedGroup...)}. 
+	 * 
+	 * <p>This method always uses the skeleton and animations of first group.</p>
+	 * 
+	 *  @see Animated3D#mergeAnimations(Animated3D...)
+	 *  @see SkinClipSequence#merge(SkinClipSequence...)
+	 * 
+	 * */
+	// TODO is not correct at the moment
+//	static AnimatedGroup mergeGroups(AnimatedGroup... groups) {
+//		if (groups.length == 0)
+//			throw new IllegalArgumentException("no groups");
+//		
+//		List<Animated3D> objects = new LinkedList<Animated3D>();
+//		AnimatedGroup lastGroup = null;
+//
+//		Skeleton skeleton = groups[0].get(0).getSkeleton();
+//		
+//		for (AnimatedGroup group : groups) {
+//			if (lastGroup == null) {
+//				lastGroup = group;
+//			} else {
+//				checkIdenticalSkeleton(lastGroup, group);
+//				lastGroup = group;
+//			}
+//			for (Animated3D object : group) {
+//				objects.add(object);
+//				if (skeleton != null)
+//					object.replaceSkeleton(skeleton);
+//			}
+//		}
+//		
+//		Animated3D[] objectsArray = objects.toArray(new Animated3D[0]);
+//		// TODO objectIndex of MeshChannel's in PoseClips should be shifted accordingly 
+//		return new AnimatedGroup(objectsArray, objectsArray[0].getSkinClipSequence(), objectsArray[0].getPoseClipSequence());
+//	}
 	
 	/** 
 	 * Same as clone(MESH_REUSE) 
@@ -367,4 +436,13 @@ public class AnimatedGroup implements java.io.Serializable, Iterable<Animated3D>
 		clone.autoApplyAnimation = this.autoApplyAnimation;
 		return clone;
 	}
+	
+    private static <T> boolean equals(T one, T two) {
+        if (one == null) {
+            return (two == null);
+        } else if (two == null) {
+            return false;
+        } else return one.equals(two);
+    }
+	
 }
