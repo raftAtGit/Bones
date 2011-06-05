@@ -1,9 +1,6 @@
 package raft.jpct.bones;
 
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-
 import com.threed.jpct.Matrix;
 
 /** 

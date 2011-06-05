@@ -414,11 +414,22 @@ public class Quaternion implements java.io.Serializable, Cloneable {
         }
 
         float result = source.calcDot(dest);
-        final Quaternion end = new Quaternion(dest);
+        //final Quaternion end = new Quaternion(dest);
 
+        float endX = dest.x;
+        float endY = dest.y;
+        float endZ = dest.z;
+        float endW = dest.w;
+        
         if (result < 0.0) {
             // Negate the second quaternion and the result of the dot product
-            end.scalarMul(-1);
+            //end.scalarMul(-1);
+        	
+        	endX = -endX;
+        	endY = -endY;
+        	endZ = -endZ;
+        	endW = -endW;
+        	
             result = -result;
         }
 
@@ -441,10 +452,10 @@ public class Quaternion implements java.io.Serializable, Cloneable {
 
         // Calculate the x, y, z and w values for the quaternion by using a
         // special form of linear interpolation for quaternions.
-        final float x = (scale0 * source.x) + (scale1 * end.x);
-        final float y = (scale0 * source.y) + (scale1 * end.y);
-        final float z = (scale0 * source.z) + (scale1 * end.z);
-        final float w = (scale0 * source.w) + (scale1 * end.w);
+        final float x = (scale0 * source.x) + (scale1 * endX);
+        final float y = (scale0 * source.y) + (scale1 * endY);
+        final float z = (scale0 * source.z) + (scale1 * endZ);
+        final float w = (scale0 * source.w) + (scale1 * endW);
         set(x, y, z, w);
 
         // Return the interpolated quaternion
@@ -716,8 +727,7 @@ public class Quaternion implements java.io.Serializable, Cloneable {
         float norm = norm();
         if (norm > 0.0) {
             float invNorm = 1.0f / norm;
-            return new Quaternion(-x * invNorm, -y * invNorm, -z * invNorm, w
-                    * invNorm);
+            return new Quaternion(-x * invNorm, -y * invNorm, -z * invNorm, w * invNorm);
         } 
         throw new IllegalStateException("inverse does not exist: norm=" + norm);       
     }
