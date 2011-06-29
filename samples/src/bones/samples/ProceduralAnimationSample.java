@@ -261,6 +261,15 @@ public class ProceduralAnimationSample extends AbstractSample {
 			});
 			add(showMeshCheckBox);
 			
+			final JCheckBox textureCheckBox = new JCheckBox("Draw textures", drawTextures);
+			textureCheckBox.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					drawTextures = textureCheckBox.isSelected();
+				}
+			});
+			add(textureCheckBox);
+			
+			
 			final JCheckBox wireframeCheckBox = new JCheckBox("Draw wireframe", drawWireFrame);
 			wireframeCheckBox.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {

@@ -244,6 +244,11 @@ public class BonesImporter {
 						continue;
 					}
 					com.jmex.model.ogrexml.anim.PoseTrack poseTrack = (com.jmex.model.ogrexml.anim.PoseTrack) track;
+					if (poseTrack.getTimes().length == 0) {
+						Logger.log("No frames in pose track for submesh " + poseTrack.getTargetMeshIndex() + ", skipping", Logger.WARNING);
+						continue;
+					}
+					
 					MeshChannel meshChannel = convertJMEMeshChannel(poseCache, poseTrack); 
 					meshChannels.add(meshChannel); 
 				}

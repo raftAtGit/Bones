@@ -32,6 +32,7 @@ public abstract class AbstractSample {
 	private long aggregatedTime = 0;
 
 	protected boolean drawWireFrame = false;
+	protected boolean drawTextures = true;
 	protected Color wireFrameColor = Color.GREEN;
 
 	protected AbstractSample() {
@@ -53,6 +54,9 @@ public abstract class AbstractSample {
 					case KeyEvent.VK_W:
 						drawWireFrame = !drawWireFrame;
 						break;
+					case KeyEvent.VK_T:
+						drawTextures = !drawTextures;
+						break;
 				}
 			}
 		});
@@ -69,8 +73,9 @@ public abstract class AbstractSample {
 	/** should be called in AWT thread */
 	protected void render() {
 		frameBuffer.clear();
-        world.renderScene(frameBuffer);
-        world.draw(frameBuffer);
+		world.renderScene(frameBuffer);
+		if (drawTextures)
+			world.draw(frameBuffer);
         
         if (drawWireFrame)
         	world.drawWireframe(frameBuffer, wireFrameColor);

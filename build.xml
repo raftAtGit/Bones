@@ -29,7 +29,7 @@
 	</path>
 	
 	<target name="compile" depends="init" >
-		<javac srcdir="${src}" destdir="${classes}" source="1.5" target="1.5"
+		<javac srcdir="${src}" destdir="${classes}" source="1.5" target="1.5" includeantruntime="false"
 			debug="on" listfiles="false" deprecation="true" classpathref="classpath" >
 
 			<include name="raft/**/*.java" />
@@ -38,7 +38,7 @@
 			<compilerarg value="-Xlint:unchecked"/>
 		</javac>
 
-		<javac srcdir="${samples.src}" destdir="${classes}" source="1.5" target="1.5"
+		<javac srcdir="${samples.src}" destdir="${classes}" source="1.5" target="1.5" includeantruntime="false"
 			debug="on" listfiles="false" deprecation="true" classpathref="classpath" >
 
 			<include name="bones/**/*.java" />
