@@ -13,6 +13,7 @@ import java.util.List;
 
 import com.threed.jpct.GenericVertexController;
 import com.threed.jpct.IVertexController;
+import com.threed.jpct.Matrix;
 import com.threed.jpct.Mesh;
 import com.threed.jpct.Object3D;
 import com.threed.jpct.SimpleVector;
@@ -420,47 +421,74 @@ public class Animated3D extends Object3D implements Cloneable {
         SimpleVector normalTemp = this.normalTemp;
         SimpleVector normalSum = this.normalSum;
         
+        float[][] skinWeights = skin.weights;
+        short[][] skinJointIndices = skin.jointIndices;
+        
         // Cycle through each vertex
-        for (int i = 0; i < sourceMesh.length; i++) {
+        int end = sourceMesh.length;
+        for (int i = 0; i < end; i++) {
             // zero out our sum var
-            vertexSum.set(0f, 0f, 0f);
-            normalSum.set(0f, 0f, 0f);
+            vertexSum.x = 0f;
+            vertexSum.y = 0f;
+            vertexSum.z = 0f;
+            
+            normalSum.x = 0f;
+            normalSum.y = 0f;
+            normalSum.z = 0f;
 
             // pull in joint data
-            final float[] weights = skin.weights[i];
-            final short[] jointIndices = skin.jointIndices[i];
+            final float[] weights = skinWeights[i];
+            final short[] jointIndices = skinJointIndices[i];
 
-            // for each joint where the weight != 0
+            SimpleVector sourceMesh_i = sourceMesh[i];
+            SimpleVector sourceNormals_i = sourceNormals[i];
+            Matrix[] currentPosePalette = currentPose.palette;
+            
             for (int j = 0; j < Skeleton.MAX_JOINTS_PER_VERTEX; j++) {
-                if (weights[j] == 0) {
+                
+            	final float weights_j = weights[j];
+            	
+            	if (weights_j == 0) {
                     continue;
                 }
 
-                final int jointIndex = jointIndices[j];
+                Matrix mat = currentPosePalette[jointIndices[j]];
                 // -- vertices --
-                vertexTemp.set(sourceMesh[i]);
+                vertexTemp.x = sourceMesh_i.x;
+                vertexTemp.y = sourceMesh_i.y;
+                vertexTemp.z = sourceMesh_i.z;
 
                 // Multiply our vertex by the matrix pallete entry
-                vertexTemp.matMul(currentPose.palette[jointIndex]);
+                vertexTemp.matMul(mat);
                 
                 // Sum, weighted.
-                vertexTemp.scalarMul(weights[j]);
-                vertexSum.add(vertexTemp);
-
+                vertexTemp.x *= weights_j;
+                vertexTemp.y *= weights_j;
+                vertexTemp.z *= weights_j;
+                
+                vertexSum.x += vertexTemp.x;
+                vertexSum.y += vertexTemp.y;
+                vertexSum.z += vertexTemp.z;
                 
                 // -- normals --
-                normalTemp.set(sourceNormals[i]);
+                normalTemp.x = sourceNormals_i.x;
+                normalTemp.y = sourceNormals_i.y;
+                normalTemp.z = sourceNormals_i.z;
 
                 // Multiply our vertex by the matrix pallete entry
-                normalTemp.rotate(currentPose.palette[jointIndex]);
+                normalTemp.rotate(mat);
                 
                 // Sum, weighted.
-                normalTemp.scalarMul(weights[j]);
-                normalSum.add(normalTemp);
+                normalTemp.x *= weights_j;
+                normalTemp.y *= weights_j;
+                normalTemp.z *= weights_j;
                 
+                normalSum.x += normalTemp.x;
+                normalSum.y += normalTemp.y;
+                normalSum.z += normalTemp.z;
             }
 
-            // Store sum into _meshData
+            // Store sum into meshData
             destMesh[i].set(vertexSum);
             destNormals[i].set(normalSum);
             
@@ -468,6 +496,73 @@ public class Animated3D extends Object3D implements Cloneable {
         
 		destMeshDirty = true;
 	}
+
+//	/** Applies skin animation to internal copy of mesh. Actual mesh is not updated yet. 
+//	 * Call {@link #applyAnimation()} to update mesh.  */
+//	public void applySkeletonPose() {
+//        
+//        SimpleVector[] destMesh = this.destMesh;
+//        SimpleVector[] destNormals = this.destNormals;
+//        
+//        // if pose animation is applied, destination vertices are already initialized based on source and offseted, so use them  
+//        SimpleVector[] sourceMesh = !destMeshDirty ? destMesh : this.sourceMesh;
+//        //SimpleVector[] sourceNormals = !destMeshDirty ? destNormals : this.sourceNormals;
+//        SimpleVector[] sourceNormals = this.sourceNormals;
+//        
+//        SimpleVector vertexTemp = this.vertexTemp;
+//        SimpleVector vertexSum = this.vertexSum;
+//        
+//        SimpleVector normalTemp = this.normalTemp;
+//        SimpleVector normalSum = this.normalSum;
+//        
+//        // Cycle through each vertex
+//        for (int i = 0; i < sourceMesh.length; i++) {
+//            // zero out our sum var
+//            vertexSum.set(0f, 0f, 0f);
+//            normalSum.set(0f, 0f, 0f);
+//
+//            // pull in joint data
+//            final float[] weights = skin.weights[i];
+//            final short[] jointIndices = skin.jointIndices[i];
+//
+//            // for each joint where the weight != 0
+//            for (int j = 0; j < Skeleton.MAX_JOINTS_PER_VERTEX; j++) {
+//                if (weights[j] == 0) {
+//                    continue;
+//                }
+//
+//                final int jointIndex = jointIndices[j];
+//                // -- vertices --
+//                vertexTemp.set(sourceMesh[i]);
+//
+//                // Multiply our vertex by the matrix pallete entry
+//                vertexTemp.matMul(currentPose.palette[jointIndex]);
+//                
+//                // Sum, weighted.
+//                vertexTemp.scalarMul(weights[j]);
+//                vertexSum.add(vertexTemp);
+//
+//                
+//                // -- normals --
+//                normalTemp.set(sourceNormals[i]);
+//
+//                // Multiply our vertex by the matrix pallete entry
+//                normalTemp.rotate(currentPose.palette[jointIndex]);
+//                
+//                // Sum, weighted.
+//                normalTemp.scalarMul(weights[j]);
+//                normalSum.add(normalTemp);
+//                
+//            }
+//
+//            // Store sum into meshData
+//            destMesh[i].set(vertexSum);
+//            destNormals[i].set(normalSum);
+//            
+//        } // for vertices
+//        
+//		destMeshDirty = true;
+//	}
 	
 	/** 
 	 * <p>Merge many <code>Animated3D</code>s into one. This method
