@@ -431,7 +431,7 @@ public class BonesImporter {
 	private static MeshData convertJMEMeshData(OgreMesh mesh) {
 		final float[] coordinates = SkinHelper.asArray(mesh.getVertexBuffer());
 		final float[] uvs;
-		if (mesh.getTextureCoords().isEmpty()) {
+		if ((mesh.getTextureCoords() == null) || mesh.getTextureCoords().isEmpty()) {
 			Logger.log("Mesh has no texture coodinates", Logger.WARNING);
 			uvs = null;
 		} else {
