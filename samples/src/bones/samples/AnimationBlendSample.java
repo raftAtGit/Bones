@@ -42,7 +42,6 @@ import com.threed.jpct.Interact2D;
 import com.threed.jpct.SimpleVector;
 import com.threed.jpct.Texture;
 import com.threed.jpct.TextureManager;
-import com.threed.jpct.util.Light;
 
 public class AnimationBlendSample extends AbstractSample {
 

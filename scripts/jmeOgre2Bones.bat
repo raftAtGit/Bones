@@ -2,7 +2,7 @@ echo off
 set DIR=%~dp0\..
 
 set CP=%DIR%\build\bones.jar
-set CP=%CP%;%DIR%\lib\jpct-1.22.jar
+set CP=%CP%;%DIR%\lib\jpct-1.24.jar
 
 set CP=%CP%;%DIR%\lib\jme-2.1.jar
 set CP=%CP%;%DIR%\lib\jme-model-2.1.jar

@@ -18,6 +18,7 @@ import com.ardor3d.math.Matrix3;
 import com.ardor3d.math.Matrix4;
 import com.ardor3d.math.Transform;
 import com.ardor3d.math.type.ReadOnlyTransform;
+import com.jme.scene.TexCoords;
 import com.jmex.model.ogrexml.OgreEntityNode;
 import com.jmex.model.ogrexml.anim.MeshAnimationController;
 import com.jmex.model.ogrexml.anim.OgreMesh;
@@ -430,12 +431,22 @@ public class BonesImporter {
 	
 	private static MeshData convertJMEMeshData(OgreMesh mesh) {
 		final float[] coordinates = SkinHelper.asArray(mesh.getVertexBuffer());
-		final float[] uvs;
+		float[] uvs = null;
 		if ((mesh.getTextureCoords() == null) || mesh.getTextureCoords().isEmpty()) {
 			Logger.log("Mesh has no texture coodinates", Logger.WARNING);
 			uvs = null;
 		} else {
-			uvs = SkinHelper.asArray(mesh.getTextureCoords().get(0).coords);
+			for (TexCoords texCoords : mesh.getTextureCoords()) {
+				if (texCoords == null) {
+					Logger.log("skipping null TexCoords", Logger.WARNING);
+					continue;
+				}
+				uvs = SkinHelper.asArray(texCoords.coords);
+			}
+			if (uvs == null) {
+				Logger.log("all " +  mesh.getTextureCoords().size() + " TexCoord(s) are null", Logger.WARNING);
+			}
+			//uvs = SkinHelper.asArray(mesh.getTextureCoords().get(0).coords);
 		}
 		
 		IntBuffer indexBuffer = mesh.getIndexBuffer();

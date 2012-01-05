@@ -23,8 +23,20 @@ public class MeshData implements java.io.Serializable {
 	 * @see Object3D#Object3D(float[], float[], int[], int)
 	  */
 	public MeshData(float[] coordinates, float[] uvs, int[] indices) {
-		if ((coordinates.length % 3) != 0)
-			throw new IllegalArgumentException("coordinates length should be a multiple of 3");
+		if (indices == null) {
+			if ((coordinates.length % 9) != 0)
+				throw new IllegalArgumentException("coordinates length should be a multiple of 9 for non-indexed geometry");
+		} else {
+			if ((coordinates.length % 3) != 0)
+				throw new IllegalArgumentException("coordinates length should be a multiple of 3");
+			
+			for (int index : indices) {
+				if ((index + 1) * 3 > coordinates.length) 
+					throw new IllegalArgumentException("index: " + index + ", no corresponding vertex");
+				if ((uvs != null) && ((index + 1) * 2 > uvs.length)) 
+					throw new IllegalArgumentException("index: " + index + ", no corresponding UV");
+			}
+		}
 		
 		this.coordinates = new float[coordinates.length];
 		this.uvs = (uvs == null) ? null : new float[uvs.length];

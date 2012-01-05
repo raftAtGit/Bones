@@ -118,6 +118,7 @@ public class Animated3D extends Object3D implements Cloneable {
 	/** Creates a Animated3D out of given information. */
 	public Animated3D(MeshData meshData, SkinData skin, SkeletonPose currentPose) {
 		super(meshData.coordinates, meshData.uvs, meshData.indices, TextureManager.TEXTURE_NOTFOUND);
+//		super(meshData.coordinates, meshData.uvs, createIndices(meshData), TextureManager.TEXTURE_NOTFOUND);
 		
 		this.skeleton = (currentPose == null) ? null : currentPose.skeleton;
 		this.currentPose  = currentPose;
@@ -126,6 +127,17 @@ public class Animated3D extends Object3D implements Cloneable {
 
 		attachVertexController();
 	}
+	
+//	private static int[] createIndices(MeshData meshData) {
+//		if (meshData.indices != null)
+//			return meshData.indices;
+//		System.out.println(meshData.coordinates.length);
+//		int[] indices = new int[meshData.coordinates.length/9 * 3];
+//		for (int i = 0; i < indices.length; i++) {
+//			indices[i] = i;
+//		}
+//		return indices;
+//	}
 
 	/** Creates a Animated3D out of given information. */
 	public Animated3D(Object3D object, SkinData skin, SkeletonPose currentPose) {
