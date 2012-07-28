@@ -1,6 +1,8 @@
 package raft.jpct.bones;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.nio.IntBuffer;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -192,6 +194,9 @@ public class BonesImporter {
 		for (OgreMesh ogreMesh : controller.getMeshList()) {
 			SkinData skin = (skeleton == null) ? null : convertJMESkinData(ogreMesh, jointOrder);
 			MeshData mesh = convertJMEMeshData(ogreMesh);
+			
+			//saveMeshData(mesh, "C:/tmp/bones_tmp/mesh.ser");
+
 
 			if (transform != null)
 				mesh.applyTransform(transform);
@@ -686,5 +691,19 @@ public class BonesImporter {
     	return -1;
     }
 
+    private static void saveMeshData(MeshData meshData, String file) throws IOException {
+    	FileOutputStream fos = new FileOutputStream(file);
+    	try {
+    		ObjectOutputStream out = new ObjectOutputStream(fos);
+    		out.writeObject(meshData.coordinates);
+    		out.writeObject(meshData.uvs);
+    		out.writeObject(meshData.indices);
+    		out.flush();
+    		out.close();
+    		System.out.println("saved mesh data to: " + file);
+    	} finally {
+    		fos.close();
+    	}
+    }
 }
 
