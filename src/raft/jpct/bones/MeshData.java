@@ -1,5 +1,11 @@
 package raft.jpct.bones;
 
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
+
+import com.threed.jpct.Logger;
 import com.threed.jpct.Matrix;
 import com.threed.jpct.Object3D;
 import com.threed.jpct.SimpleVector;
@@ -12,6 +18,8 @@ import com.threed.jpct.SimpleVector;
  */
 public class MeshData implements java.io.Serializable {
 	private static final long serialVersionUID = 1L;
+	
+	private static final boolean COMPACT_ARRAYS = false;
 	
 	final float[] coordinates;
 	final float[] uvs;
@@ -36,7 +44,57 @@ public class MeshData implements java.io.Serializable {
 				if ((uvs != null) && ((index + 1) * 2 > uvs.length)) 
 					throw new IllegalArgumentException("index: " + index + ", no corresponding UV");
 			}
+
+			if (COMPACT_ARRAYS) {
+			
+				Set<Integer> set = new TreeSet<Integer>();
+				for (int index : indices) {
+					set.add(index);
+				}
+	//			System.out.println(set.size() + ": "  + set);
+				
+				if (coordinates.length > set.size() * 3) {
+					// TODO maybe use a ratio to decide sparseness
+	
+					Logger.log("indexed geometry is sparse. remapping indices to compact arrays", Logger.WARNING);
+					
+					Map<Integer, Integer> map = new TreeMap<Integer, Integer>();
+					
+					int position = 0;
+					for (Integer index : set) {
+						map.put(index, position);
+						position++;
+					}
+	
+					float[] newCoordinates = new float[set.size() * 3];
+					float[] newUvs = (uvs == null) ? null : new float[set.size() * 2];
+					
+					for (int i = 0; i < indices.length; i++) {
+						int oldIndex = indices[i];
+						int newIndex = map.get(oldIndex);
+						
+						indices[i] = newIndex;
+						
+						newCoordinates[newIndex*3] = coordinates[oldIndex*3];
+						newCoordinates[newIndex*3 + 1] = coordinates[oldIndex*3 + 1];
+						newCoordinates[newIndex*3 + 2] = coordinates[oldIndex*3 + 2];
+						
+						if (newUvs != null) {
+							newUvs[newIndex*2] = uvs[oldIndex*2];
+							newUvs[newIndex*2 + 1] = uvs[oldIndex*2 + 1];
+						}
+					}
+					
+					Logger.log("remapped indices, size reduced from " + coordinates.length/3 + " to " + newCoordinates.length/3, Logger.MESSAGE);
+	
+					coordinates = newCoordinates;
+					uvs = newUvs;
+					
+				} // end remapping
+				
+			} // if COMPACT_ARRAYS
 		}
+		
 		
 		this.coordinates = new float[coordinates.length];
 		this.uvs = (uvs == null) ? null : new float[uvs.length];

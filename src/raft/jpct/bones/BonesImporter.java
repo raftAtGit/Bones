@@ -192,6 +192,7 @@ public class BonesImporter {
 		
 		int index = 0;
 		for (OgreMesh ogreMesh : controller.getMeshList()) {
+			
 			SkinData skin = (skeleton == null) ? null : convertJMESkinData(ogreMesh, jointOrder);
 			MeshData mesh = convertJMEMeshData(ogreMesh);
 			

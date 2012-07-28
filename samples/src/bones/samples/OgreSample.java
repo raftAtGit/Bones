@@ -36,7 +36,9 @@ public class OgreSample extends AbstractSkinSample {
 	@Override
 	protected AnimatedGroup createAnimatedGroup() throws Exception {
 		// we only specify the mesh file, skeleton file automatically loaded, and should be in same directory.  
-		URL ninjaUrl = new File("./samples/data/ninja/ninja.mesh.xml").toURI().toURL();
+//		URL ninjaUrl = new File("./samples/data/ninja/ninja.mesh.xml").toURI().toURL();
+		URL ninjaUrl = new File("/home/raft/tmp/tmp/world/world.mesh.xml").toURI().toURL();
+		
 		
 		OgreLoader loader = new OgreLoader();
 		OgreEntityNode node = loader.loadModel(ninjaUrl);
@@ -58,6 +60,7 @@ public class OgreSample extends AbstractSkinSample {
 	
 	@Override
 	protected void initialize() throws Exception {
+		//animate = false;
 		super.initialize();
 		
 		world.setAmbientLight(255, 255, 255);

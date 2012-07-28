@@ -22,6 +22,13 @@
     <body>
     	<h2>Bones - Version History</h2>
     	
+        <h3>28 July 2012: </h3>
+        <p class="item">Fixed jME bug causing NaN bone weights if all weights are zero.
+        Fixed jME bug causing NPE when loading normals.
+        Added AnimatedGroup.setVisibility(..) method to change visibility of all group. 
+        Shared geometry can cause wastefully sparse coordinate arrays, added code to compact those arrays, but the code is inactive. 
+        Not quite sure if it works correct.</p>
+        
         <h3>5 January 2012: </h3>
         <p class="item">Fixed jME that it can load Ogre meshes with shared geometry. 
         Added support to skip null texture buffers (jME bug). Switched to jPCT 1.24.

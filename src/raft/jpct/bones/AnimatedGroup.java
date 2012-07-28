@@ -221,8 +221,15 @@ public class AnimatedGroup implements java.io.Serializable, Iterable<Animated3D>
 	 * @see #animateSkin(float, int) */
 	public void setAutoApplyAnimation(boolean autoApplyAnimation) {
 		this.autoApplyAnimation = autoApplyAnimation;
-		for (Animated3D so : objects) {
-			so.setAutoApplyAnimation(autoApplyAnimation);
+		for (Animated3D a : objects) {
+			a.setAutoApplyAnimation(autoApplyAnimation);
+		}
+	}
+	
+	/** Sets visibility of all objects in group. */
+	public void setVisibility(boolean visible) {
+		for (Animated3D a : objects) {
+			a.setVisibility(visible);
 		}
 	}
 
