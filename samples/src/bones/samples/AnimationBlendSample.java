@@ -75,10 +75,11 @@ public class AnimationBlendSample extends AbstractSample {
 	
 	protected AnimatedGroup createAnimatedGroup() throws Exception {
 		// we only specify the mesh file, skeleton file automatically loaded, and should be in same directory.  
-		URL ninjaUrl = new File("./samples/data/blend/cylinder.mesh.xml").toURI().toURL();
+		URL meshUrl = new File("./samples/data/blend/cylinder.mesh.xml").toURI().toURL();
+//		URL meshUrl = new File("/home/raft/tmp2/bones_dog/dog.mesh.xml").toURI().toURL();
 		
 		OgreLoader loader = new OgreLoader();
-		OgreEntityNode node = loader.loadModel(ninjaUrl);
+		OgreEntityNode node = loader.loadModel(meshUrl);
 
 		AnimatedGroup group = BonesImporter.importOgre(node, 2f, new Quaternion().rotateX((float)Math.PI));
 		// we will use blending, so we need to disable auto applying 

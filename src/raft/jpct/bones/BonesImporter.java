@@ -407,10 +407,7 @@ public class BonesImporter {
 		com.jme.math.Vector3f tx = bone.getInitialPos();
 		com.jme.math.Quaternion rot = bone.getInitialRot();
 		
-		com.jmex.model.ogrexml.anim.Bone root = bone;
-		while (root.getParent() != null) {
-			root = root.getParent();
-		}
+//		Matrix local = (bone.getParent() == null) ? new Matrix() : convertQuaternion(rot).getRotationMatrix(); 
 		
 		Matrix local = convertQuaternion(rot).getRotationMatrix();
 		local.translate(tx.x, tx.y, tx.z);
@@ -516,11 +513,11 @@ public class BonesImporter {
 			
 			Matrix m = convertQuaternion(track.getRotations()[sampleIndex]).getRotationMatrix();
 			com.jme.math.Vector3f tx = track.getTranslations()[sampleIndex];
-			m.translate(tx.x, tx.y, tx.z);
 
 			m.matMul(joint.getBindPose()); // -> take to joint object space
+			m.translate(tx.x, tx.y, tx.z);
+			
 			if (joint.hasParent()) {
-				// TODO uncomment for previous behaviour
 				// remove parent transform -> take to joint local space 
 				m.matMul(parentJoint.getInverseBindPose());
 			}
