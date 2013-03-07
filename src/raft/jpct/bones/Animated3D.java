@@ -192,6 +192,11 @@ public class Animated3D extends Object3D implements Cloneable {
 		}
 	}
 	
+	/** Returns skin data if any. This method always returns a copy of SkinData so modifying it has no effect. */
+	public SkinData getSkinData() {
+		return (skin == null) ? null : skin.clone();
+	}
+	
 	/** If this object is called via Ardor3D's or jME's loader, calling this method saves some memory. */
 	public void discardMeshData() {
 		meshData = null;

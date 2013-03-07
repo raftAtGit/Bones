@@ -21,17 +21,20 @@ public class SkinData implements java.io.Serializable {
 	 * @param jointIndices which joints effect which vertices   
 	 * */
 	public SkinData(float[][] weights, short[][] jointIndices) {
-		this.weights = new float[weights.length][];
-		this.jointIndices = new short[jointIndices.length][];
+		this.weights = copyWeights(weights);
+		this.jointIndices = copyIndices(jointIndices);
 		
-		for (int i = 0; i < weights.length; i++) {
-			this.weights[i] = new float[weights[i].length];
-			System.arraycopy(weights[i], 0, this.weights[i], 0, weights[i].length);
-		}
-		for (int i = 0; i < jointIndices.length; i++) {
-			this.jointIndices[i] = new short[jointIndices[i].length];
-			System.arraycopy(jointIndices[i], 0, this.jointIndices[i], 0, jointIndices[i].length);
-		}
+//		this.weights = new float[weights.length][];
+//		this.jointIndices = new short[jointIndices.length][];
+//		
+//		for (int i = 0; i < weights.length; i++) {
+//			this.weights[i] = new float[weights[i].length];
+//			System.arraycopy(weights[i], 0, this.weights[i], 0, weights[i].length);
+//		}
+//		for (int i = 0; i < jointIndices.length; i++) {
+//			this.jointIndices[i] = new short[jointIndices[i].length];
+//			System.arraycopy(jointIndices[i], 0, this.jointIndices[i], 0, jointIndices[i].length);
+//		}
 	}
 	
 //	private SkinData(ObjectInputStream in) throws IOException {
@@ -39,6 +42,22 @@ public class SkinData implements java.io.Serializable {
 //		this.jointIndices = BonesIO.readShort2Array(in);
 //	} 
 	
+	/** Returns a deep copy of this SkinData. */
+	@Override
+	public SkinData clone() {
+		return new SkinData(this.weights, this.jointIndices); 
+	}
+	
+	/** Returns a copy of weights array. */
+	public float[][] getWeights() {
+		return copyWeights(weights);
+	}
+
+	/** Returns a copy of joint indices array. */
+	public short[][] getJointIndices() {
+		return copyIndices(jointIndices);
+	}
+
 	void checkAlmostEqual(SkinData other) {
 		if (weights.length != other.weights.length)
 			throw new IllegalArgumentException("Number of vertices differ!");
@@ -60,5 +79,28 @@ public class SkinData implements java.io.Serializable {
 //			BonesIO.writeShort2Array(out, object.jointIndices);
 //		}
 //	}
+	
+	private static float[][] copyWeights(float[][] weights) {
+		float[][] copy = new float[weights.length][];
+		
+		for (int i = 0; i < weights.length; i++) {
+			copy[i] = new float[weights[i].length];
+			System.arraycopy(weights[i], 0, copy[i], 0, weights[i].length);
+		}
+		
+		return copy;
+	} 
+
+	private static short[][] copyIndices(short[][] indices) {
+		short[][] copy = new short[indices.length][];
+		
+		for (int i = 0; i < indices.length; i++) {
+			copy[i] = new short[indices[i].length];
+			System.arraycopy(indices[i], 0, copy[i], 0, indices[i].length);
+		}
+		
+		return copy;
+	} 
+	
 	
 }
