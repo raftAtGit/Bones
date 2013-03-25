@@ -172,6 +172,7 @@ public class ProceduralAnimationSample extends AbstractSample {
     private void updateBallLocation() {
 		float seconds = totalTime / 1000f;
 		
+		// a circular path
 		SimpleVector ballPos = new SimpleVector(Math.sin(seconds) * 5, -Math.cos(seconds) * 5 - 10, -5);
         
          //Neck
