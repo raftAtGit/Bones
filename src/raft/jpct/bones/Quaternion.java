@@ -310,10 +310,10 @@ public class Quaternion implements java.io.Serializable, Cloneable {
     }
 
     /**
-     * Adds another Quaternion to this Quaternion.
+     * Calculates the difference vector of two Quaternions.
      * 
-     * @param quat the Quaternion to add
-     * @return this Quaternion for chaining
+     * @param quat the second Quaternion
+     * @return the difference vector between "this" and "quat"
      */
     public Quaternion calcSub(final Quaternion quat) {
         return new Quaternion(this.x - quat.x, this.y - quat.y, this.z - quat.z, this.w - quat.w);
