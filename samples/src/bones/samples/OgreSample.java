@@ -38,6 +38,7 @@ public class OgreSample extends AbstractSkinSample {
 		// we only specify the mesh file, skeleton file automatically loaded, and should be in same directory.  
 		URL meshUrl = new File("./samples/data/ninja/ninja.mesh.xml").toURI().toURL();
 		
+		
 		OgreLoader loader = new OgreLoader();
 		OgreEntityNode node = loader.loadModel(meshUrl);
 

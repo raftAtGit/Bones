@@ -11,11 +11,7 @@
 	<classpathentry kind="lib" path="lib/ardor-core-0.7-beta.jar" sourcepath="lib/src/ardor-core-0.7-beta-src.jar"/>
 	<classpathentry kind="lib" path="lib/jme-2.1.jar" sourcepath="lib/src/jme-2.1-src.jar"/>
 	<classpathentry kind="lib" path="lib/jme-model-2.1.jar" sourcepath="lib/src/jme-model-2.1-src.jar"/>
-	<classpathentry kind="lib" path="lib/jpct-1.24.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="http://www.jpct.net/doc/"/>
-		</attributes>
-	</classpathentry>
 	<classpathentry kind="lib" path="lib/jme-ogrexml-2.1.jar" sourcepath="lib/src/jme-ogrexml-2.1-src.jar"/>
+	<classpathentry kind="lib" path="lib/jpct-1.26.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
