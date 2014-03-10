@@ -80,6 +80,8 @@ public class Animated3D extends Object3D implements Cloneable {
     
 	private boolean autoApplyAnimation = true;
 	
+	private float scaleX = 1, scaleY = 1, scaleZ = 1;
+	
 	// TODO maybe add a method createAnimationSequence() to create jPCT mesh animation sequence
 
 	/** 
@@ -163,6 +165,20 @@ public class Animated3D extends Object3D implements Cloneable {
 		this.poseClipSequence = (PoseClipSequence) in.readObject();
 	}
 	
+	/** <p>Sets the scaling of Animated3D. Scaling may be non-uniform (i.e. x-y-z scaling may be different).
+	 * Note however normals aren't updated in according to scaling, so if x-y-z scaling differ a lot
+	 * lighting artifacts may occur.</p>
+	 * 
+	 * @param sX scaling at X axis
+	 * @param sY scaling at Y axis
+	 * @param sZ scaling at Z axis
+	 *   */
+	public void setScale(float sX, float sY, float sZ) {
+		this.scaleX = sX; 
+		this.scaleY = sY; 
+		this.scaleZ = sZ; 
+	}
+	
 	/** Returns the skeleton pose used for animation. */
 	public SkeletonPose getSkeletonPose() {
 		return currentPose;
@@ -230,9 +246,32 @@ public class Animated3D extends Object3D implements Cloneable {
 	
 	/** Applies animation to mesh. */
 	public void applyAnimation() {
+		maybeDoScale();
 		vertexController.updateMesh();
 		touch();
 		destMeshDirty = true;
+	}
+
+	/** applies the scaling to destination mesh */
+	private void maybeDoScale() {
+		if ((scaleX == 1) && (scaleY == 1) && (scaleZ == 1))
+			return;
+		
+        float scaleX = this.scaleX;
+        float scaleY = this.scaleY;
+        float scaleZ = this.scaleZ;
+        
+        SimpleVector[] destMesh = this.destMesh;
+        int end = sourceMesh.length;
+        
+        for (int i = 0; i < end; i++) {
+        	SimpleVector vertex = destMesh[i];
+        	
+            // apply the scaling if any
+            if (scaleX != 1) vertex.x *= scaleX;
+            if (scaleY != 1) vertex.y *= scaleY;
+            if (scaleZ != 1) vertex.z *= scaleZ;
+        }        
 	}
 	
 	/** <p>Animates this object using assigned {@link SkinClipSequence}. 
@@ -442,8 +481,8 @@ public class Animated3D extends Object3D implements Cloneable {
         short[][] skinJointIndices = skin.jointIndices;
         
         // Cycle through each vertex
-        int end = sourceMesh.length;
-        for (int i = 0; i < end; i++) {
+        int count = sourceMesh.length;
+        for (int i = 0; i < count; i++) {
             // zero out our sum var
             vertexSum.x = 0f;
             vertexSum.y = 0f;

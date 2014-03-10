@@ -18,7 +18,7 @@ public class BonesIO {
 
 	private static final String HEADER_GROUP = "Bones-Group";
 	private static final String HEADER_OBJECT = "Bones-Object";
-	private static final short VERSION = 3;
+	private static final short VERSION = 4;
 	
 	static final int NULL = -1;
 	static final int NON_NULL = 0;
@@ -55,14 +55,18 @@ public class BonesIO {
 	 * @see Animated3D
 	 * @see #saveObject(Animated3D, OutputStream) 
 	 * */
-	public static Animated3D loadObject(InputStream in) throws IOException, ClassNotFoundException {
+	public static Animated3D loadObject(InputStream in) throws IOException {
 		if (!(in instanceof BufferedInputStream)) {
 			Logger.log("Wrapping input stream in a BufferedInputStream", Logger.MESSAGE);
 			in = new BufferedInputStream(in);
 		}
 		ObjectInputStream oin = new ObjectInputStream(in);
 		readHeader(oin, HEADER_OBJECT);
-		return new Animated3D(oin);
+		try {
+			return new Animated3D(oin);
+		} catch (ClassNotFoundException e) {
+			throw new IOException(e);
+		}
 	}
 	
 	/** 
@@ -72,14 +76,18 @@ public class BonesIO {
 	 * @see AnimatedGroup
 	 * @see #saveGroup(AnimatedGroup, OutputStream) 
 	 * */
-	public static AnimatedGroup loadGroup(InputStream in) throws IOException, ClassNotFoundException {
+	public static AnimatedGroup loadGroup(InputStream in) throws IOException {
 		if (!(in instanceof BufferedInputStream)) {
 			Logger.log("Wrapping input stream in a BufferedInputStream", Logger.MESSAGE);
 			in = new BufferedInputStream(in);
 		}
 		ObjectInputStream oin = new ObjectInputStream(in);
 		readHeader(oin, HEADER_GROUP);
-		return new AnimatedGroup(oin);
+		try {
+			return new AnimatedGroup(oin);
+		} catch (ClassNotFoundException e) {
+			throw new IOException(e);
+		}
 	}
 
 	private static void writeHeader(java.io.ObjectOutputStream out, String header) throws IOException {
