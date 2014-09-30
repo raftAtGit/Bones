@@ -1,5 +1,5 @@
 echo off
-set DIR=%~dp0\..
+set DIR="%~dp0\.."
 
 set CP=%DIR%\build\bones.jar
 set CP=%CP%;%DIR%\lib\jpct-1.26.jar
