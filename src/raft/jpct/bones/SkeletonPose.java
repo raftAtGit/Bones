@@ -13,10 +13,13 @@ public class SkeletonPose implements java.io.Serializable {
 	private static final long serialVersionUID = 1L;
 	
 	final Skeleton skeleton; 
+	
 	/** transforms in object space */
 	final Matrix[] globals;
+	
 	/** transforms in joint space */
 	final Matrix[] locals;
+	
 	/** the transform which can directly be applied to a mesh vertex */
 	final Matrix[] palette;
 	

@@ -16,7 +16,7 @@ import com.threed.jpct.World;
  * <p>This class is adapted from <a href="http://www.ardor3d.com">Ardor3D.</a></p>
  */
 public class SkeletonDebugger {
-	private static final long serialVersionUID = 1L;
+	//private static final long serialVersionUID = 1L;
 	
 	/** Minimum length of a bone. Sometimes joints may overlap,
 	 * resulting bones will not have a length of zero but this value. */
@@ -72,11 +72,17 @@ public class SkeletonDebugger {
         		continue;
         		
             jointObjects[i] = createJoint(pose.globals[i]);
+            jointObjects[i].setName((skeleton.joints[i].getName() == null) ? "joint_" + i : skeleton.joints[i].getName());
+            //System.out.println(jointObjects[i].getName());
             
             if (skeleton.joints[i].hasParent()) {
 	            final int parentIndex = skeleton.joints[i].getParentIndex();
-	            if (!ignoredJoints.get(parentIndex))
+	            if (!ignoredJoints.get(parentIndex)) {
 	            	boneObjects[i] = createBone(pose.globals[parentIndex], pose.globals[i]);
+	            	// parent's joint object will not be null here as skeleton joints are ordered such that parents always come first 
+	            	boneObjects[i].setName(jointObjects[parentIndex].getName() + " -> " + jointObjects[i].getName());
+	                //System.out.println(boneObjects[i].getName());
+	            }
             }
         }
 	}
