@@ -196,14 +196,26 @@ public class Animated3D extends Object3D implements Cloneable {
 		return skeleton;
 	}
 
-	void replaceSkeleton(Skeleton skeleton) {
-		this.skeleton.checkAlmostEqual(skeleton);
-		this.skeleton = skeleton;
-		setSkeletonPose(new SkeletonPose(skeleton));
+//	void replaceSkeleton(Skeleton skeleton) {
+//		this.skeleton.checkAlmostEqual(skeleton);
+//		this.skeleton = skeleton;
+//		setSkeletonPose(new SkeletonPose(skeleton));
+//		
+//		if (skinClipSequence != null) {
+//			for (SkinClip clip : skinClipSequence) {
+//				clip.replaceSkeleton(skeleton);
+//			}
+//		}
+//	}
+	
+	void replaceSkeletonPose(SkeletonPose pose) {
+		this.skeleton.checkAlmostEqual(pose.skeleton);
+		this.skeleton = pose.skeleton;
+		setSkeletonPose(pose);
 		
 		if (skinClipSequence != null) {
 			for (SkinClip clip : skinClipSequence) {
-				clip.replaceSkeleton(skeleton);
+				clip.replaceSkeleton(pose.skeleton);
 			}
 		}
 	}

@@ -3,6 +3,8 @@ package raft.jpct.bones;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 import com.threed.jpct.Object3D;
@@ -321,16 +323,16 @@ public class AnimatedGroup implements java.io.Serializable, Iterable<Animated3D>
 	}
 	
 	/** throws an exception if given two groups does not have identical skeletons. */
-//	private static void checkIdenticalSkeleton(AnimatedGroup one, AnimatedGroup other) {
-//		Skeleton skeleton1 = one.objects[0].getSkeleton();
-//		Skeleton skeleton2 = other.objects[0].getSkeleton();
-//		
-//		if ((skeleton1 == null) ^ (skeleton2 == null))
-//			throw new IllegalArgumentException("one group has skeleton but other does not");
-//		
-//		if (skeleton1 != null)
-//			skeleton1.checkAlmostEqual(skeleton2);
-//	}
+	private static void checkIdenticalSkeleton(AnimatedGroup one, AnimatedGroup other) {
+		Skeleton skeleton1 = one.objects[0].getSkeleton();
+		Skeleton skeleton2 = other.objects[0].getSkeleton();
+		
+		if ((skeleton1 == null) ^ (skeleton2 == null))
+			throw new IllegalArgumentException("one group has skeleton but other does not");
+		
+		if (skeleton1 != null)
+			skeleton1.checkAlmostEqual(skeleton2);
+	}
 	
 	
 	/** 
@@ -388,33 +390,37 @@ public class AnimatedGroup implements java.io.Serializable, Iterable<Animated3D>
 	 * 
 	 * */
 	// TODO is not correct at the moment
-//	static AnimatedGroup mergeGroups(AnimatedGroup... groups) {
-//		if (groups.length == 0)
-//			throw new IllegalArgumentException("no groups");
-//		
-//		List<Animated3D> objects = new LinkedList<Animated3D>();
-//		AnimatedGroup lastGroup = null;
-//
+	public static AnimatedGroup mergeGroups(AnimatedGroup... groups) {
+		if (groups.length == 0)
+			throw new IllegalArgumentException("no groups");
+		
+		List<Animated3D> objects = new LinkedList<Animated3D>();
+		AnimatedGroup lastGroup = null;
+
 //		Skeleton skeleton = groups[0].get(0).getSkeleton();
-//		
-//		for (AnimatedGroup group : groups) {
-//			if (lastGroup == null) {
-//				lastGroup = group;
-//			} else {
-//				checkIdenticalSkeleton(lastGroup, group);
-//				lastGroup = group;
-//			}
-//			for (Animated3D object : group) {
-//				objects.add(object);
-//				if (skeleton != null)
-//					object.replaceSkeleton(skeleton);
-//			}
-//		}
-//		
-//		Animated3D[] objectsArray = objects.toArray(new Animated3D[0]);
-//		// TODO objectIndex of MeshChannel's in PoseClips should be shifted accordingly 
-//		return new AnimatedGroup(objectsArray, objectsArray[0].getSkinClipSequence(), objectsArray[0].getPoseClipSequence());
-//	}
+		SkeletonPose skeletonPose = groups[0].get(0).getSkeletonPose();
+		
+		for (AnimatedGroup group : groups) {
+			if (group.getPoseClipSequence() != null)
+				throw new UnsupportedOperationException("groups with pose animation cannot be merged at the moment");
+			
+			if (lastGroup == null) {
+				lastGroup = group;
+			} else {
+				checkIdenticalSkeleton(lastGroup, group);
+				lastGroup = group;
+			}
+			for (Animated3D object : group) {
+				objects.add(object);
+				if (skeletonPose != null)
+					object.replaceSkeletonPose(skeletonPose);
+			}
+		}
+		
+		Animated3D[] objectsArray = objects.toArray(new Animated3D[0]);
+		// TODO objectIndex of MeshChannel's in PoseClips should be shifted accordingly 
+		return new AnimatedGroup(objectsArray, objectsArray[0].getSkinClipSequence(), objectsArray[0].getPoseClipSequence());
+	}
 	
 	/** 
 	 * Same as clone(MESH_REUSE) 
