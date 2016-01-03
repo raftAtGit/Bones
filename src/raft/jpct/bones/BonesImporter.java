@@ -160,7 +160,11 @@ public class BonesImporter {
 			for (int i = 0; i < jmeSkeleton.getBoneCount(); i++) {
 				jmeBones.add(jmeSkeleton.getBone(i));
 			}
-			// sort bones such that parents always comes before 
+			if (jmeBones.size() > 255)
+				throw new IllegalArgumentException("Ogre3D skeleton's with more than 255 bones is not supported. "
+						+ "get angry to the idiot in jME which casts bone index to a byte!");
+			
+			// sort bones such that parents always comes first 
 			Collections.sort(jmeBones, new Comparator<com.jmex.model.ogrexml.anim.Bone>() {
 				public int compare(com.jmex.model.ogrexml.anim.Bone b1, com.jmex.model.ogrexml.anim.Bone b2) {
 					return getDepth(b1) - getDepth(b2);
@@ -177,6 +181,8 @@ public class BonesImporter {
 				}
 			});
 			assert (ordered(jmeBones));
+			
+			// store the original ordering of jME bones into an array
 			jointOrder = new int[jmeBones.size()];
 			for (int i = 0; i < jointOrder.length; i++) {
 				jointOrder[i] = jmeSkeleton.getBoneIndex(jmeBones.get(i));
@@ -570,16 +576,21 @@ public class BonesImporter {
     private static SkinData convertJMESkinData(OgreMesh ogreMesh, int[] jointOrder) {
     	float[][] weights = SkinHelper.asArray(ogreMesh.getWeightBuffer().getWeights(), Skeleton.MAX_JOINTS_PER_VERTEX);
     	short[][] jointIndices = SkinHelper.asShortArray(ogreMesh.getWeightBuffer().getIndexes(), Skeleton.MAX_JOINTS_PER_VERTEX); 
+    	short[][] newJointIndices = new short[jointIndices.length][jointIndices[0].length]; 
     	
     	for (int i = 0; i < weights.length; i++) {
     		for (int j = 0; j < weights[i].length; j++) {
     			if (weights[i][j] == 0)
     				continue;
-    			jointIndices[i][j] = (short)indexOf(jointOrder, jointIndices[i][j]);
+//    			// TODO are we safe to do this? i.e. is there a possibility we use a modified value later in the loop?
+//    			jointIndices[i][j] = (short)indexOf(jointOrder, jointIndices[i][j]);
+    			
+    			// just to be sure for above comment. wont hurt
+    			newJointIndices[i][j] = (short)indexOf(jointOrder, jointIndices[i][j]);
     		}
     	}
     	
-		return new SkinData(weights, jointIndices);
+		return new SkinData(weights, newJointIndices);
 	}
 	
     private static MeshChannel convertJMEMeshChannel(Map<com.jmex.model.ogrexml.anim.Pose, MeshPose> poseCache, com.jmex.model.ogrexml.anim.PoseTrack poseTrack) {

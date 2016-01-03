@@ -22,6 +22,12 @@
     <body>
     	<h2>Bones - Version History</h2>
     	
+        <h3>3 January 2016: </h3>
+        <p class="item">Re-enabled commented out code to merge groups (instead of animations) in both importers. It's tested
+        and working for Ogre3D importer but not tested for Collada importer (since I have no samples). Put a guard against
+        Ogre3D skeletons which have more than 255 bones. Get angry to the idiot in jME which casts bone index to a byte!
+        Fixed a possible bug which may cause Ogre3D bone assignments are incorrectly imported.</p>
+        
         <h3>4 March 2015: </h3>
         <p class="item">Switched to jPCT 1.29 in Android demo application. Fixed <i>ninja.group.bones</i> in Android demo application. 
         Added a link to Android Studio version of Android demo application (It is maintained by community member Moodroid).</p>

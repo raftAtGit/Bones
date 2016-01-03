@@ -32,7 +32,7 @@ public class ArdorColladaImporter {
 	private final List<File> inputFiles;
 	private final float scale;
 	private final Quaternion rotation;
-//	private boolean mergeAnimations = true;
+	private boolean mergeAnimations = true;
 	
 	/** 
 	 * Creates a new importer with given parameters.
@@ -60,10 +60,10 @@ public class ArdorColladaImporter {
 	 *  
 	 * @param mergeAnimations merge animations or groups
 	 * @return this for chaining */
-//	public ArdorColladaImporter setMergeAnimations(boolean mergeAnimations) {
-//		this.mergeAnimations = mergeAnimations;
-//		return this;
-//	}
+	public ArdorColladaImporter setMergeAnimations(boolean mergeAnimations) {
+		this.mergeAnimations = mergeAnimations;
+		return this;
+	}
 	
 	/** Executes the importer. */
 	public void run() throws Exception {
@@ -92,15 +92,15 @@ public class ArdorColladaImporter {
 			for (File input : inputFiles) {
 				groups.add(loadGroup(input));
 			}
-			Logger.log("Merging animations in multiple input files", Logger.MESSAGE);
-			return AnimatedGroup.mergeAnimations(groups.toArray(new AnimatedGroup[groups.size()]));
-//			if (mergeAnimations) {
-//				Logger.log("Merging animations in multiple input files", Logger.MESSAGE);
-//				return AnimatedGroup.mergeAnimations(groups.toArray(new AnimatedGroup[groups.size()]));
-//			} else {
-//				Logger.log("Merging groups in multiple input files", Logger.MESSAGE);
-//				return AnimatedGroup.mergeGroups(groups.toArray(new AnimatedGroup[groups.size()]));
-//			}
+//			Logger.log("Merging animations in multiple input files", Logger.MESSAGE);
+//			return AnimatedGroup.mergeAnimations(groups.toArray(new AnimatedGroup[groups.size()]));
+			if (mergeAnimations) {
+				Logger.log("Merging animations in multiple input files", Logger.MESSAGE);
+				return AnimatedGroup.mergeAnimations(groups.toArray(new AnimatedGroup[groups.size()]));
+			} else {
+				Logger.log("Merging groups in multiple input files", Logger.MESSAGE);
+				return AnimatedGroup.mergeGroups(groups.toArray(new AnimatedGroup[groups.size()]));
+			}
 		}
 	}
 	
@@ -135,7 +135,7 @@ public class ArdorColladaImporter {
         ps.println("    -out <destination file>                         : destination file to write");
         ps.println("    -scale <scale>                                  : loading scale, default 1");
         ps.println("    -rotation <<x|y|zdegrees>[,x|y|zdegrees]...>    : loading rotation, default none (sample: x180,y180)");
-//        ps.println("    -mergeGroups                                    : merge groups if many input files are given. by default animations are merged");
+        ps.println("    -mergeGroups                                    : merge groups if many input files are given. by default animations are merged");
         ps.println("    -h | -help                                      : print help");
         ps.println("    -log <logLevel: VERBOSE*|WARNING|ERROR>         : set log level");
     }
@@ -168,13 +168,13 @@ public class ArdorColladaImporter {
         Quaternion rotation = comLine.containsArg("-rotation") ? 
         		Helper.parseRotation(comLine.getArg("-rotation")) : null; 
         
-//        boolean mergeAnimations = !comLine.containsArg("-mergeGroups");
+        boolean mergeAnimations = !comLine.containsArg("-mergeGroups");
         		
         if (comLine.isUnconsumed())
             throw new IllegalArgumentException("Unknown args: " + comLine.getUnconsumed());
         
-//        new ArdorColladaImporter(outFile, inputFiles, scale, rotation).setMergeAnimations(mergeAnimations).run();
-        new ArdorColladaImporter(outFile, inputFiles, scale, rotation).run();
+        new ArdorColladaImporter(outFile, inputFiles, scale, rotation).setMergeAnimations(mergeAnimations).run();
+//        new ArdorColladaImporter(outFile, inputFiles, scale, rotation).run();
         
 	}
 }

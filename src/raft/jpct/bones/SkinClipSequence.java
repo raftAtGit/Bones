@@ -141,7 +141,7 @@ public class SkinClipSequence implements java.io.Serializable, Iterable<SkinClip
 
 	
 	/** 
-	 * <p>Merges many <code>SkinClipSequence<code>s into one. This method
+	 * <p>Merges many <code>SkinClipSequence</code>s into one. This method
 	 * does not require all ClipSequences share the same {@link Skeleton}
 	 * but skeletons are <i>almost</i> identical.</p>
 	 * 
