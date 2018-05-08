@@ -99,6 +99,38 @@ public class JointChannel implements java.io.Serializable {
 		return times.length;
 	}
 	
+	/** returns a copy of times array */
+	public float[] getTimes() {
+		return Arrays.copyOf(times, times.length);
+	}
+
+	/** returns a copy of rotations array */
+	public Quaternion[] getRotations() {
+		Quaternion[] copy = new Quaternion[rotations.length];
+		for (int i = 0; i < copy.length; i++) {
+			copy[i] = rotations[i].clone();
+		}
+		return copy;
+	}
+
+	/** returns a copy of translations array */
+	public SimpleVector[] getTranslations() {
+		SimpleVector[] copy = new SimpleVector[translations.length];
+		for (int i = 0; i < copy.length; i++) {
+			copy[i] = new SimpleVector(translations[i]);
+		}
+		return copy;
+	}
+
+	/** returns a copy of scales array */
+	public SimpleVector[] getScales() {
+		SimpleVector[] copy = new SimpleVector[scales.length];
+		for (int i = 0; i < copy.length; i++) {
+			copy[i] = new SimpleVector(scales[i]);
+		}
+		return copy;
+	}
+	
 	/** 
 	 * applies channel data to given matrix. given seconds should be in [0,time] range, otherwise clamped.  
 	 * */
