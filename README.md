@@ -17,7 +17,7 @@ Bones is a small animation library for [jPCT](http://www.jpct.net/). It supports
 
 Bones is definitely free software with a *"Do whatever with it"* license. **However**, please note, adapted sources and sample model data may still be subject to provider's license terms.
 
-Bones initially started as a partial/modified port of Ardor3D's animation system to jPCT. Then it evolved to match jPCT semantics and load [Ogre3D](https://www.ogre3d.org/) skins and pose animations.
+Bones initially started as a partial/modified port of [Ardor3D](https://github.com/Renanse/Ardor3D)'s animation system to jPCT. Then it evolved to match jPCT semantics and load [Ogre3D](https://www.ogre3d.org/) skins and pose animations.
 
 ## [Features](#Features)
 
@@ -27,7 +27,7 @@ Bones is pure Java and requires at least Java version 1.5. Bones can run on Andr
 
 ## [Supported formats](#Supported-formats)
 
-**Collada:** Bones can load [Collada](http://www.collada.org/) animation files via Ardor3D's Collada loader. Only mesh data, texture coordinates and skeletal animation data is loaded.
+**Collada:** Bones can load [Collada](http://www.collada.org/) animation files via [Ardor3D](https://github.com/Renanse/Ardor3D)'s Collada loader. Only mesh data, texture coordinates and skeletal animation data is loaded.
 
 **Ogre3D:** Bones can load [Ogre3D](http://www.ogre3d.org/) animation files via [jME](https://jmonkeyengine.org/)'s OgreXml loader. Only mesh data, texture coordinates and skeletal and pose animation data is loaded.
 
