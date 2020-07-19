@@ -37,7 +37,9 @@ Command line scripts are provided to ease importing process.
 
 ## [Download](#Download)
 
-Pre-built releases can be found at [releases](releases) page.
+Pre-built releases can be found at [releases](https://github.com/raftAtGit/Bones/releases) page.
+
+An Android demo application can be downloaded from [here](http://www.aptalkarga.com/bones/bones_android_demo.zip). It contains the source code, jPCT Android version and Eclipse project files. Android Studio version of same project can be downloaded from [here](http://jpct.de/download/others/AndroidStudioBonesDemo.tar.gz) (It is maintained by community member Moodroid). It can be directly installed to an Android phone from this [link](http://www.aptalkarga.com/bones/Bones-Android-Ninja.apk).
 
 ## [Feedback](#Feedback)
 
